@@ -1,16 +1,23 @@
 #!/bin/bash -x
 
+# Turn off SELinux
+setenforce 0
+
 # Set working dir
-cd /home/ubuntu
+cd /home/opc
 
-# Install Docker dependencies
-until apt-get install -y aufs-tools cgroupfs-mount libltdl7; do sleep 1 && echo -n "."; done
-
-# Download Docker
-curl -L --retry 3 https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/${docker_ver}.deb -o /tmp/${docker_ver}.deb
+# enable ol7 addons
+yum-config-manager --disable ol7_UEKR3
+yum-config-manager --enable ol7_addons ol7_latest ol7_UEKR4 ol7_optional ol7_optional_latest
 
 # Install Docker
-until dpkg -i /tmp/${docker_ver}.deb; do sleep 1 && echo -n "."; done
+until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
+
+# Start Docker
+systemctl daemon-reload
+systemctl restart docker
+
+docker info
 
 ###################
 # Drop firewall rules
@@ -28,7 +35,7 @@ FQDN_HOSTNAME="$(getent hosts $IP_LOCAL | awk '{print $2}')"
 
 docker run -d \
 	-p 2380:2380 -p 2379:2379 \
-	-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt \
+	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
 	--net=host \
 	quay.io/coreos/etcd:${etcd_ver} \
 	/usr/local/bin/etcd \
@@ -62,7 +69,3 @@ done
 
 # put the flannel config in etcd
 curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json
-
-# make sure ubuntu owns home dir
-chown ubuntu:ubuntu /home/ubuntu
-

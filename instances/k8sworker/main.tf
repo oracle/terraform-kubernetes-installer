@@ -12,10 +12,11 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
   shape               = "${var.shape}"
   subnet_id           = "${var.subnet_id}"
 
-  metadata {
+  extended_metadata {
     roles               = "nodes"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${data.template_cloudinit_config.master.rendered}"
+    tags = "group:k8s-worker"
   }
 
   provisioner "remote-exec" {
@@ -32,7 +33,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
 
     connection {
       host        = "${self.public_ip}"
-      user        = "ubuntu"
+      user        = "opc"
       private_key = "${var.ssh_private_key}"
       agent       = false
       timeout     = "30s"

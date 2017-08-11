@@ -186,7 +186,7 @@ variable "api_server_admin_token" {
 }
 
 variable "docker_ver" {
-  default = "docker-ce_17.03.0~ce-0~ubuntu-xenial_amd64"
+  default = "17.03.1.ce"
 }
 
 variable "etcd_ver" {
@@ -210,5 +210,5 @@ variable "k8s_dns_ver" {
 }
 
 variable "instance_os_ver" {
-  default = "16.04"
+  default = "7.4"
 }

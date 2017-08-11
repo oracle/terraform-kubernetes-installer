@@ -1,13 +1,17 @@
 #cloud-config
 
+bootcmd:
+  # Turn off SELinux
+  - setenforce 0
+
 write_files:
 # setup script
-  - path: "/tmp/setup.preflight.sh"
+  - path: "/root/setup.preflight.sh"
     permissions: "0777"
     encoding: b64
     content: |
       ${setup_preflight_sh_content}
-  - path: "/tmp/setup.sh"
+  - path: "/root/setup.sh"
     permissions: "0777"
     encoding: b64
     content: |
@@ -25,31 +29,31 @@ write_files:
       ${worker_kubeconfig_template_content}
 
 # systemd services
-  - path: "/home/ubuntu/services/docker.service"
+  - path: "/root/services/docker.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${docker_service_content}
 
-  - path: "/home/ubuntu/services/flannel.service"
+  - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${flannel_service_content}
 
-  - path: "/home/ubuntu/services/cni-bridge.service"
+  - path: "/root/services/cni-bridge.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${cnibridge_service_content}
 
-  - path: "/home/ubuntu/services/cni-bridge.sh"
+  - path: "/root/services/cni-bridge.sh"
     permissions: "0600"
     encoding: b64
     content: |
       ${cnibridge_sh_content}
 
-  - path: "/home/ubuntu/services/kubelet.service"
+  - path: "/root/services/kubelet.service"
     permissions: "0600"
     encoding: b64
     content: |
@@ -80,5 +84,5 @@ write_files:
 
 runcmd:
  - echo "Running k8s init..."
- - /tmp/setup.preflight.sh
+ - /root/setup.preflight.sh
  - echo "Finished k8s init."

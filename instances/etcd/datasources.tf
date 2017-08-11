@@ -1,7 +1,7 @@
-# Cloud call to get the OCID of the OS image to use
+# Gets the OCID of the OS image to use
 data "oci_core_images" "ImageOCID" {
   compartment_id           = "${var.compartment_ocid}"
-  operating_system         = "Canonical Ubuntu"
+  operating_system         = "Oracle Linux"
   operating_system_version = "${var.instance_os_ver}"
 }
 

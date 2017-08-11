@@ -22,11 +22,11 @@ variable "label_prefix" {
 variable "ssh_public_key_openssh" {}
 
 variable "docker_ver" {
-  default = "docker-ce_17.03.0~ce-0~ubuntu-xenial_amd64"
+  default = "17.03.1.ce"
 }
 
 variable "instance_os_ver" {
-  default = "16.04"
+  default = "7.4"
 }
 
 variable "etcd_ver" {

@@ -4,9 +4,6 @@ EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
 NAMESPACE=$(echo -n "${domain_name}" | sed "s/\.oraclevcn\.com//g")
 FQDN_HOSTNAME=$(getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}')
 
-# make sure ubuntu owns home dir
-chown ubuntu:ubuntu /home/ubuntu
-
 # pull instance metadata
 curl -sL --retry 3 http://169.254.169.254/opc/v1/instance/ | tee /tmp/instance_meta.json
 
@@ -21,8 +18,6 @@ export IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip add
 
 SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 export WORKER_IP=$IP_LOCAL
-
-until apt-get update; do sleep 1 && echo -n "."; done
 
 ## download etcdctl client
 ######################################
@@ -41,43 +36,45 @@ curl -L --retry 3 https://github.com/coreos/flannel/releases/download/${flannel_
 	&& chmod 755 /usr/local/bin/flanneld
 export ETCD_SERVER=${etcd_lb}
 echo "IP_LOCAL: $IP_LOCAL ETCD_SERVER: $ETCD_SERVER"
-envsubst </home/ubuntu/services/flannel.service >/etc/systemd/system/flannel.service
+envsubst </root/services/flannel.service >/etc/systemd/system/flannel.service
 systemctl daemon-reload && systemctl enable flannel && systemctl start flannel
 
 ## INSTALL CNI PLUGIN
 ######################################
 mkdir -p /opt/cni/bin /etc/cni/net.d
-# curl --retry 3 https://storage.googleapis.com/kubernetes-release/network-plugins/cni-07a8a28637e97b22eb8dfe710eeae1344f69d16e.tar.gz -o /tmp/cni-plugin.tar.gz
 curl -L --retry 3 https://github.com/containernetworking/cni/releases/download/v0.5.2/cni-amd64-v0.5.2.tgz -o /tmp/cni-plugin.tar.gz
 tar zxf /tmp/cni-plugin.tar.gz -C /opt/cni/bin/
 printf '{\n    "name": "podnet",\n    "type": "flannel",\n    "delegate": {\n        "isDefaultGateway": true\n    }\n}\n' >/etc/cni/net.d/10-flannel.conf
-cp /home/ubuntu/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
-cp /home/ubuntu/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
+cp /root/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
+cp /root/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
 systemctl enable cni-bridge && systemctl start cni-bridge
 
 ###################################### DOCKER ######################################
 
 ## Install Docker prereqs
 ######################################
-apt-get install -y aufs-tools cgroupfs-mount libltdl7
+until yum -y install aufs-tools cgroupfs-mount libltdl7 unzip; do sleep && echo -n "."; done
 
-# Download Docker
-curl -L --retry 3 https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/${docker_ver}.deb -o /tmp/${docker_ver}.deb
+# Stage worker certs
+unzip /tmp/k8s-certs.zip -d /etc/kubernetes/ssl/
 
-# Disable debian autostart of service
-cp /tmp/policy-rc.d /usr/sbin/policy-rc.d
-
-# Disable irqbalance for performance
-apt-get -y remove irqbalance
+# enable ol7 addons
+yum-config-manager --disable ol7_UEKR3
+yum-config-manager --enable ol7_addons ol7_latest ol7_UEKR4 ol7_optional ol7_optional_latest
 
 # Install Docker
-until dpkg -i /tmp/${docker_ver}.deb; do sleep 1 && echo -n "."; done
-systemctl stop docker.service
-rm -f /lib/systemd/system/docker.service && cat /home/ubuntu/services/docker.service >/lib/systemd/system/docker.service
-systemctl daemon-reload && systemctl restart docker
+until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
+systemctl stop docker
 
-# re-enable autostart
-rm -f /usr/sbin/policy-rc.d
+# Disable irqbalance for performance
+service irqbalance stop
+yum -y erase irqbalance
+
+rm -f /lib/systemd/system/docker.service && cat /root/services/docker.service >/lib/systemd/system/docker.service
+systemctl enable docker
+systemctl daemon-reload
+systemctl restart docker
+
 
 ## Add default DNS
 ######################################
@@ -95,16 +92,28 @@ echo "FQDN_HOSTNAME=$FQDN_HOSTNAME" >>/etc/environment_params
 ######################################
 iptables -F
 
-## Update packages
-######################################
-apt-get install -y apt-transport-https
-curl -s --retry 3 https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' >/etc/apt/sources.list.d/kubernetes.list
-apt-get update
 
-## install kubelet
-######################################
-apt-get install -y kubelet=${k8s_ver}-00 kubectl
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+# Disable SELinux and firewall
+setenforce 0
+systemctl stop firewalld.service
+systemctl disable firewalld.service
+
+## Install kubelet, kubectl, and kubernetes-cni
+###############################################
+yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+until yum install -y kubelet-${k8s_ver}-0 kubectl-${k8s_ver}-0; do sleep 1 && echo -n ".";done
+
 until systemctl stop kubelet; do sleep 1; done
 mkdir -p /opt/cni/bin /etc/cni/net.d
 tar zxf /tmp/cni-plugin.tar.gz -C /opt/cni/bin/
@@ -119,7 +128,7 @@ docker pull quay.io/coreos/etcd:${etcd_ver}
 ######################################
 docker run -d \
 	-p 2380:2380 -p 2379:2379 \
-	-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt \
+	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
 	--net=host \
 	--restart=always \
 	quay.io/coreos/etcd:${etcd_ver} \
@@ -149,7 +158,7 @@ sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" \
     -e "s/__NODE_ID_PREFIX__/$NODE_ID_0/g" \
     -e "s/__NODE_ID_SUFFIX__/$NODE_ID_1/g" \
     -e "s/__NODE_SHAPE__/$NODE_SHAPE/g" \
-    /home/ubuntu/services/kubelet.service > /etc/systemd/system/kubelet.service
+    /root/services/kubelet.service > /etc/systemd/system/kubelet.service
 
 ## wait for k8smaster to be available. possible race on pod networks otherwise
 until [ "$(curl -k --cert /etc/kubernetes/ssl/apiserver.pem --key /etc/kubernetes/ssl/apiserver-key.pem $K8S_API_SERVER_LB/healthz 2>/dev/null)" == "ok" ]; do
