@@ -1,0 +1,84 @@
+#cloud-config
+
+write_files:
+# setup script
+  - path: "/tmp/setup.preflight.sh"
+    permissions: "0777"
+    encoding: b64
+    content: |
+      ${setup_preflight_sh_content}
+  - path: "/tmp/setup.sh"
+    permissions: "0777"
+    encoding: b64
+    content: |
+      ${setup_template_sh_content}
+# Kube manifests
+  - path: "/etc/kubernetes/manifests/kube-proxy.yaml"
+    permissions: "0755"
+    encoding: b64
+    content: |
+      ${kube_proxy_template_content}
+  - path: "/etc/kubernetes/manifests/worker-kubeconfig.yaml"
+    permissions: "0755"
+    encoding: b64
+    content: |
+      ${worker_kubeconfig_template_content}
+
+# systemd services
+  - path: "/home/ubuntu/services/docker.service"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${docker_service_content}
+
+  - path: "/home/ubuntu/services/flannel.service"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${flannel_service_content}
+
+  - path: "/home/ubuntu/services/cni-bridge.service"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${cnibridge_service_content}
+
+  - path: "/home/ubuntu/services/cni-bridge.sh"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${cnibridge_sh_content}
+
+  - path: "/home/ubuntu/services/kubelet.service"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${kubelet_service_content}
+
+# Kube certs
+  - path: "/etc/kubernetes/ssl/ca.pem"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${ca-pem-content}
+  - path: "/etc/kubernetes/ssl/ca-key.pem"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${ca-key-content}
+  - path: "/etc/kubernetes/ssl/apiserver.pem"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${api-server-cert-content}
+  - path: "/etc/kubernetes/ssl/apiserver-key.pem"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${api-server-key-content}
+
+
+runcmd:
+ - echo "Running k8s init..."
+ - /tmp/setup.preflight.sh
+ - echo "Finished k8s init."

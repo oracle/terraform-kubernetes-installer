@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+  labels:
+    k8s-app: kube-proxy
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+    scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-proxy
+    image: quay.io/coreos/hyperkube:v${k8s_ver}_coreos.0
+    command:
+    - /hyperkube
+    - proxy
+    - --master=http://127.0.0.1:8080
+    - --proxy-mode=iptables
+    - --cluster-cidr=10.99.0.0/16
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host

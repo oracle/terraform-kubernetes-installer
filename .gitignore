@@ -1,0 +1,14 @@
+.tfstate
+
+# intellij
+*.iml
+*.ipr
+*.iws
+.idea
+
+**/.terraform
+**/terraform.tfstate
+**/terraform.tfstate.backup
+terraform.tfvars
+
+generated/**

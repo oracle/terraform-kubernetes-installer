@@ -1,0 +1,16 @@
+[Unit]
+Description=flannel is an etcd backed network fabric for containers
+Documentation=https://github.com/coreos/flannel
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/flanneld \
+  -ip-masq=true \
+  -iface $IP_LOCAL \
+  -etcd-endpoints $ETCD_SERVER \
+  -etcd-prefix /flannel/network
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
