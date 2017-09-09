@@ -4,17 +4,17 @@
 [SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
 
-# Terraform Kubernetes Installer for Oracle Bare Metal Cloud Services
+# Terraform Kubernetes Installer for Oracle Bare Metal Cloud
 
-## Notes/Issues
+## About
 
-The Kubernetes (K8S) Installer is a set of [Terraform][terraform] modules and an example base 
-configuration that can be used to provision and configure all the resources you need to run a highly available 
-and configurable Kubernetes cluster on [Oracle Bare Metal Cloud Services][bmcs] (BMCS).
+The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
+Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is 
+used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Bare Metal Cloud Services][bmcs] (BMCS).
 
 ## Cluster Configuration Overview
 
-The base Terraform configuration and default variables use the BMCS modules and to provision the infrastructure needed for the cluster including:
+The base Terraform infrastructure configuration and default variables provision:
 
 - a Virtual Cloud Network with a CIDR block of 10.0.0.0/16 and dedicated internal subnets for etcd, workers, and masters
 - a dedicated set of Bare Metal Instances for the Kubernetes control plane to run on
@@ -40,7 +40,7 @@ configuration, the modules can be used to form your own customized configuration
 ## Prerequisites
 
 1. Download and install [Terraform][terraform]
-2. Download and install the [BareMetal Terraform Provider][bmcs provider] - version v.1.0.16 or higher
+2. Download and install the [BareMetal Terraform Provider][bmcs provider] (recommended version: v1.0.18)
 3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the baremetal provider:
 ```
   providers {
@@ -212,8 +212,8 @@ ca_cert                             | (generated)             | String value of 
 ca_key                              | (generated)             | String value of PEM encoded CA private key
 api_server_private_key              | (generated)             | String value of PEM private key of API server
 api_server_cert                     | (generated)             | String value of PEM encoded certificate for API server
-ssh_private_key                     | (generated)             | String value of PEM encoded [SSH private key](SSH key pair) for instances
-ssh_public_key_openssh              | (generated)             | String value of OpenSSH encoded [SSH public key](SSH key pair) key for instances
+ssh_private_key                     | (generated)             | String value of PEM encoded SSH key pair for instances
+ssh_public_key_openssh              | (generated)             | String value of OpenSSH encoded SSH key pair key for instances
 
 #### Network
 name                                | default                 | description
@@ -339,8 +339,6 @@ Replacing etcd cluster members after the initial deployment is not currently sup
 
 
 ## Known issues and limitations
-* Known issue: flannel/cni subnet lease to expiration causes pod networking failure
-* Known issue: little validation of user-scripts / cloud-init scripts. If the bootstrap code fails, it is currently difficult to tell withouth logging in and debugging.
 * Unsupported: scaling or replacing etcd members in or out after the initial deployment
 * Unsupported: creating a service with `--type=LoadBalancer`
 
@@ -350,7 +348,7 @@ This project is open source. Oracle appreciates any contributions that are made 
 
 See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Installed on Bare Metal Instances
+## Installed on Oracle Cloud Bare Metal Instances
 
 * Canonical Ubuntu (14.04)
 * etcd - (default v3.2.2)
