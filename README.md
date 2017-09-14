@@ -4,7 +4,7 @@
 [SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
 
-# Terraform Kubernetes Installer for Oracle Bare Metal Cloud
+# Terraform Kubernetes Installer for Oracle Cloud Infrastructure
 
 ## About
 
