@@ -4,22 +4,22 @@
 [SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
 
-# Terraform Kubernetes Installer for Oracle Bare Metal Cloud
+# Terraform Kubernetes Installer for Oracle Cloud Infrastructure
 
 ## About
 
 The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
 Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is 
-used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Bare Metal Cloud Services][bmcs] (BMCS).
+used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][bmcs] (OCI).
 
 ## Cluster Configuration Overview
 
 The base Terraform infrastructure configuration and default variables provision:
 
 - a Virtual Cloud Network with a CIDR block of 10.0.0.0/16 and dedicated internal subnets for etcd, workers, and masters
-- a dedicated set of Bare Metal Instances for the Kubernetes control plane to run on
-- a _public_ Bare Metal Cloud TCP/SSL Load Balancer to front-end the K8s API server cluster
-- a _private_ Bare Metal Cloud Load Balancer to front-end the etcd cluster
+- a dedicated set of Instances for the Kubernetes control plane to run on
+- a _public_ OCI TCP/SSL Load Balancer to front-end the K8s API server cluster
+- a _private_ OCI Load Balancer to front-end the etcd cluster
 
 The base Kubernetes cluster configuration includes:
 
@@ -40,14 +40,14 @@ configuration, the modules can be used to form your own customized configuration
 ## Prerequisites
 
 1. Download and install [Terraform][terraform]
-2. Download and install the [BareMetal Terraform Provider][bmcs provider] (recommended version: v1.0.18)
-3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the baremetal provider:
+2. Download and install the [OCI Terraform Provider][bmcs provider] (recommended version: v1.0.18)
+3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the OCI provider:
 ```
   providers {
   baremetal = "<path_to_provider_binary>/terraform-provider-baremetal"
 }
 ```
-4. Create a _terraform.tfvars_ file in the project root that specifies your [API signature](API signing), tenancy, user, and compartment within BMCS:
+4. Create a _terraform.tfvars_ file in the project root that specifies your [API signature](API signing), tenancy, user, and compartment within OCI:
 
 ```bash
 # start from the included example
@@ -56,9 +56,9 @@ $ cp terraform.example.tfvars terraform.tfvars
 
 ## Quick start
 
-To run the Terraform scripts, you'll first need to download and install the Terraform binary and [BMCS Provider][bmcs provider] as well as BMCS access. Check out the [prerequisites](README#Prerequisites) section for more details.
+To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][bmcs provider] as well as OCI access. Check out the [prerequisites](README#Prerequisites) section for more details.
 
-The quickest way to get a Kubernetes cluster up and running on BMCS is to simply use the base configuration defined in 
+The quickest way to get a Kubernetes cluster up and running on OCI is to simply use the base configuration defined in 
 the top-level file `k8s-baremetal.tf`:
 
 ```bash
@@ -70,7 +70,7 @@ $ terraform init
 # see what Terraform will do before actually doing it
 $ terraform plan
 
-# provision resources and stand-up k8s cluster on BMCS
+# provision resources and stand-up k8s cluster on OCI
 $ terraform apply
 ```
 
@@ -146,7 +146,7 @@ KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-sy
 kubernetes-dashboard is running at https://129.146.22.175:443/ui
 ```
 
-#### SSH into BMCS Instances
+#### SSH into OCI Instances
 
 To open access SSH access to your master nodes, add the following to your `terraform.tfvars` file:
 
@@ -158,7 +158,7 @@ worker_ssh_ingress = "0.0.0.0/0"
 ```
 
 ```bash
-# Create local SSH private key file logging into BMC instances
+# Create local SSH private key file logging into OCI instances
 $ terraform output ssh_private_key > generated/instances_id_rsa
 # Retrieve public IP for etcd nodes
 $ terraform output etcd_public_ips
@@ -174,15 +174,15 @@ $ ssh -i `pwd`/generated/instances_id_rsa ubuntu@K8SWORKER_INSTANCE_IP
 
 ### Mandatory Input Variables:
 
-#### BMCS Provider Configuration
+#### OCI Provider Configuration
 
 name                                | default                 | description
 ------------------------------------|-------------------------|-----------------
-tenancy_ocid                        | None (required)         | Tenancy's BMCS OCID
-compartment_ocid                    | None (required)         | Compartment's BMCS OCID
-user_ocid                           | None (required)         | Users's BMCS OCID
-fingerprint                         | None (required)         | Fingerprint of the BMC user's public key
-private_key_path                    | None (required)         | Private key file path of the BMC user's private key
+tenancy_ocid                        | None (required)         | Tenancy's OCI OCID
+compartment_ocid                    | None (required)         | Compartment's OCI OCID
+user_ocid                           | None (required)         | Users's OCI OCID
+fingerprint                         | None (required)         | Fingerprint of the OCI user's public key
+private_key_path                    | None (required)         | Private key file path of the OCI user's private key
 region                              | us-phoenix-1            | String value of region to create resources
 
 ### Optional Input Variables:
@@ -190,9 +190,9 @@ region                              | us-phoenix-1            | String value of 
 #### Instance Shape and Placement Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
-etcdShape                           | VM.Standard1.1          | BMC shape for etcd nodes
-k8sMasterShape                      | VM.Standard1.1          | BMC shape for k8s master(s)
-k8sWorkerShape                      | VM.Standard1.2          | BMC shape for k8s worker(s)
+etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
+k8sMasterShape                      | VM.Standard1.1          | OCI shape for k8s master(s)
+k8sWorkerShape                      | VM.Standard1.2          | OCI shape for k8s worker(s)
 k8sMasterAd1Count                   | 1                       | number of k8s masters to create in AD1
 k8sMasterAd2Count                   | 0                       | number of k8s masters to create in AD2
 k8sMasterAd3Count                   | 0                       | number of k8s masters to create in AD3
@@ -202,8 +202,8 @@ k8sWorkerAd3Count                   | 0                       | number of k8s wo
 etcdAd1Count                        | 1                       | number of etcd nodes to create in AD1
 etcdAd2Count                        | 0                       | number of etcd nodes to create in AD2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in AD3
-etcdLBShape                         | 100Mbps                 | etcd BMC Load Balancer shape / bandwidth
-k8sMasterLBShape                    | 100Mbps                 | master BMC Load Balancer shape / bandwidth
+etcdLBShape                         | 100Mbps                 | etcd OCI Load Balancer shape / bandwidth
+k8sMasterLBShape                    | 100Mbps                 | master OCI Load Balancer shape / bandwidth
 
 #### TLS Certificates & SSH key pair
 name                                | default                 | description
@@ -226,7 +226,7 @@ master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s)
 worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s)
 
-#### Software Versions Installed on BMC Instances
+#### Software Versions Installed on OCI Instances
 name                                | default            | description
 ------------------------------------|--------------------|------------
 docker_ver                          | 17.03              | Version of Docker to install
@@ -240,7 +240,7 @@ instance_os_ver                     | 16.04              | Version of Ubuntu ope
 #### Other
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
-label_prefix                        | ""                      | Unique identifier to prefix to BMCS resources
+label_prefix                        | ""                      | Unique identifier to prefix to OCI resources
 
 
 ### Examples
@@ -348,7 +348,7 @@ This project is open source. Oracle appreciates any contributions that are made 
 
 See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Installed on Oracle Cloud Bare Metal Instances
+## Installed on OCI Instances
 
 * Canonical Ubuntu (14.04)
 * etcd - (default v3.2.2)
