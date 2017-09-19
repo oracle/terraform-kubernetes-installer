@@ -56,7 +56,7 @@ $ cp terraform.example.tfvars terraform.tfvars
 
 ## Quick start
 
-To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][bmcs provider] as well as OCI access. Check out the [prerequisites](README.md#Prerequisites) section for more details.
+To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][bmcs provider] as well as OCI access. Check out the [prerequisites](README.md#prerequisites) section for more details.
 
 The quickest way to get a Kubernetes cluster up and running on OCI is to simply use the base configuration defined in 
 the top-level file `k8s-baremetal.tf`:
