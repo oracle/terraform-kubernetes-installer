@@ -3,6 +3,7 @@
 [bmcs provider]: https://github.com/oracle/terraform-provider-baremetal/releases
 [SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
+[Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 # Terraform Kubernetes Installer for Oracle Cloud Infrastructure
 
@@ -53,6 +54,7 @@ configuration, the modules can be used to form your own customized configuration
 # start from the included example
 $ cp terraform.example.tfvars terraform.tfvars
 ```
+5.  Ensure you have [Kubectl][Kubectl] installed
 
 ## Quick start
 
