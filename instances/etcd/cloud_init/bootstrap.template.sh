@@ -62,3 +62,7 @@ done
 
 # put the flannel config in etcd
 curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json
+
+# make sure ubuntu owns home dir
+chown ubuntu:ubuntu /home/ubuntu
+

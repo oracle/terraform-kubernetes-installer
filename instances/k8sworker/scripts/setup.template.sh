@@ -4,6 +4,9 @@ EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
 NAMESPACE=$(echo -n "${domain_name}" | sed "s/\.oraclevcn\.com//g")
 FQDN_HOSTNAME=$(getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}')
 
+# make sure ubuntu owns home dir
+chown ubuntu:ubuntu /home/ubuntu
+
 # pull instance metadata
 curl -sL --retry 3 http://169.254.169.254/opc/v1/instance/ | tee /tmp/instance_meta.json
 

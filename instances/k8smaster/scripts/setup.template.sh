@@ -4,6 +4,9 @@ EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
 NAMESPACE=$(echo -n "${domain_name}" | sed "s/\.oraclevcn\.com//g")
 FQDN_HOSTNAME=$(getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}')
 
+# make sure ubuntu owns home dir
+chown ubuntu:ubuntu /home/ubuntu
+
 ## create policy file that blocks autostart of services on install
 printf '#!/bin/sh\necho "All runlevel operations denied by policy" >&2\nexit 101\n' >/tmp/policy-rc.d && chmod +x /tmp/policy-rc.d
 ETCD_LB=${etcd_lb}
