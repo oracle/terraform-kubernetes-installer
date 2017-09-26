@@ -1,4 +1,4 @@
-resource "baremetal_core_subnet" "k8sWokerSubnet" {
+resource "oci_core_subnet" "k8sWokerSubnet" {
   availability_domain = "${var.availability_domain}"
   cidr_block          = "${var.cidr_block}"
   display_name        = "${var.label_prefix}${var.display_name}"

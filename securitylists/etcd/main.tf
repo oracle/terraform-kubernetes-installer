@@ -1,4 +1,4 @@
-resource "baremetal_core_security_list" "EtcdSubnet" {
+resource "oci_core_security_list" "EtcdSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}etcd_security_list"
   vcn_id         = "${var.vcn_id}"

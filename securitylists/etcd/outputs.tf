@@ -1,7 +1,7 @@
 # Output ID
 
 output "id" {
-  value = "${baremetal_core_security_list.EtcdSubnet.id}"
+  value = "${oci_core_security_list.EtcdSubnet.id}"
 }
 
 output "default_ssh_ingress_cidr" {

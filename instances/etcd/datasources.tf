@@ -1,12 +1,12 @@
 # Cloud call to get the OCID of the OS image to use
-data "baremetal_core_images" "ImageOCID" {
+data "oci_core_images" "ImageOCID" {
   compartment_id           = "${var.compartment_ocid}"
   operating_system         = "Canonical Ubuntu"
   operating_system_version = "${var.instance_os_ver}"
 }
 
 # Cloud call to get a list of Availability Domains
-data "baremetal_identity_availability_domains" "ADs" {
+data "oci_identity_availability_domains" "ADs" {
   compartment_id = "${var.tenancy_ocid}"
 }
 

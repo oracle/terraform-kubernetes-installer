@@ -1,4 +1,4 @@
-resource "baremetal_core_security_list" "K8SWorkerSubnet" {
+resource "oci_core_security_list" "K8SWorkerSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sWorker_security_list"
   vcn_id         = "${var.vcn_id}"
