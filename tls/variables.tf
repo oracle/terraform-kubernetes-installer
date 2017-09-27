@@ -23,6 +23,12 @@ variable "api_server_cert" {
   default     = ""
 }
 
+variable "api_server_admin_token" {
+  description = "admin user's bearer token for API server (generated if left blank)"
+  type        = "string"
+  default     = ""
+}
+
 variable "common_name" {
   default = "kube-ca"
 }

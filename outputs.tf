@@ -102,6 +102,10 @@ output "api_server_cert_pem" {
   value = "${module.k8s-tls.api_server_cert_pem}"
 }
 
+output "api_server_admin_token" {
+  value = "${module.k8s-tls.api_server_admin_token}"
+}
+
 output "ssh_private_key" {
   value = "${module.k8s-tls.ssh_private_key}"
 }

@@ -75,7 +75,7 @@ write_files:
     content: |
       ${kubelet_service_content}
 
-# Kube certs
+# Kube certs, tokens
   - path: "/etc/kubernetes/ssl/ca.pem"
     permissions: "0600"
     encoding: b64
@@ -91,6 +91,11 @@ write_files:
     encoding: b64
     content: |
       ${api-server-key-content}
+  - path: "/etc/kubernetes/ssl/token_auth.csv"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${api-token_auth_template_content}
 
 runcmd:
  - echo "Running k8s init..."

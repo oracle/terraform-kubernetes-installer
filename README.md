@@ -214,6 +214,7 @@ ca_cert                             | (generated)             | String value of 
 ca_key                              | (generated)             | String value of PEM encoded CA private key
 api_server_private_key              | (generated)             | String value of PEM private key of API server
 api_server_cert                     | (generated)             | String value of PEM encoded certificate for API server
+api_server_admin_token              | (generated)             | String value of the admin user's bearer token for API server
 ssh_private_key                     | (generated)             | String value of PEM encoded SSH key pair for instances
 ssh_public_key_openssh              | (generated)             | String value of OpenSSH encoded SSH key pair key for instances
 

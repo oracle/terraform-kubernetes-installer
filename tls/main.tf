@@ -88,3 +88,9 @@ resource "tls_private_key" "ssh" {
   count     = "${var.ssh_private_key == "" ? 1 : 0}"
   rsa_bits  = 2048
 }
+
+
+resource "random_id" "token-auth" {
+  count       = "${var.api_server_admin_token == "" ? 1 : 0}"
+  byte_length = 16
+}

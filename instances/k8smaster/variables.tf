@@ -55,6 +55,7 @@ variable "etcd_lb" {}
 variable "root_ca_pem" {}
 variable "api_server_private_key_pem" {}
 variable "api_server_cert_pem" {}
+variable "k8s_apiserver_token_admin" {}
 
 # etcd
 variable "etcd_discovery_url" {}
