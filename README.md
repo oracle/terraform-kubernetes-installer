@@ -234,7 +234,7 @@ name                                | default            | description
 docker_ver                          | 17.03              | Version of Docker to install
 etcd_ver                            | v3.2.2             | Version of etcd to install
 flannel_ver                         | v0.7.1             | Version of Flannel to install
-k8s_ver                             | 1.7.0              | Version of K8s to install (master and workers)
+k8s_ver                             | 1.7.4              | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2             | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3              | Version of Kubernetes dashboard to install
 instance_os_ver                     | 16.04              | Version of Ubuntu operating system
@@ -357,7 +357,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 * flannel - (default v0.7.1)
 * docker - (default 17.03.0-ce)
 * apt-transport-https - (default 1.2.20)
-* kubernetes - (default v1.7.0)
+* kubernetes - (default v1.7.4)
   * master(s) (`kube-apiserver`, `kube-controller-manager`, `kube-scheduler`, `kubernetes-cni`, `kubectl`)
   * worker(s) (`kubelet`, `kube-proxy`, `kubernetes-cni`, `kubectl`)
   * cluster add-ons: (`dashboard`, `kube-DNS`)
