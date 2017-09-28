@@ -39,7 +39,7 @@ variable "flannel_ver" {
 
 # Kubernetes
 variable "k8s_ver" {
-  default = "1.7.0"
+  default = "1.7.4"
 }
 
 variable "k8s_dashboard_ver" {
