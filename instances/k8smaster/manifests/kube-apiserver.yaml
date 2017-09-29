@@ -32,7 +32,7 @@ spec:
     - --etcd-quorum-read=true
     - --kubelet-client-certificate=/etc/kubernetes/ssl/apiserver.pem
     - --kubelet-client-key=/etc/kubernetes/ssl/apiserver-key.pem
-    #- --token-auth-file=/etc/kubernetes/tokens.csv
+    - --token-auth-file=/etc/kubernetes/ssl/token_auth.csv
     ports:
     - containerPort: 443
       hostPort: 443

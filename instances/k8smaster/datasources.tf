@@ -112,6 +112,14 @@ data "template_file" "cnibridge-sh" {
   template = "${file("${path.module}/scripts/cni-bridge.sh")}"
 }
 
+data "template_file" "token_auth_file" {
+  template = "${file("${path.module}/scripts/token_auth.csv")}"
+
+  vars {
+    token_admin = "${var.k8s_apiserver_token_admin}"
+  }
+}
+
 data "template_file" "kube_master_cloud_init_file" {
   template = "${file("${path.module}/cloud_init/bootstrap.template.yaml")}"
 
@@ -130,6 +138,7 @@ data "template_file" "kube_master_cloud_init_file" {
     ca-pem-content                           = "${base64encode(var.root_ca_pem)}"
     api-server-key-content                   = "${base64encode(var.api_server_private_key_pem)}"
     api-server-cert-content                  = "${base64encode(var.api_server_cert_pem)}"
+    api-token_auth_template_content          = "${base64encode(data.template_file.token_auth_file.rendered)}"
     docker_service_content                   = "${base64encode(data.template_file.docker-service.rendered)}"
     flannel_service_content                  = "${base64encode(data.template_file.flannel-service.rendered)}"
     cnibridge_service_content                = "${base64encode(data.template_file.cnibridge-service.rendered)}"

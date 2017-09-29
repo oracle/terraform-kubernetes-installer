@@ -14,6 +14,10 @@ output "api_server_cert_pem" {
   value = "${var.api_server_cert == "" ? join(" ", tls_locally_signed_cert.api-server.*.cert_pem) : var.api_server_cert}"
 }
 
+output "api_server_admin_token" {
+  value = "${var.api_server_admin_token == "" ? join(" ", random_id.token-auth.*.hex) : var.api_server_admin_token}"
+}
+
 output "ssh_private_key" {
   value = "${var.ssh_private_key == "" ? join(" ", tls_private_key.ssh.*.private_key_pem) : var.ssh_private_key}"
 }

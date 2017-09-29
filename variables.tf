@@ -179,6 +179,12 @@ variable "api_server_cert" {
   default     = ""
 }
 
+variable "api_server_admin_token" {
+  description = "admin user's bearer token for API server (generated if left blank)"
+  type        = "string"
+  default     = ""
+}
+
 variable "docker_ver" {
   default = "docker-ce_17.03.0~ce-0~ubuntu-xenial_amd64"
 }
