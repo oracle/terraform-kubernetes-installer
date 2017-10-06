@@ -100,7 +100,7 @@ You can also use `kubectl` to interact with your cluster using the kubeconfig fo
 
 ```bash
 $ export KUBECONFIG=`pwd`/generated/kubeconfig
-$ kubectl get cluster-info
+$ kubectl cluster-info
 $ kubectl get nodes
 ```
 
