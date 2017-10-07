@@ -6,8 +6,6 @@
 [Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 # Terraform Kubernetes Installer for Oracle Cloud Infrastructure
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Foracle%2Fterraform-kubernetes-installer.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Foracle%2Fterraform-kubernetes-installer?ref=badge_shield)
-
 
 ## About
 
@@ -367,7 +365,3 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
 
-
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Foracle%2Fterraform-kubernetes-installer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Foracle%2Fterraform-kubernetes-installer?ref=badge_large)
