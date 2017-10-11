@@ -1,6 +1,6 @@
 [terraform]: https://terraform.io
 [bmcs]: https://cloud.oracle.com/en_US/bare-metal
-[bmcs provider]: https://github.com/oracle/terraform-provider-baremetal/releases
+[oci provider]: https://github.com/oracle/terraform-provider-oci/releases
 [SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
 [Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
@@ -41,11 +41,11 @@ configuration, the modules can be used to form your own customized configuration
 ## Prerequisites
 
 1. Download and install [Terraform][terraform]
-2. Download and install the [OCI Terraform Provider][bmcs provider] (recommended version: v1.0.18)
+2. Download and install the [OCI Terraform Provider][oci provider] (v2.0.0 or later)
 3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the OCI provider:
 ```
-  providers {
-  baremetal = "<path_to_provider_binary>/terraform-provider-baremetal"
+providers {
+  oci = "<path_to_provider_binary>/terraform-provider-oci"
 }
 ```
 4. Create a _terraform.tfvars_ file in the project root that specifies your [API signature](API signing), tenancy, user, and compartment within OCI:
@@ -61,7 +61,7 @@ $ cp terraform.example.tfvars terraform.tfvars
 To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][bmcs provider] as well as OCI access. Check out the [prerequisites](README.md#prerequisites) section for more details.
 
 The quickest way to get a Kubernetes cluster up and running on OCI is to simply use the base configuration defined in 
-the top-level file `k8s-baremetal.tf`:
+the top-level file `k8s-oci.tf`:
 
 ```bash
 # initialize your Terraform configuration including the modules
@@ -304,10 +304,10 @@ We can use `terraform taint` to worker instances in a particular AD as "tainted"
 
 ```bash
 # taint all workers in AD1
-terraform taint -module=instances-k8sworker-ad1 baremetal_core_instance.TFInstanceK8sWorker
+terraform taint -module=instances-k8sworker-ad1 oci_core_instance.TFInstanceK8sWorker
 # optionally taint workers in AD2 and AD3 or do so in a subsequent apply
-# terraform taint -module=instances-k8sworker-ad2 baremetal_core_instance.TFInstanceK8sWorker
-# terraform taint -module=instances-k8sworker-ad3 baremetal_core_instance.TFInstanceK8sWorker
+# terraform taint -module=instances-k8sworker-ad2 oci_core_instance.TFInstanceK8sWorker
+# terraform taint -module=instances-k8sworker-ad3 oci_core_instance.TFInstanceK8sWorker
 
 # preview changes
 $ terraform plan
@@ -324,10 +324,10 @@ We can also use `terraform taint` to master instances in a particular AD as "tai
 
 ```bash
 # taint all masters in AD1
-terraform taint -module=instances-k8smaster-ad1 baremetal_core_instance.TFInstanceK8sMaster
+terraform taint -module=instances-k8smaster-ad1 oci_core_instance.TFInstanceK8sMaster
 # optionally taint masters in AD2 and AD3 or do so in a subsequent apply
-# terraform taint -module=instances-k8smaster-ad2 baremetal_core_instance.TFInstanceK8sMaster
-# terraform taint -module=instances-k8smaster-ad3 baremetal_core_instance.TFInstanceK8sMaster
+# terraform taint -module=instances-k8smaster-ad2 oci_core_instance.TFInstanceK8sMaster
+# terraform taint -module=instances-k8smaster-ad3 oci_core_instance.TFInstanceK8sMaster
 
 # preview changes
 $ terraform plan
