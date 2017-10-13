@@ -26,7 +26,7 @@ iptables -F
 ###################
 # etcd
 
-# Get IP Adress of self
+# Get IP Address of self
 IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip addr show | grep -Po 'inet \K[\d.]+')
 SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 
@@ -45,11 +45,11 @@ docker run -d \
 	-listen-peer-urls http://0.0.0.0:2380 \
 	-discovery ${etcd_discovery_url}
 
-# download etcdctl client  etcd_ver
+# Download etcdctl client etcd_ver
 curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
 
-# Generate a flannel configuration that we will store into etcd using curl.
+# Generate a flannel configuration JSON that we will store into etcd using curl.
 cat >/tmp/flannel-network.json <<EOF
 {
   "Network": "${flannel_network_cidr}",

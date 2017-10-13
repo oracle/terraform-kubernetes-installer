@@ -11,14 +11,16 @@ export IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip add
 
 SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 
-## download etcdctl client
+## etcd
 ######################################
+
+# Download etcdctl client
 curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
 
-# wait for etcd to become active (through the LB)
+# Wait for etcd to become active (through the LB)
 until [ $(/usr/local/bin/etcdctl --endpoints ${etcd_lb} cluster-health | grep '^cluster ' | grep -c 'is healthy$') == "1" ]; do
-	echo "Waiting for cluster to be healthy"
+	echo "Waiting for etcd cluster to be healthy"
 	sleep 1
 done
 
@@ -31,47 +33,20 @@ echo "IP_LOCAL: $IP_LOCAL ETCD_SERVER: $ETCD_SERVER"
 envsubst </root/services/flannel.service >/etc/systemd/system/flannel.service
 systemctl daemon-reload && systemctl enable flannel && systemctl start flannel
 
-## INSTALL CNI PLUGIN
-######################################
-mkdir -p /opt/cni/bin /etc/cni/net.d
-curl -L --retry 3 https://github.com/containernetworking/cni/releases/download/v0.5.2/cni-amd64-v0.5.2.tgz -o /tmp/cni-plugin.tar.gz
-tar zxf /tmp/cni-plugin.tar.gz -C /opt/cni/bin/
-printf '{\n    "name": "podnet",\n    "type": "flannel",\n    "delegate": {\n        "isDefaultGateway": true\n    }\n}\n' >/etc/cni/net.d/10-flannel.conf
-
+# Create cni bridge interface w/ IP from flannel
 cp /root/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
 cp /root/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
 systemctl enable cni-bridge && systemctl start cni-bridge
 
-# Install Docker prereqs
-until yum -y install aufs-tools cgroupfs-mount libltdl7 unzip; do sleep 1 && echo -n "."; done
-
-# Stage master certs
-unzip /tmp/k8s-certs.zip -d /etc/kubernetes/ssl/
-
-# enable ol7 addons
-yum-config-manager --disable ol7_UEKR3
-yum-config-manager --enable ol7_addons ol7_latest ol7_UEKR4 ol7_optional ol7_optional_latest
-
-# Install Docker
+## Docker
+######################################
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
-systemctl stop docker
-
-# Disable irqbalance for performance
-service irqbalance stop
-yum -y erase irqbalance
-
+# Configure Docker to use flannel
 rm -f /lib/systemd/system/docker.service && cat /root/services/docker.service >/lib/systemd/system/docker.service
-systemctl enable docker
 systemctl daemon-reload
-systemctl restart docker
-
-# re-enable autostart
-rm -f /usr/sbin/policy-rc.d
-
-# Add default DNS
-echo "nameserver 169.254.169.254" >>/etc/resolvconf/resolv.conf.d/base
-resolvconf -u
+systemctl enable docker
+systemctl start docker
 
 # Output /etc/environment_params
 echo "IPV4_PRIVATE_0=$IP_LOCAL" >>/etc/environment_params
@@ -97,10 +72,22 @@ setenforce 0
 systemctl stop firewalld.service
 systemctl disable firewalld.service
 
+# Configure pod network:
+mkdir -p /etc/cni/net.d
+cat >/etc/cni/net.d/10-flannel.conf <<EOF
+{
+	"name": "podnet",
+	"type": "flannel",
+	"delegate": {
+		"isDefaultGateway": true
+	}
+}
+EOF
+
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
-until yum install -y kubelet-${k8s_ver}-0 kubectl-${k8s_ver}-0; do sleep 1 && echo -n ".";done
+until yum install -y kubelet-${k8s_ver}-0 kubectl-${k8s_ver}-0 kubernetes-cni; do sleep 1 && echo -n ".";done
 
 # Pull etcd docker image from registry
 docker pull quay.io/coreos/etcd:${etcd_ver}
@@ -116,9 +103,7 @@ docker run -d \
 	-discovery ${etcd_discovery_url} \
 	--proxy on
 
-## Kubelet for the master
-systemctl stop kubelet
-rm /lib/systemd/system/kubelet.service
+## kubelet for the master
 systemctl daemon-reload
 sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" /root/services/kubelet.service >/etc/systemd/system/kubelet.service
 systemctl daemon-reload
@@ -127,7 +112,7 @@ systemctl start kubelet
 
 until kubectl get all; do sleep 1 && echo -n "."; done
 
-## wait for k8smaster to be healthy. possible race on pod networks otherwise
+## Wait for k8s master to be available. There is a possible race on pod networks otherwise.
 until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do
 	sleep 3
 done

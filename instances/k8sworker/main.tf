@@ -23,7 +23,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
     when = "destroy"
 
     inline = [
-      "nodeName=`getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
+      "nodeName=`getent hosts $(/usr/sbin/ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
       "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml drain $nodeName --force",
       "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml delete node $nodeName",
       "exit 0",
