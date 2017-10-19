@@ -12,11 +12,13 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
   shape               = "${var.shape}"
   subnet_id           = "${var.subnet_id}"
 
-  metadata {
+  extended_metadata {
     roles               = "masters"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${data.template_cloudinit_config.master.rendered}"
+    tags = "group:k8s-master"
   }
+
 
   timeouts {
     create = "60m"

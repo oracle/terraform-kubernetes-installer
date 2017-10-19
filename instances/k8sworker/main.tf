@@ -12,17 +12,18 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
   shape               = "${var.shape}"
   subnet_id           = "${var.subnet_id}"
 
-  metadata {
+  extended_metadata {
     roles               = "nodes"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${data.template_cloudinit_config.master.rendered}"
+    tags = "group:k8s-worker"
   }
 
   provisioner "remote-exec" {
     when = "destroy"
 
     inline = [
-      "nodeName=`getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
+      "nodeName=`getent hosts $(/usr/sbin/ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
       "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml drain $nodeName --force",
       "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml delete node $nodeName",
       "exit 0",
@@ -32,7 +33,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
 
     connection {
       host        = "${self.public_ip}"
-      user        = "ubuntu"
+      user        = "opc"
       private_key = "${var.ssh_private_key}"
       agent       = false
       timeout     = "30s"

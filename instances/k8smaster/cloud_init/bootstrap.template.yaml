@@ -1,13 +1,17 @@
 #cloud-config
 
+bootcmd:
+  # Turn off SELinux
+  - setenforce 0
+
 write_files:
 # setup script
-  - path: "/tmp/setup.preflight.sh"
+  - path: "/root/setup.preflight.sh"
     permissions: "0777"
     encoding: b64
     content: |
       ${setup_preflight_sh_content}
-  - path: "/tmp/setup.sh"
+  - path: "/root/setup.sh"
     permissions: "0777"
     encoding: b64
     content: |
@@ -23,7 +27,7 @@ write_files:
     encoding: b64
     content: |
       ${kube_controller_manager_template_content}
-  - path: "/etc/kubernetes/manifests/kube-dns.yaml"
+  - path: "/root/services/kube-dns.yaml"
     permissions: "0755"
     encoding: b64
     content: |
@@ -38,38 +42,39 @@ write_files:
     encoding: b64
     content: |
       ${kube_scheduler_template_content}
-  - path: "/etc/kubernetes/manifests/kubernetes-dashboard.yaml"
+  - path: "/root/services/kubernetes-dashboard.yaml"
     permissions: "0755"
     encoding: b64
     content: |
       ${kube_dashboard_template_content}
+  - path: "/root/services/docker.service"
   - path: "/etc/kubernetes/manifests/kube-rbac-role-binding.yaml"
     permissions: "0755"
     encoding: b64
     content: |
       ${kube_rbac_content}
-  - path: "/home/ubuntu/services/docker.service"
+  - path: "/root/services/docker.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${docker_service_content}
-  - path: "/home/ubuntu/services/flannel.service"
+  - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${flannel_service_content}
-  - path: "/home/ubuntu/services/cni-bridge.service"
+  - path: "/root/services/cni-bridge.service"
     permissions: "0600"
     encoding: b64
     content: |
       ${cnibridge_service_content}
-  - path: "/home/ubuntu/services/cni-bridge.sh"
+  - path: "/root/services/cni-bridge.sh"
     permissions: "0600"
     encoding: b64
     content: |
       ${cnibridge_sh_content}
 # systemd services
-  - path: "/home/ubuntu/services/kubelet.service"
+  - path: "/root/services/kubelet.service"
     permissions: "0600"
     encoding: b64
     content: |
@@ -99,5 +104,5 @@ write_files:
 
 runcmd:
  - echo "Running k8s init..."
- - /tmp/setup.preflight.sh
+ - /root/setup.preflight.sh
  - echo "Finished k8s init."

@@ -164,14 +164,14 @@ worker_ssh_ingress = "0.0.0.0/0"
 $ terraform output ssh_private_key > generated/instances_id_rsa
 # Retrieve public IP for etcd nodes
 $ terraform output etcd_public_ips
-# Log in as user ubuntu to the Canonical Ubuntu OS
-$ ssh -i `pwd`/generated/instances_id_rsa ubuntu@ETCD_INSTANCE_IP
+# Log in as user opc to the OEL OS
+$ ssh -i `pwd`/generated/instances_id_rsa opc@ETCD_INSTANCE_IP
 # Retrieve public IP for k8s masters
 $ terraform output master_public_ips
-$ ssh -i `pwd`/generated/instances_id_rsa ubuntu@K8SMASTER_INSTANCE_IP
+$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SMASTER_INSTANCE_IP
 # Retrieve public IP for k8s workers
 $ terraform output worker_public_ips
-$ ssh -i `pwd`/generated/instances_id_rsa ubuntu@K8SWORKER_INSTANCE_IP
+$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SWORKER_INSTANCE_IP
 ```
 
 ### Mandatory Input Variables:
@@ -232,13 +232,13 @@ worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 #### Software Versions Installed on OCI Instances
 name                                | default            | description
 ------------------------------------|--------------------|------------
-docker_ver                          | 17.03              | Version of Docker to install
+docker_ver                          | 17.03.1            | Version of Docker to install
 etcd_ver                            | v3.2.2             | Version of etcd to install
 flannel_ver                         | v0.7.1             | Version of Flannel to install
 k8s_ver                             | 1.7.4              | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2             | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3              | Version of Kubernetes dashboard to install
-instance_os_ver                     | 16.04              | Version of Ubuntu operating system
+instance_os_ver                     | 7.4                | Version of OEL operating system
 
 #### Other
 name                                | default                 | description
@@ -353,10 +353,10 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Installed on OCI Instances
 
-* Canonical Ubuntu (14.04)
+* Oracle Linux Enterprise (7.4)
 * etcd - (default v3.2.2)
 * flannel - (default v0.7.1)
-* docker - (default 17.03.0-ce)
+* docker - (default 17.03.1.ce)
 * apt-transport-https - (default 1.2.20)
 * kubernetes - (default v1.7.4)
   * master(s) (`kube-apiserver`, `kube-controller-manager`, `kube-scheduler`, `kubernetes-cni`, `kubectl`)

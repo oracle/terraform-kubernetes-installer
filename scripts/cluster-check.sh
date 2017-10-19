@@ -31,7 +31,7 @@ function ssh_run_command() {
 	local node="$1"
 	local command="$2"
 	ssh -i /tmp/instances_id_rsa -oBatchMode=yes -oConnectTimeout=10 -o StrictHostKeyChecking=no \
-		-o UserKnownHostsFile=/dev/null -q ubuntu@${node} ${command} 2>&1 | tr -d '\r\n'
+		-o UserKnownHostsFile=/dev/null -q opc@${node} ${command} 2>&1 | tr -d '\r\n'
 }
 
 function check_ssh_connectivity() {
@@ -82,10 +82,10 @@ function check_cloud_init_finished() {
 			log_msg "  If this does not complete soon, log into the BMC instance and examine the /var/log/cloud-init-output.log file."
 			exit 1
 		fi
-		ret=$(ssh_run_command "${master}" "grep --only-matching -m 1 'Finished running setup.sh' /var/log/cloud-init-output.log")
+		ret=$(ssh_run_command "${master}" "sudo grep --only-matching -m 1 'Finished running setup.sh' /root/setup.log")
 		if [[ $ret != "Finished running setup.sh" ]]; then
 			log_msg "  [FAILED] cloud-init has not run successfully on master ${master}"
-			log_msg "  Log into the BMC instance and examine the /var/log/cloud-init-output.log file."
+			log_msg "  Log into the BMC instance and examine the /root/setup.log file."
 			exit 1
 		fi
 	done
@@ -94,13 +94,13 @@ function check_cloud_init_finished() {
 		ret=$(ssh_run_command "${worker}" "sudo test -e /var/lib/cloud/instance/boot-finished && echo true")
 		if [[ $ret != "true" ]]; then
 			log_msg "  [FAILED] cloud-init has not finished running on worker ${worker}"
-			log_msg "  If this does not complete soon, log into the BMC instance and examine the /var/log/cloud-init-output.log file."
+			log_msg "  If this does not complete soon, log into the BMC instance and examine the /root/setup.log file."
 			exit 1
 		fi
-		ret=$(ssh_run_command "${worker}" "grep --only-matching -m 1 'Finished running setup.sh' /var/log/cloud-init-output.log")
+		ret=$(ssh_run_command "${worker}" "sudo grep --only-matching -m 1 'Finished running setup.sh' /root/setup.log")
 		if [[ $ret != "Finished running setup.sh" ]]; then
 			log_msg "  [FAILED] cloud-init has not run successfully on worker ${worker}"
-			log_msg "  Log into the BMC instance and examine the /var/log/cloud-init-output.log file."
+			log_msg "  Log into the BMC instance and examine the /root/setup.log file."
 			exit 1
 		fi
 	done
@@ -109,7 +109,7 @@ function check_cloud_init_finished() {
 		ret=$(ssh_run_command "${etcd}" "sudo test -e /var/lib/cloud/instance/boot-finished && echo true")
 		if [[ $ret != "true" ]]; then
 			log_msg "  [FAILED] cloud-init has not finished running on etcd node ${etcd}"
-			log_msg "  If this does not complete soon, log into the BMC instance and examine the /var/log/cloud-init-output.log file."
+			log_msg "  If this does not complete soon, log into the BMC instance and examine the /root/setup.log file."
 			exit 1
 		fi
 	done
@@ -118,12 +118,12 @@ function check_cloud_init_finished() {
 function check_etcdctl_flannel() {
 	log_msg "  Checking Flannel's etcd key from each node..."
 	for master in $(terraform output master_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${master}" "sudo etcdctl ls 2>&1")
+		ret=$(ssh_run_command "${master}" "sudo /usr/local/bin/etcdctl ls 2>&1")
 		if [[ $ret != "/flannel" ]]; then
 			log_msg "  [FAILED] etcd and/or flannel is not available on master ${master}"
 			exit 1
 		fi
-		ret=$(ssh_run_command "${master}" "ip route show | grep --only-matching cni0")
+		ret=$(ssh_run_command "${master}" "/usr/sbin/ip route show | grep --only-matching cni0")
 		if [[ $ret != "cni0" ]]; then
 			log_msg "  [FAILED] there may be an issue with container networking on master ${master}"
 			exit 1
@@ -131,12 +131,12 @@ function check_etcdctl_flannel() {
 	done
 
 	for worker in $(terraform output worker_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${worker}" "sudo etcdctl ls 2>&1")
+		ret=$(ssh_run_command "${worker}" "sudo /usr/local/bin/etcdctl ls 2>&1")
 		if [[ $ret != "/flannel" ]]; then
 			log_msg "  [FAILED] etcd and/or flannel is not available on worker ${worker}"
 			exit 1
 		fi
-		ret=$(ssh_run_command "${worker}" "ip route show | grep --only-matching cni0")
+		ret=$(ssh_run_command "${worker}" "/usr/sbin/ip route show | grep --only-matching cni0")
 		if [[ $ret != "cni0" ]]; then
 			log_msg "  [FAILED] there may be an issue with container networking on worker ${worker}"
 			exit 1
@@ -144,7 +144,7 @@ function check_etcdctl_flannel() {
 	done
 
 	for etcd in $(terraform output etcd_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${etcd}" "sudo etcdctl ls 2>&1")
+		ret=$(ssh_run_command "${etcd}" "sudo /usr/local/bin/etcdctl ls 2>&1")
 		if [[ $ret != "/flannel" ]]; then
 			log_msg "  [FAILED] etcd and/or flannel is not available on etcd node ${etcd}"
 			exit 1
@@ -217,11 +217,11 @@ function check_system_services() {
 function check_k8s_healthz_through_lb() {
 	log_msg "  Checking status of /healthz endpoint at the LB..."
 	check_tf_output "master_lb_ip"
-	output=$(curl --insecure --max-time 10 https://$(terraform output master_lb_ip):443/healthz 2>/dev/null)
+	output=$(curl --insecure --max-time 30 https://$(terraform output master_lb_ip):443/healthz 2>/dev/null)
 	if [[ $output != "ok" ]]; then
 		log_msg "  [FAILED] Master node /healthz is not available through the LB"
-		log_msg "  Only IPs in $(terraform output master_https_ingress_cidr) are allowed to access HTTP"
-		log_msg "  If it is not correct, set master_http_ingress_cidr in terraform.tfvars to a CIDR that includes the IP \
+		log_msg "  Only IPs in $(terraform output master_https_ingress_cidr) are allowed to access HTTPs"
+		log_msg "  If it is not correct, set master_https_ingress_cidr in terraform.tfvars to a CIDR that includes the IP \
         of this host and run terraform plan and apply"
 		exit 1
 	fi
@@ -258,7 +258,7 @@ function check_kube-dns() {
 
 function check_nginx_deployment() {
 	log_msg "  Checking an app deployment of nginx exposed as a service..."
-	expected_nodes=$(expr $(terraform output worker_public_ips | tr -cd , | wc -c) + 1)
+	expected_nodes=$(expr $(terraform output worker_public_ips | tr -cd , | wc -c) + 2)
 	kubectl run nginx --image="nginx" --port=80 --replicas=${expected_nodes} 1>/dev/null
 	kubectl expose deployment nginx --type NodePort 1>/dev/null
 
@@ -275,20 +275,20 @@ function check_nginx_deployment() {
 	fi
 
 	# Avoid possible hang if port is not ready
-	sleep 10 
-
-	for worker in $(terraform output worker_public_ips | sed "s/,/ /g"); do
-		output=$(curl --max-time 10 http://$worker:$nodePort 2>/dev/null)
-        if [[ -z "$output" ]]; then
-			log_msg "   [FAILED] nginx deployment service is not accessible on http://$worker:$nodePort"
-			exit 1
-        fi
-		if [[ $output != *"Welcome to nginx!"* ]]; then
-			log_msg "  [FAILED] nginx deployment service is not accessible on http://$worker:$nodePort"
-			exit 1
-		fi
-	done
-
+	sleep 10
+    for i in {1..5}; do
+	    for worker in $(terraform output worker_public_ips | sed "s/,/ /g"); do
+		    output=$(curl --max-time 30 http://$worker:$nodePort 2>/dev/null)
+            if [[ -z "$output" ]]; then
+			    log_msg "   [FAILED] nginx deployment service is not accessible on http://$worker:$nodePort"
+			    exit 1
+            fi
+		    if [[ $output != *"Welcome to nginx!"* ]]; then
+			    log_msg "  [FAILED] nginx deployment service is not accessible on http://$worker:$nodePort"
+		    	exit 1
+	    	fi
+    	done
+    done
 }
 
 function print_success() {

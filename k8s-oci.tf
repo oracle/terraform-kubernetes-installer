@@ -409,7 +409,7 @@ module "instances-k8sworker-ad3" {
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-worker-ad3"
-  instance_os_ver            = "${var.instance_os_ver}"
+  instance_os_ver           = "${var.instance_os_ver}"
   k8s_ver                    = "${var.k8s_ver}"
   label_prefix               = "${var.label_prefix}"
   master_lb                  = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"

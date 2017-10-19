@@ -1,16 +1,23 @@
 #!/bin/bash -x
 
+# Turn off SELinux
+setenforce 0
+
 # Set working dir
-cd /home/ubuntu
+cd /home/opc
 
-# Install Docker dependencies
-until apt-get install -y aufs-tools cgroupfs-mount libltdl7; do sleep 1 && echo -n "."; done
-
-# Download Docker
-curl -L --retry 3 https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/${docker_ver}.deb -o /tmp/${docker_ver}.deb
+# enable ol7 addons
+yum-config-manager --disable ol7_UEKR3
+yum-config-manager --enable ol7_addons ol7_latest ol7_UEKR4 ol7_optional ol7_optional_latest
 
 # Install Docker
-until dpkg -i /tmp/${docker_ver}.deb; do sleep 1 && echo -n "."; done
+until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
+
+# Start Docker
+systemctl daemon-reload
+systemctl restart docker
+
+docker info
 
 ###################
 # Drop firewall rules
@@ -19,7 +26,7 @@ iptables -F
 ###################
 # etcd
 
-# Get IP Adress of self
+# Get IP Address of self
 IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip addr show | grep -Po 'inet \K[\d.]+')
 SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 
@@ -28,7 +35,7 @@ FQDN_HOSTNAME="$(getent hosts $IP_LOCAL | awk '{print $2}')"
 
 docker run -d \
 	-p 2380:2380 -p 2379:2379 \
-	-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt \
+	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
 	--net=host \
 	quay.io/coreos/etcd:${etcd_ver} \
 	/usr/local/bin/etcd \
@@ -38,11 +45,11 @@ docker run -d \
 	-listen-peer-urls http://0.0.0.0:2380 \
 	-discovery ${etcd_discovery_url}
 
-# download etcdctl client  etcd_ver
+# Download etcdctl client etcd_ver
 curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
 
-# Generate a flannel configuration that we will store into etcd using curl.
+# Generate a flannel configuration JSON that we will store into etcd using curl.
 cat >/tmp/flannel-network.json <<EOF
 {
   "Network": "${flannel_network_cidr}",
@@ -62,7 +69,3 @@ done
 
 # put the flannel config in etcd
 curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json
-
-# make sure ubuntu owns home dir
-chown ubuntu:ubuntu /home/ubuntu
-

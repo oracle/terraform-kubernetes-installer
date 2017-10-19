@@ -6,4 +6,4 @@ mkdir -p /etc/kubernetes/manifests /etc/kubernetes/auth
 
 # add tools
 curl --retry 3 http://stedolan.github.io/jq/download/linux64/jq -o /usr/local/bin/jq && chmod +x /usr/local/bin/jq
-bash -x /tmp/setup.sh | tee -a /root/setup.log
+bash -x /root/setup.sh | tee -a /root/setup.log
