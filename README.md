@@ -250,7 +250,7 @@ label_prefix                        | ""                      | Unique identifie
 
 #### Deploying a new cluster
 
-Override any of the above input variables in your terraform.vars and run the plan and apply commands:
+Override any of the above input variables in your terraform.tfvars and run the plan and apply commands:
 
 ```bash
 # verify what will change
@@ -263,7 +263,7 @@ $ terraform apply
 #### Scaling k8s workers (in or out) using terraform apply
 
 To scale workers in or out, adjust the `k8sWorkerAd1Count`, `k8sWorkerAd2Count`, or `k8sWorkerAd3Count` input 
-variables in terraform.vars and run the plan and apply commands:
+variables in terraform.tfvars and run the plan and apply commands:
 
 ```bash
 # verify changes
@@ -280,7 +280,7 @@ When scaling worker nodes _down_, the instances/k8sworker module's user_data cod
 
 #### Scaling k8s masters (in or out) using terraform apply
 
-To scale the masters in or out, adjust the `k8sMasterAd1Count`, `k8sMasterAd2Count`, or `k8sMasterAd3Count` input variables in terraform.vars and run the plan and apply commands:
+To scale the masters in or out, adjust the `k8sMasterAd1Count`, `k8sMasterAd2Count`, or `k8sMasterAd3Count` input variables in terraform.tfvars and run the plan and apply commands:
 
 ```bash
 # verify changes
