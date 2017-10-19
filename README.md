@@ -17,7 +17,7 @@ used to provision and configure the resources needed to run a highly available a
 
 The base Terraform infrastructure configuration and default variables provision:
 
-- a Virtual Cloud Network with a CIDR block of 10.0.0.0/16 and dedicated internal subnets for etcd, workers, and masters
+- a Virtual Cloud Network with a CIDR block of 10.0.0.0/16 and dedicated public subnets for etcd, workers, and masters
 - a dedicated set of Instances for the Kubernetes control plane to run on
 - a _public_ OCI TCP/SSL Load Balancer to front-end the K8s API server cluster
 - a _private_ OCI Load Balancer to front-end the etcd cluster
