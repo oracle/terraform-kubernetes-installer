@@ -38,7 +38,7 @@ variable "etcd_ver" {
   default = "v3.2.2"
 }
 
-# TODO - because the bootstrap template uses yum, we only support OEL7
+# TODO - because the bootstrap template uses yum, we only support Oracle Linux 7
 variable "flannel_ver" {
   default = "v0.7.1"
 }

@@ -164,7 +164,7 @@ worker_ssh_ingress = "0.0.0.0/0"
 $ terraform output ssh_private_key > generated/instances_id_rsa
 # Retrieve public IP for etcd nodes
 $ terraform output etcd_public_ips
-# Log in as user opc to the OEL OS
+# Log in as user opc to the Oracle Linux OS
 $ ssh -i `pwd`/generated/instances_id_rsa opc@ETCD_INSTANCE_IP
 # Retrieve public IP for k8s masters
 $ terraform output master_public_ips
@@ -238,7 +238,7 @@ flannel_ver                         | v0.7.1             | Version of Flannel to
 k8s_ver                             | 1.7.4              | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2             | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3              | Version of Kubernetes dashboard to install
-instance_os_ver                     | 7.4                | Version of OEL operating system
+instance_os_ver                     | 7.4                | Version of Oracle Linux operating system
 
 #### Other
 name                                | default                 | description
