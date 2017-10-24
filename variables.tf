@@ -33,6 +33,11 @@ variable "label_prefix" {
   default     = ""
 }
 
+variable "additional_nat_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
 variable "additional_etcd_security_lists_ids" {
   type    = "list"
   default = []
@@ -49,6 +54,10 @@ variable "additional_k8s_worker_security_lists_ids" {
 }
 
 # Instance shape, e.g. VM.Standard1.1, VM.Standard1.2, VM.Standard1.4, ..., BM.Standard1.36, ...
+variable "natShape" {
+  default = "VM.Standard1.1"
+}
+
 variable "etcdShape" {
   default = "VM.Standard1.1"
 }
@@ -112,6 +121,11 @@ variable "flannel_network_cidr" {
   description = "A CIDR notation IP range to use for the entire flannel network"
   type        = "string"
   default     = "10.99.0.0/16"
+}
+
+variable "nat_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to NAT node"
+  default     = "10.0.0.0/16"
 }
 
 variable "etcd_cluster_ingress" {

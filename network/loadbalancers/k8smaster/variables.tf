@@ -30,3 +30,7 @@ variable "k8smaster_ad3_private_ips" {
 variable "shape" {
   default = "100Mbs"
 }
+
+variable "is_private" {
+  default = "false"
+}

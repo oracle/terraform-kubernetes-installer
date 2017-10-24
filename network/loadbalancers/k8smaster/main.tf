@@ -2,12 +2,10 @@ resource "oci_load_balancer" "lb-k8smaster" {
   shape          = "${var.shape}"
   compartment_id = "${var.compartment_ocid}"
 
-  subnet_ids = [
-    "${var.k8smaster_subnet_0_id}",
-    "${var.k8smaster_subnet_1_id}",
-  ]
+  subnet_ids = ["${compact(list(var.k8smaster_subnet_0_id,var.k8smaster_subnet_1_id))}"]
 
   display_name = "${var.label_prefix}lb-k8smaster"
+  is_private   = "${var.is_private}"
 }
 
 resource "oci_load_balancer_backendset" "lb-k8smaster-https" {

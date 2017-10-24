@@ -16,9 +16,8 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
     roles               = "masters"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${data.template_cloudinit_config.master.rendered}"
-    tags = "group:k8s-master"
+    tags                = "group:k8s-master"
   }
-
 
   timeouts {
     create = "60m"

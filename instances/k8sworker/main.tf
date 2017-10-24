@@ -16,7 +16,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
     roles               = "nodes"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${data.template_cloudinit_config.master.rendered}"
-    tags = "group:k8s-worker"
+    tags                = "group:k8s-worker"
   }
 
   provisioner "remote-exec" {

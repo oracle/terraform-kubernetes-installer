@@ -16,7 +16,7 @@ resource "oci_core_instance" "TFInstanceEtcd" {
     roles               = "etcd"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
     user_data           = "${base64encode(data.template_file.etcd-bootstrap.rendered)}"
-    tags = "group:etcd"
+    tags                = "group:etcd"
   }
 
   timeouts {

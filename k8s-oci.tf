@@ -12,180 +12,26 @@ module "k8s-tls" {
   ssh_public_key_openssh = "${var.ssh_public_key_openssh}"
 }
 
-### VCN
+### Virtual Cloud Network
 
 module "vcn" {
-  source           = "vcn"
-  compartment_ocid = "${var.compartment_ocid}"
-  label_prefix     = "${var.label_prefix}"
-  vcn_dns_name     = "${var.vcn_dns_name}"
+  source                                  = "network/vcn"
+  compartment_ocid                        = "${var.compartment_ocid}"
+  label_prefix                            = "${var.label_prefix}"
+  tenancy_ocid                            = "${var.tenancy_ocid}"
+  vcn_dns_name                            = "${var.vcn_dns_name}"
+  additional_etcd_security_lists_ids      = "${var.additional_etcd_security_lists_ids}"
+  additional_k8smaster_security_lists_ids = "${var.additional_k8s_master_security_lists_ids}"
+  additional_k8sworker_security_lists_ids = "${var.additional_k8s_worker_security_lists_ids}"
+  etcd_ssh_ingress                        = "${var.etcd_ssh_ingress}"
+  etcd_cluster_ingress                    = "${var.etcd_cluster_ingress}"
+  master_ssh_ingress                      = "${var.master_ssh_ingress}"
+  master_https_ingress                    = "${var.master_https_ingress}"
+  worker_ssh_ingress                      = "${var.worker_ssh_ingress}"
+  worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
 }
 
-### Subnets
-
-module "security-list-etcd" {
-  source                            = "securitylists/etcd"
-  compartment_ocid                  = "${var.compartment_ocid}"
-  default_etcd_cluster_ingress_cidr = "${var.etcd_cluster_ingress}"
-  default_ssh_ingress_cidr          = "${var.etcd_ssh_ingress}"
-  label_prefix                      = "${var.label_prefix}"
-  vcn_id                            = "${module.vcn.id}"
-}
-
-module "subnet-etcd-ad1" {
-  source                        = "subnets/etcd"
-  additional_security_lists_ids = ["${var.additional_etcd_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                    = "10.0.20.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "etcdSubnetAd1"
-  dns_label                     = "etcdsubnet1"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-etcd.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-etcd-ad2" {
-  source                        = "subnets/etcd"
-  additional_security_lists_ids = ["${var.additional_etcd_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                    = "10.0.21.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "etcdSubnetAd2"
-  dns_label                     = "etcdsubnet2"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-etcd.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-etcd-ad3" {
-  source                        = "subnets/etcd"
-  additional_security_lists_ids = ["${var.additional_etcd_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                    = "10.0.22.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "etcdSubnetAd3"
-  dns_label                     = "etcdsubnet3"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-etcd.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "security-list-k8smaster" {
-  source                     = "securitylists/k8smaster"
-  compartment_ocid           = "${var.compartment_ocid}"
-  default_ssh_ingress_cidr   = "${var.master_ssh_ingress}"
-  default_https_ingress_cidr = "${var.master_https_ingress}"
-  label_prefix               = "${var.label_prefix}"
-  vcn_id                     = "${module.vcn.id}"
-}
-
-module "subnet-k8sMasterSubnetAd1" {
-  source                        = "subnets/k8smaster"
-  additional_security_lists_ids = ["${var.additional_k8s_master_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                    = "10.0.30.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sMasterSubnetAd1"
-  dns_label                     = "k8smasterad1"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8smaster.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-k8sMasterSubnetAd2" {
-  source                        = "subnets/k8smaster"
-  additional_security_lists_ids = ["${var.additional_k8s_master_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                    = "10.0.31.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sMasterSubnetAd2"
-  dns_label                     = "k8smasterad2"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8smaster.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-k8sMasterSubnetAd3" {
-  source                        = "subnets/k8smaster"
-  additional_security_lists_ids = ["${var.additional_k8s_master_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                    = "10.0.32.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sMasterSubnetAd3"
-  dns_label                     = "k8smasterad3"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8smaster.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "security-list-k8sworker" {
-  source                         = "securitylists/k8sworker"
-  compartment_ocid               = "${var.compartment_ocid}"
-  default_ssh_ingress_cidr       = "${var.worker_ssh_ingress}"
-  default_node_port_ingress_cidr = "${var.worker_nodeport_ingress}"
-  vcn_id                         = "${module.vcn.id}"
-  label_prefix                   = "${var.label_prefix}"
-}
-
-module "subnet-k8sWorkerSubnetAd1" {
-  source                        = "subnets/k8sworker"
-  additional_security_lists_ids = ["${var.additional_k8s_worker_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                    = "10.0.40.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sWorkerSubnetAd1"
-  dns_label                     = "k8sworkerad1"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8sworker.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-k8sWorkerSubnetAd2" {
-  source                        = "subnets/k8sworker"
-  additional_security_lists_ids = ["${var.additional_k8s_worker_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                    = "10.0.41.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sWorkerSubnetAd2"
-  dns_label                     = "k8sworkerad2"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8sworker.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-module "subnet-k8sWorkerSubnetAd3" {
-  source                        = "subnets/k8sworker"
-  additional_security_lists_ids = ["${var.additional_k8s_worker_security_lists_ids}"]
-  availability_domain           = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                    = "10.0.42.0/24"
-  compartment_ocid              = "${var.compartment_ocid}"
-  dhcp_options_id               = "${module.vcn.dhcp_options_id}"
-  display_name                  = "k8sWorkerSubnetAd3"
-  dns_label                     = "k8sworkerad3"
-  label_prefix                  = "${var.label_prefix}"
-  route_table_id                = "${module.vcn.route_for_complete_id}"
-  security_list_id              = ["${module.security-list-k8sworker.id}"]
-  vcn_id                        = "${module.vcn.id}"
-}
-
-### Instances
+### Compute Instance(s)
 
 module "instances-etcd-ad1" {
   source                    = "instances/etcd"
@@ -203,7 +49,7 @@ module "instances-etcd-ad1" {
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                 = "${module.subnet-etcd-ad1.id}"
+  subnet_id                 = "${module.vcn.etcd_subnet_ad1_id}"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
@@ -225,7 +71,7 @@ module "instances-etcd-ad2" {
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                 = "${module.subnet-etcd-ad2.id}"
+  subnet_id                 = "${module.vcn.etcd_subnet_ad2_id}"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
@@ -249,7 +95,7 @@ module "instances-etcd-ad3" {
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                 = "${module.subnet-etcd-ad3.id}"
+  subnet_id                 = "${module.vcn.etcd_subnet_ad3_id}"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
@@ -281,7 +127,7 @@ module "instances-k8smaster-ad1" {
   root_ca_pem                = "${module.k8s-tls.root_ca_pem}"
   shape                      = "${var.k8sMasterShape}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sMasterSubnetAd1.id}"
+  subnet_id                  = "${module.vcn.k8smaster_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -318,7 +164,7 @@ module "instances-k8smaster-ad2" {
   root_ca_pem                = "${module.k8s-tls.root_ca_pem}"
   shape                      = "${var.k8sMasterShape}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sMasterSubnetAd2.id}"
+  subnet_id                  = "${module.vcn.k8smaster_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -355,7 +201,7 @@ module "instances-k8smaster-ad3" {
   root_ca_pem                = "${module.k8s-tls.root_ca_pem}"
   shape                      = "${var.k8sMasterShape}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sMasterSubnetAd3.id}"
+  subnet_id                  = "${module.vcn.k8smaster_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -392,7 +238,7 @@ module "instances-k8sworker-ad1" {
   shape                      = "${var.k8sWorkerShape}"
   ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sWorkerSubnetAd1.id}"
+  subnet_id                  = "${module.vcn.k8worker_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -429,7 +275,7 @@ module "instances-k8sworker-ad2" {
   shape                      = "${var.k8sWorkerShape}"
   ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sWorkerSubnetAd2.id}"
+  subnet_id                  = "${module.vcn.k8worker_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -466,7 +312,7 @@ module "instances-k8sworker-ad3" {
   shape                      = "${var.k8sWorkerShape}"
   ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
-  subnet_id                  = "${module.subnet-k8sWorkerSubnetAd3.id}"
+  subnet_id                  = "${module.vcn.k8worker_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -480,11 +326,12 @@ module "instances-k8sworker-ad3" {
 ### Load Balancers
 
 module "etcd-private-lb" {
+  source               = "network/loadbalancers/etcd"
   source               = "loadbalancers/etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
-  etcd_subnet_0_id     = "${module.subnet-etcd-ad1.id}"
+  etcd_subnet_0_id     = "${module.vcn.etcd_subnet_ad1_id}"
   etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"
   etcd_ad2_private_ips = "${module.instances-etcd-ad2.private_ips}"
   etcd_ad3_private_ips = "${module.instances-etcd-ad3.private_ips}"
@@ -496,10 +343,10 @@ module "etcd-private-lb" {
 }
 
 module "k8smaster-public-lb" {
-  source                    = "loadbalancers/k8smaster"
+  source                    = "network/loadbalancers/k8smaster"
   compartment_ocid          = "${var.compartment_ocid}"
-  k8smaster_subnet_0_id     = "${module.subnet-k8sMasterSubnetAd1.id}"
-  k8smaster_subnet_1_id     = "${module.subnet-k8sMasterSubnetAd2.id}"
+  k8smaster_subnet_0_id     = "${module.vcn.k8smaster_subnet_ad1_id}"
+  k8smaster_subnet_1_id     = "${module.vcn.k8smaster_subnet_ad2_id}"
   k8smaster_ad1_private_ips = "${module.instances-k8smaster-ad1.private_ips}"
   k8smaster_ad2_private_ips = "${module.instances-k8smaster-ad2.private_ips}"
   k8smaster_ad3_private_ips = "${module.instances-k8smaster-ad3.private_ips}"
@@ -516,5 +363,3 @@ module "kubeconfig" {
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   k8s_master                 = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"
 }
-
-
