@@ -115,7 +115,7 @@ open http://localhost:8001/ui
 
 ##### Verifying your cluster:
 
-To do a quick and automated verification of your cluster, run the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG enviornment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
+To do a quick and automated verification of your cluster, run the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
 
 To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
 
