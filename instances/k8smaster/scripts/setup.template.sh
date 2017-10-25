@@ -42,8 +42,10 @@ systemctl enable cni-bridge && systemctl start cni-bridge
 ######################################
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
-# Configure Docker to use flannel
-rm -f /lib/systemd/system/docker.service && cat /root/services/docker.service >/lib/systemd/system/docker.service
+cat <<EOF > /etc/sysconfig/docker-network
+DOCKER_NETWORK_OPTIONS="--bridge=cni0 --iptables=false --ip-masq=false"
+EOF
+
 systemctl daemon-reload
 systemctl enable docker
 systemctl start docker

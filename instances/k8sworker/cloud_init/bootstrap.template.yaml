@@ -29,12 +29,6 @@ write_files:
       ${worker_kubeconfig_template_content}
 
 # systemd services
-  - path: "/root/services/docker.service"
-    permissions: "0600"
-    encoding: b64
-    content: |
-      ${docker_service_content}
-
   - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: b64

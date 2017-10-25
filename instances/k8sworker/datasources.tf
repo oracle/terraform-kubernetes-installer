@@ -53,10 +53,6 @@ data "template_file" "worker-kubeconfig" {
   }
 }
 
-data "template_file" "docker-service" {
-  template = "${file("${path.module}/scripts/docker.service")}"
-}
-
 data "template_file" "flannel-service" {
   template = "${file("${path.module}/scripts/flannel.service")}"
 }
@@ -90,7 +86,6 @@ data "template_file" "kube_worker_cloud_init_file" {
     setup_template_sh_content          = "${base64encode(data.template_file.setup-template.rendered)}"
     kube_proxy_template_content        = "${base64encode(data.template_file.kube-proxy.rendered)}"
     worker_kubeconfig_template_content = "${base64encode(data.template_file.worker-kubeconfig.rendered)}"
-    docker_service_content             = "${base64encode(data.template_file.docker-service.rendered)}"
     flannel_service_content            = "${base64encode(data.template_file.flannel-service.rendered)}"
     cnibridge_service_content          = "${base64encode(data.template_file.cnibridge-service.rendered)}"
     cnibridge_sh_content               = "${base64encode(data.template_file.cnibridge-sh.rendered)}"
