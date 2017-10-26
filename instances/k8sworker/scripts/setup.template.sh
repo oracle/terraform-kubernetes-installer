@@ -151,5 +151,7 @@ systemctl daemon-reload
 systemctl enable kubelet
 systemctl start kubelet
 
+systemctl restart flannel
+
 ######################################
 echo "Finished running setup.sh"
