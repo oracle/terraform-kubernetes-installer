@@ -47,17 +47,11 @@ write_files:
     encoding: b64
     content: |
       ${kube_dashboard_template_content}
-  - path: "/root/services/docker.service"
   - path: "/etc/kubernetes/manifests/kube-rbac-role-binding.yaml"
     permissions: "0755"
     encoding: b64
     content: |
       ${kube_rbac_content}
-  - path: "/root/services/docker.service"
-    permissions: "0600"
-    encoding: b64
-    content: |
-      ${docker_service_content}
   - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: b64

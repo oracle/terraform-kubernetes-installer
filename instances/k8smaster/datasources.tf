@@ -96,10 +96,6 @@ data "template_file" "kube-rbac" {
   template = "${file("${path.module}/manifests/kube-rbac-role-binding.yaml")}"
 }
 
-data "template_file" "docker-service" {
-  template = "${file("${path.module}/scripts/docker.service")}"
-}
-
 data "template_file" "flannel-service" {
   template = "${file("${path.module}/scripts/flannel.service")}"
 }
@@ -139,7 +135,6 @@ data "template_file" "kube_master_cloud_init_file" {
     api-server-key-content                   = "${base64encode(var.api_server_private_key_pem)}"
     api-server-cert-content                  = "${base64encode(var.api_server_cert_pem)}"
     api-token_auth_template_content          = "${base64encode(data.template_file.token_auth_file.rendered)}"
-    docker_service_content                   = "${base64encode(data.template_file.docker-service.rendered)}"
     flannel_service_content                  = "${base64encode(data.template_file.flannel-service.rendered)}"
     cnibridge_service_content                = "${base64encode(data.template_file.cnibridge-service.rendered)}"
     cnibridge_sh_content                     = "${base64encode(data.template_file.cnibridge-sh.rendered)}"
