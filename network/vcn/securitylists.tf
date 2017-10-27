@@ -12,7 +12,7 @@ resource "oci_core_security_list" "EtcdSubnet" {
 
   ingress_security_rules = [
     {
-      # LBaaS and internal VCN traffic
+      # Allow LBaaS and internal VCN traffic
       protocol = "6"
       source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
     },
@@ -63,7 +63,7 @@ resource "oci_core_security_list" "K8SMasterSubnet" {
 
   ingress_security_rules = [
     {
-      # LBaaS and internal VCN traffic
+      # Allow LBaaS and internal VCN traffic
       protocol = "6"
       source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
     },
@@ -159,4 +159,71 @@ resource "oci_core_security_list" "K8SWorkerSubnet" {
   provisioner "local-exec" {
     command = "sleep 5"
   }
+}
+
+resource "oci_core_security_list" "PublicSecurityList" {
+  count          = "${var.network_access == "private" ? "1" : "0"}"
+  compartment_id = "${var.compartment_ocid}"
+  display_name   = "public_security_list"
+  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+
+  egress_security_rules = [{
+    protocol    = "all"
+    destination = "0.0.0.0/0"
+  }]
+
+  ingress_security_rules = [
+    {
+      # Allow LBaaS
+      protocol = "6"
+      source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
+    },
+    {
+      protocol = "6"
+      source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-ASHBURN-1-CIDR")}"
+    },
+    {
+      # Allow internal VCN traffic
+      protocol = "all"
+      source   = "${lookup(var.bmc_ingress_cidrs, "VCN-CIDR")}"
+    },
+    {
+      # Access to SSH port to instances on the public network (like the NAT instance or a user-defined LB)
+      protocol = "6"
+      source   = "${var.public_subnet_ssh_ingress}"
+
+      tcp_options {
+        "min" = 22
+        "max" = 22
+      }
+    },
+    {
+      # Access to port 80 and 443 to instances on the public network (like the NAT instance or a user-defined LB)
+      protocol = "6"
+      source   = "${var.public_subnet_http_ingress}"
+
+      tcp_options {
+        "min" = 80
+        "max" = 80
+      }
+    },
+    {
+      protocol = "6"
+      source   = "${var.public_subnet_https_ingress}"
+
+      tcp_options {
+        "min" = 443
+        "max" = 443
+      }
+    },
+    {
+      protocol = "1"
+      source   = "0.0.0.0/0"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+  ]
 }

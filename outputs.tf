@@ -107,7 +107,7 @@ output "master_lb_ip" {
 }
 
 output "master_public_ips" {
-  value = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips )}"
+  value = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips)}"
 }
 
 output "master_private_ips" {
@@ -115,11 +115,23 @@ output "master_private_ips" {
 }
 
 output "worker_public_ips" {
-  value = "${concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips )}"
+  value = "${concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips)}"
 }
 
 output "worker_private_ips" {
   value = "${concat(module.instances-k8sworker-ad1.private_ips,module.instances-k8sworker-ad2.private_ips,module.instances-k8sworker-ad3.private_ips )}"
+}
+
+output "nat_gateway_public_ip" {
+  value = ["${module.vcn.nat_instance_public_ips}"]
+}
+
+output "nat_gateway_private_ip" {
+  value = ["${module.vcn.nat_instance_private_ips}"]
+}
+
+output "network_access" {
+  value = "${module.vcn.network_access}"
 }
 
 output "kubeconfig" {

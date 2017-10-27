@@ -53,9 +53,16 @@ variable "additional_k8s_worker_security_lists_ids" {
   default = []
 }
 
+variable "additional_public_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
 # Instance shape, e.g. VM.Standard1.1, VM.Standard1.2, VM.Standard1.4, ..., BM.Standard1.36, ...
-variable "natShape" {
-  default = "VM.Standard1.1"
+
+variable "natInstanceShape" {
+  description = "Make sure to size this instance according to the amount of expected outbound traffic"
+  default     = "VM.Standard1.1"
 }
 
 variable "etcdShape" {
@@ -123,45 +130,60 @@ variable "flannel_network_cidr" {
   default     = "10.99.0.0/16"
 }
 
-variable "nat_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to NAT node"
-  default     = "10.0.0.0/16"
-}
-
 variable "etcd_cluster_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the etcd cluster"
+  description = "A CIDR notation IP range that is allowed cluster access to the instances on the etcd subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "etcd_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to etcd nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the etcd subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "master_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to master nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the master subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "master_https_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the HTTPs port on the master nodes"
+  description = "A CIDR notation IP range that is allowed HTTPs access to the instances on the master subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "worker_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to worker nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the worker subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "worker_nodeport_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the K8s service / NodePorts on the worker nodes"
+  description = "A CIDR notation IP range that is allowed to access service ports to the instances on the worker subnet"
   default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to instances on the public subnet"
+  default     = "0.0.0.0/0"
+}
+
+variable "public_subnet_http_ingress" {
+  description = "A CIDR notation IP range that is allowed to HTTP to instances on the public subnet"
+  default     = "0.0.0.0/0"
+}
+
+variable "public_subnet_https_ingress" {
+  description = "A CIDR notation IP range that is allowed to HTTPs to instances on the public subnet"
+  default     = "0.0.0.0/0"
 }
 
 variable "ssh_private_key" {
   description = "SSH private key used for instances (generated if left blank)"
   type        = "string"
   default     = ""
+}
+
+variable "network_access" {
+  description = "Whether instances and load-balancers in the control plane are launched in a public or private subnets"
+  default     = "public"
 }
 
 # Load Balancers
@@ -266,4 +288,9 @@ variable "k8s_dns_ver" {
 
 variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
+}
+
+variable "natInstanceAd" {
+  description = "Availability Domain in which to provision NAT gateway"
+  default     = "1"
 }

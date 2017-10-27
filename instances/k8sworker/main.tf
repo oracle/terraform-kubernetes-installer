@@ -15,10 +15,13 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
   extended_metadata {
     roles               = "nodes"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
-    user_data           = "${data.template_cloudinit_config.master.rendered}"
-    tags                = "group:k8s-worker"
+
+    # Automate worker instance configuration with cloud init run at launch time
+    user_data = "${data.template_cloudinit_config.master.rendered}"
+    tags      = "group:k8s-worker"
   }
 
+  # TODO handle scenario when network_access = "private"
   provisioner "remote-exec" {
     when = "destroy"
 

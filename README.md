@@ -1,7 +1,6 @@
 [terraform]: https://terraform.io
-[bmcs]: https://cloud.oracle.com/en_US/bare-metal
+[oci]: https://cloud.oracle.com/cloud-infrastructure
 [oci provider]: https://github.com/oracle/terraform-provider-oci/releases
-[SSH key pair]: https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Tasks/creatingkeys.htm
 [API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
 [Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
@@ -11,32 +10,36 @@
 
 The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
 Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is 
-used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][bmcs] (OCI).
+used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][oci] (OCI).
 
-## Cluster Configuration Overview
+### Cluster Overview
 
-The base Terraform infrastructure configuration and default variables provision:
+Terraform is used to _provision_ the cloud infrastructure and any required local resources for the Kubernetes cluster including:
 
-- a Virtual Cloud Network with a CIDR block of 10.0.0.0/16 and dedicated internal subnets for etcd, workers, and masters
-- a dedicated set of Instances for the Kubernetes control plane to run on
-- a _public_ OCI TCP/SSL Load Balancer to front-end the K8s API server cluster
-- a _private_ OCI Load Balancer to front-end the etcd cluster
+##### OCI Infrastructure
 
-The base Kubernetes cluster configuration includes:
+- Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
+- Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
+- TCP/SSL OCI Load Balancer to to distribute traffic to the Kubernetes masters
+- Private OCI Load Balancer to distribute traffic to the etcd cluster
+- _Optional_ NAT instance for Internet-bound traffic when the input variable `network_access` is set to `private`
+- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variabless
+- Self-signed CA and TLS cluster certificates when not overridden by the input variables `ca_cert`, `ca_key`, etc.
 
-- 3 back-end etcd instances - one for each availability domain
-- 3 back-end k8s master instances - one for each availability domain
-- 3 k8s workers instances - one for each availability domain
-- self-signed cluster certificates for _authenticating_ API requests
-- Kubernetes RBAC (role-based authorization control) for _authorizing_ API requests
-- Flannel/CNI for handling multi-host container networking
+##### Cluster Configuration
 
-The base infrastructure and cluster configuration also accept input variables that allow you to specify the instance 
-shapes and how they are placed across the availability domain (ADs). If your requirements extend beyond the base 
-configuration, the modules can be used to form your own customized configuration.
+Terraform uses cloud-init scripts to handle the instance-level _configuration_ for instances in the Control Plane to 
+configure:
+
+- Highly Available (HA) Kubernetes master configuration
+- Highly Available (HA) etcd cluster configuration
+- Kubernetes Dashboard and kube-DNS cluster add-ons
+- Kubernetes RBAC (role-based authorization control)
+- Flannel/CNI container networking
+
+The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
 ![](./docs/images/arch.jpg)
-
 
 ## Prerequisites
 
@@ -48,17 +51,17 @@ providers {
   oci = "<path_to_provider_binary>/terraform-provider-oci"
 }
 ```
-4. Create a _terraform.tfvars_ file in the project root that specifies your [API signature](API signing), tenancy, user, and compartment within OCI:
+4. Create a _terraform.tfvars_ file in the project root that specifies your [API signature][API signing], tenancy, user, and compartment within OCI:
 
 ```bash
 # start from the included example
 $ cp terraform.example.tfvars terraform.tfvars
 ```
-5.  Ensure you have [Kubectl][Kubectl] installed
+5.  Ensure you have [Kubectl][Kubectl] installed if you plan to interact with the cluster locally
 
 ## Quick start
 
-To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][bmcs provider] as well as OCI access. Check out the [prerequisites](README.md#prerequisites) section for more details.
+To run the Terraform scripts, you'll first need to download and install the Terraform binary and [OCI Provider][oci provider] as well as OCI access. Check out the [prerequisites](README.md#prerequisites) section for more details.
 
 The quickest way to get a Kubernetes cluster up and running on OCI is to simply use the base configuration defined in 
 the top-level file `k8s-oci.tf`:
@@ -67,7 +70,7 @@ the top-level file `k8s-oci.tf`:
 # initialize your Terraform configuration including the modules
 $ terraform init
 
-# optionally customize the deployment by overriding input variable defaults in `terraform.tfvars` as you see fit
+# optionally customize the deployment by overriding input variable defaults in terraform.tfvars as you see fit
 
 # see what Terraform will do before actually doing it
 $ terraform plan
@@ -76,16 +79,15 @@ $ terraform plan
 $ terraform apply
 ```
 
-The Kubernetes cluster will be running after the configuration is applied successfully and the cluster installation 
-scripts have been given time to finish asynchronously. Typically this takes around 5 minutes after `terraform apply` 
-and will vary depending on the instance counts and shapes.
+The Kubernetes cluster will be running after the configuration is applied successfully and the cloud-init scripts have been given time to finish asynchronously. Typically this takes around 5 minutes after `terraform apply` and will vary depending on the overall configuration, instance counts, and shapes.
 
-#### Access the Kubernetes API server
+### Access the Kubernetes API server
 
-The master, worker, and etcd security groups only allow VCN ingress (10.0.0.0/16) by default. 
 
-To open access HTTPs access to your master API server, which will enable the Kubernetes Dashboard and kubectl to be 
-reachable from the outside, run:
+##### Access the cluster using kubectl
+
+If you've chosen to configure a _public_ networks (i.e. `network_access=public`), you can use `kubectl` to 
+interact with your cluster from your local machine using the kubeconfig found in the ./generated folder or using the `kubeconfig` Terraform output variable.
 
 ```bash
 # warning: 0.0.0.0/0 is wide open. Consider limiting HTTPs ingress to smaller set of IPs.
@@ -94,15 +96,30 @@ $ terraform apply -var master_https_ingress=0.0.0.0/0
 # consider closing access off again using terraform apply -var master_https_ingress=10.0.0.0/16
 ```
 
-##### Access the cluster using kubectl
-
-You can also use `kubectl` to interact with your cluster using the kubeconfig found in the ./generated folder or using the `kubeconfig` Terraform output variable.
-
 ```bash
 $ export KUBECONFIG=`pwd`/generated/kubeconfig
 $ kubectl cluster-info
 $ kubectl get nodes
 ```
+
+If you've chosen to configure a _private_ networks (i.e. `network_access=private`), you'll need to first SSH into the NAT instance, then to one of the private nodes in the cluster (similar to how you would use a bastion host):
+
+```bash
+$ terraform plan -var public_subnet_ssh_ingress=0.0.0.0/0
+$ terraform apply -var public_subnet_ssh_ingress=0.0.0.0/0
+$ terraform output ssh_private_key > generated/instances_id_rsa
+$ chmod 600 generated/instances_id_rsa
+$ scp -i generated/instances_id_rsa generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP:/home/opc/
+$ ssh -i generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP
+```
+
+```bash
+nat$ ssh -i /home/opc/instances_id_rsa opc@K8SMASTER_INSTANCE_PRIVATE_IP
+master$ kubectl cluster-info
+master$ kubectl get nodes 
+```
+
+Note, for easier access, consider setting up an SSH tunnel between your local host and the NAT instance.
 
 ##### Access the cluster using Kubernetes Dashboard
 
@@ -115,7 +132,8 @@ open http://localhost:8001/ui
 
 ##### Verifying your cluster:
 
-To do a quick and automated verification of your cluster, run the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
+If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
+your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
 
 To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
 
@@ -127,7 +145,6 @@ worker_ssh_ingress = "0.0.0.0/0"
 master_https_ingress = "0.0.0.0/0"
 worker_nodeport_ingress = "0.0.0.0/0"
 ```
-
 
 ```bash
 $ scripts/cluster-check.sh
@@ -148,9 +165,9 @@ KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-sy
 kubernetes-dashboard is running at https://129.146.22.175:443/ui
 ```
 
-#### SSH into OCI Instances
+##### SSH into OCI Instances
 
-To open access SSH access to your master nodes, add the following to your `terraform.tfvars` file:
+If you've chosen to configure a public cluster, you can open access SSH access to your master nodes by adding the following to your `terraform.tfvars` file:
 
 ```bash
 # warning: 0.0.0.0/0 is wide open. remember to undo this.
@@ -164,15 +181,28 @@ worker_ssh_ingress = "0.0.0.0/0"
 $ terraform output ssh_private_key > generated/instances_id_rsa
 # Retrieve public IP for etcd nodes
 $ terraform output etcd_public_ips
-# Log in as user opc to the Oracle Linux OS
-$ ssh -i `pwd`/generated/instances_id_rsa opc@ETCD_INSTANCE_IP
+# Log in as user opc to the OEL OS
+$ ssh -i `pwd`/generated/instances_id_rsa opc@ETCD_INSTANCE_PUBLIC_IP
 # Retrieve public IP for k8s masters
 $ terraform output master_public_ips
-$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SMASTER_INSTANCE_IP
+$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SMASTER_INSTANCE_PUBLIC_IP
 # Retrieve public IP for k8s workers
 $ terraform output worker_public_ips
-$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SWORKER_INSTANCE_IP
+$ ssh -i `pwd`/generated/instances_id_rsa opc@K8SWORKER_INSTANCE_PUBLIC_IP
 ```
+
+If you've chosen to configure a private cluster (i.e. `network_access=private`), you'll need to first SSH into the NAT instance, then to a worker, master, or etcd node:
+
+```bash
+$ terraform plan -var public_subnet_ssh_ingress=0.0.0.0/0
+$ terraform apply -var public_subnet_ssh_ingress=0.0.0.0/0
+$ terraform output ssh_private_key > generated/instances_id_rsa
+$ chmod 600 generated/instances_id_rsa
+$ scp -i generated/instances_id_rsa generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP:/home/opc/
+$ ssh -i generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP
+nat$ ssh -i /home/opc/instances_id_rsa opc@PRIVATE_IP
+```
+
 
 ### Mandatory Input Variables:
 
@@ -189,21 +219,62 @@ region                              | us-phoenix-1            | String value of 
 
 ### Optional Input Variables:
 
+
+#### Cluster Access Configuration
+
+name                                | default                 | description
+------------------------------------|-------------------------|------------
+network_access                      | public                  | Clusters access can be `public` or `private`
+
+##### _Public_ Network Access (default)
+
+If `network_access=public`, instances in the cluster's control plane will be provisioned in _public_ subnets and automatically get both a public and private IP address. If the inbound security rules allow, you can communicate with them directly via their public IPs. 
+
+The following input variables are used to configure the inbound security rules on the public etcd, master, and worker subnets:
+
+name                                | default                 | description
+------------------------------------|-------------------------|------------
+etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster
+etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes
+master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s)
+master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the HTTPs port on the master(s)
+worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s)
+worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s)
+
+##### _Private_ Network Access
+
+If `network_access=private`, instances in the cluster's control plane and their Load Balancers will be provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to perform Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. If your worker nodes need to accept incoming traffic from the Internet, an additional Load Balancer will need to be provisioned in the public subnet to route traffic to workers in the private subnets.
+
+The following input variables are used to configure the inbound security rules for the NAT instance and any other 
+instance or front-end Load Balancer in the public subnet:
+
+name                                | default                 | description
+------------------------------------|-------------------------|------------
+public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including the NAT instance)
+public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
+public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
+natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
+natInstanceAd                       | 1                       | Availability Domain in which to provision NAT instance
+
+*Note*
+
+If `network_access=private`, you do not need to set the etcd, master, and worker security rules since they already allow all inbound traffic between instances in the VCN.
+
 #### Instance Shape and Placement Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
 k8sMasterShape                      | VM.Standard1.1          | OCI shape for k8s master(s)
 k8sWorkerShape                      | VM.Standard1.2          | OCI shape for k8s worker(s)
-k8sMasterAd1Count                   | 1                       | number of k8s masters to create in AD1
-k8sMasterAd2Count                   | 0                       | number of k8s masters to create in AD2
-k8sMasterAd3Count                   | 0                       | number of k8s masters to create in AD3
-k8sWorkerAd1Count                   | 1                       | number of k8s workers to create in AD1
-k8sWorkerAd2Count                   | 0                       | number of k8s workers to create in AD2
-k8sWorkerAd3Count                   | 0                       | number of k8s workers to create in AD3
-etcdAd1Count                        | 1                       | number of etcd nodes to create in AD1
-etcdAd2Count                        | 0                       | number of etcd nodes to create in AD2
-etcdAd3Count                        | 0                       | number of etcd nodes to create in AD3
+k8sMasterAd1Count                   | 1                       | number of k8s masters to create in Availability Domain 1
+k8sMasterAd2Count                   | 0                       | number of k8s masters to create in Availability Domain 2
+k8sMasterAd3Count                   | 0                       | number of k8s masters to create in Availability Domain 3
+k8sWorkerAd1Count                   | 1                       | number of k8s workers to create in Availability Domain 1
+k8sWorkerAd2Count                   | 0                       | number of k8s workers to create in Availability Domain 2
+k8sWorkerAd3Count                   | 0                       | number of k8s workers to create in Availability Domain 3
+etcdAd1Count                        | 1                       | number of etcd nodes to create in Availability Domain 1
+etcdAd2Count                        | 0                       | number of etcd nodes to create in Availability Domain 2
+etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
 etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
 etcdLBShape                         | 100Mbps                 | etcd OCI Load Balancer shape / bandwidth
 k8sMasterLBShape                    | 100Mbps                 | master OCI Load Balancer shape / bandwidth
@@ -219,16 +290,10 @@ api_server_admin_token              | (generated)             | String value of 
 ssh_private_key                     | (generated)             | String value of PEM encoded SSH key pair for instances
 ssh_public_key_openssh              | (generated)             | String value of OpenSSH encoded SSH key pair key for instances
 
-#### Network
+#### Network Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 flannel_network_cidr                | 10.99.0.0/16            | A CIDR notation IP range to use for flannel
-etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster
-etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes
-master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s)
-master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the HTTPs port on the master(s)
-worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s)
-worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s)
 
 #### Software Versions Installed on OCI Instances
 
@@ -262,7 +327,7 @@ label_prefix                        | ""                      | Unique identifie
 
 #### Deploying a new cluster
 
-Override any of the above input variables in your terraform.tfvars and run the plan and apply commands:
+Override any of the above input variables in your terraform.vars and run the plan and apply commands:
 
 ```bash
 # verify what will change
@@ -275,7 +340,7 @@ $ terraform apply
 #### Scaling k8s workers (in or out) using terraform apply
 
 To scale workers in or out, adjust the `k8sWorkerAd1Count`, `k8sWorkerAd2Count`, or `k8sWorkerAd3Count` input 
-variables in terraform.tfvars and run the plan and apply commands:
+variables in terraform.vars and run the plan and apply commands:
 
 ```bash
 # verify changes
@@ -292,7 +357,7 @@ When scaling worker nodes _down_, the instances/k8sworker module's user_data cod
 
 #### Scaling k8s masters (in or out) using terraform apply
 
-To scale the masters in or out, adjust the `k8sMasterAd1Count`, `k8sMasterAd2Count`, or `k8sMasterAd3Count` input variables in terraform.tfvars and run the plan and apply commands:
+To scale the masters in or out, adjust the `k8sMasterAd1Count`, `k8sMasterAd2Count`, or `k8sMasterAd3Count` input variables in terraform.vars and run the plan and apply commands:
 
 ```bash
 # verify changes
@@ -373,8 +438,9 @@ master_docker_max_log_size = "100m"
 ```
 
 ## Known issues and limitations
-* Unsupported: scaling or replacing etcd members in or out after the initial deployment
-* Unsupported: creating a service with `--type=LoadBalancer`
+* Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
+* Creating a service with `--type=LoadBalancer` is currently unsupported
+* Failover or HA configuration for the NAT instance is currently unsupported
 
 ## Contributing
 
@@ -393,6 +459,3 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
   * master(s) (`kube-apiserver`, `kube-controller-manager`, `kube-scheduler`, `kubernetes-cni`, `kubectl`)
   * worker(s) (`kubelet`, `kube-proxy`, `kubernetes-cni`, `kubectl`)
   * cluster add-ons: (`dashboard`, `kube-DNS`)
-
-
-
