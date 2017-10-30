@@ -1,7 +1,7 @@
 # Outputs
 
 output "ip_addresses" {
-  value = ["${oci_load_balancer.lb-etcd.ip_addresses}"]
+  value = ["${join(",",oci_load_balancer.lb-etcd.*.ip_addresses)}"]
 }
 
 output "load_balancer_id" {

@@ -262,7 +262,6 @@ module "instances-k8smaster-ad1" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-master-ad1"
@@ -276,6 +275,13 @@ module "instances-k8smaster-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)):
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 module "instances-k8smaster-ad2" {
@@ -291,7 +297,6 @@ module "instances-k8smaster-ad2" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-master-ad2"
@@ -305,6 +310,13 @@ module "instances-k8smaster-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)) :
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 module "instances-k8smaster-ad3" {
@@ -320,7 +332,6 @@ module "instances-k8smaster-ad3" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-master-ad3"
@@ -334,6 +345,13 @@ module "instances-k8smaster-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)):
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 module "instances-k8sworker-ad1" {
@@ -347,7 +365,6 @@ module "instances-k8sworker-ad1" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-worker-ad1"
@@ -363,6 +380,13 @@ module "instances-k8sworker-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)):
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 module "instances-k8sworker-ad2" {
@@ -376,7 +400,6 @@ module "instances-k8sworker-ad2" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-worker-ad2"
@@ -392,6 +415,13 @@ module "instances-k8sworker-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)):
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 module "instances-k8sworker-ad3" {
@@ -405,11 +435,10 @@ module "instances-k8sworker-ad3" {
   docker_ver                 = "${var.docker_ver}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
-  etcd_lb                    = "http://${module.etcd-private-lb.ip_addresses[0]}:2379"
   etcd_ver                   = "${var.etcd_ver}"
   flannel_ver                = "${var.flannel_ver}"
   hostname_label_prefix      = "k8s-worker-ad3"
-  instance_os_ver           = "${var.instance_os_ver}"
+  instance_os_ver            = "${var.instance_os_ver}"
   k8s_ver                    = "${var.k8s_ver}"
   label_prefix               = "${var.label_prefix}"
   master_lb                  = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"
@@ -421,12 +450,21 @@ module "instances-k8sworker-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+                                    join(",",formatlist("http://%s:2379",
+                                                              module.etcd-private-lb.ip_addresses)):
+                                    join(",",formatlist("http://%s:2379",compact(concat(
+                                                              module.instances-etcd-ad1.private_ips,
+                                                              module.instances-etcd-ad2.private_ips,
+                                                              module.instances-etcd-ad3.private_ips)))) }"
 }
 
 ### Load Balancers
 
 module "etcd-private-lb" {
   source               = "loadbalancers/etcd"
+  count                = "${var.etcdLBEnabled=="true"? 1 : 0 }"
+  etcdLBEnabled        = "${var.etcdLBEnabled}"
   compartment_ocid     = "${var.compartment_ocid}"
   etcd_subnet_0_id     = "${module.subnet-etcd-ad1.id}"
   etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"
@@ -460,3 +498,5 @@ module "kubeconfig" {
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   k8s_master                 = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"
 }
+
+

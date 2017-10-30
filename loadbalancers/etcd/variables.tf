@@ -4,12 +4,17 @@ variable "etcd_subnet_0_id" {}
 variable "label_prefix" {
   default = ""
 }
+variable "count" {
+  default = 1
+}
 
 variable "etcdAd1Count" {}
 
 variable "etcdAd2Count" {}
 
 variable "etcdAd3Count" {}
+
+variable "etcdLBEnabled" {}
 
 variable "etcd_ad1_private_ips" {
   type    = "list"

@@ -4,7 +4,7 @@ EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
 NAMESPACE=$(echo -n "${domain_name}" | sed "s/\.oraclevcn\.com//g")
 FQDN_HOSTNAME=$(getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}')
 
-ETCD_LB=${etcd_lb}
+ETCD_ENDPOINTS=${etcd_endpoints}
 export HOSTNAME=$(hostname)
 
 export IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip addr show | grep -Po 'inet \K[\d.]+')
@@ -19,7 +19,7 @@ curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/e
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
 
 # Wait for etcd to become active (through the LB)
-until [ $(/usr/local/bin/etcdctl --endpoints ${etcd_lb} cluster-health | grep '^cluster ' | grep -c 'is healthy$') == "1" ]; do
+until [ $(/usr/local/bin/etcdctl --endpoints ${etcd_endpoints} cluster-health | grep '^cluster ' | grep -c 'is healthy$') == "1" ]; do
 	echo "Waiting for etcd cluster to be healthy"
 	sleep 1
 done
@@ -28,7 +28,7 @@ done
 ######################################
 curl -L --retry 3 https://github.com/coreos/flannel/releases/download/${flannel_ver}/flanneld-amd64 -o /usr/local/bin/flanneld \
 	&& chmod 755 /usr/local/bin/flanneld
-export ETCD_SERVER=${etcd_lb}
+export ETCD_SERVER=${etcd_endpoints}
 echo "IP_LOCAL: $IP_LOCAL ETCD_SERVER: $ETCD_SERVER"
 envsubst </root/services/flannel.service >/etc/systemd/system/flannel.service
 systemctl daemon-reload && systemctl enable flannel && systemctl start flannel
@@ -52,7 +52,7 @@ systemctl start docker
 
 # Output /etc/environment_params
 echo "IPV4_PRIVATE_0=$IP_LOCAL" >>/etc/environment_params
-echo "ETCD_IP=$ETCD_LB" >>/etc/environment_params
+echo "ETCD_IP=$ETCD_ENDPOINTS" >>/etc/environment_params
 echo "FQDN_HOSTNAME=$FQDN_HOSTNAME" >>/etc/environment_params
 
 # Drop firewall rules

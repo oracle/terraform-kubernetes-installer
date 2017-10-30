@@ -19,8 +19,8 @@ data "template_file" "setup-template" {
     etcd_ver           = "${var.etcd_ver}"
     flannel_ver        = "${var.flannel_ver}"
     k8s_ver            = "${var.k8s_ver}"
-    etcd_lb            = "${var.etcd_lb}"
     etcd_discovery_url = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
+    etcd_endpoints     = "${var.etcd_endpoints}"
   }
 }
 
@@ -37,9 +37,9 @@ data "template_file" "kube-apiserver" {
 
   vars = {
     api_server_count = "${var.api_server_count}"
-    etcd_lb          = "${var.etcd_lb}"
     domain_name      = "${var.domain_name}"
     k8s_ver          = "${var.k8s_ver}"
+    etcd_endpoints   = "${var.etcd_endpoints}"
   }
 }
 
