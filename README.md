@@ -198,6 +198,7 @@ $ terraform plan -var public_subnet_ssh_ingress=0.0.0.0/0
 $ terraform apply -var public_subnet_ssh_ingress=0.0.0.0/0
 $ terraform output ssh_private_key > generated/instances_id_rsa
 $ chmod 600 generated/instances_id_rsa
+$ terraform output nat_instance_public_ips
 $ scp -i generated/instances_id_rsa generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP:/home/opc/
 $ ssh -i generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP
 nat$ ssh -i /home/opc/instances_id_rsa opc@PRIVATE_IP
@@ -254,7 +255,9 @@ public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation 
 public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
 public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
 natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
-natInstanceAd                       | 1                       | Availability Domain in which to provision NAT instance
+nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when network_access=private)
+nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when network_access=private)
+nat_instance_ad3_enabled            | false                    | whether to provision a NAT instance in AD 3 (only used when network_access=private)
 
 *Note*
 

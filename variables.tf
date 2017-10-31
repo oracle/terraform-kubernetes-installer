@@ -60,11 +60,6 @@ variable "additional_public_security_lists_ids" {
 
 # Instance shape, e.g. VM.Standard1.1, VM.Standard1.2, VM.Standard1.4, ..., BM.Standard1.36, ...
 
-variable "natInstanceShape" {
-  description = "Make sure to size this instance according to the amount of expected outbound traffic"
-  default     = "VM.Standard1.1"
-}
-
 variable "etcdShape" {
   default = "VM.Standard1.1"
 }
@@ -181,11 +176,6 @@ variable "ssh_private_key" {
   default     = ""
 }
 
-variable "network_access" {
-  description = "Whether instances and load-balancers in the control plane are launched in a public or private subnets"
-  default     = "public"
-}
-
 # Load Balancers
 variable "etcdLBShape" {
   default = "100Mbps"
@@ -290,7 +280,27 @@ variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
 }
 
-variable "natInstanceAd" {
-  description = "Availability Domain in which to provision NAT gateway"
-  default     = "1"
+variable "network_access" {
+  description = "Whether instances and load-balancers in the control plane are launched in a public or private subnets"
+  default     = "public"
+}
+
+variable "natInstanceShape" {
+  description = "Make sure to size this instance according to the amount of expected outbound traffic"
+  default     = "VM.Standard1.1"
+}
+
+variable nat_instance_ad1_enabled {
+  description = "Whether to provision a NAT instance in AD 1 (only applicable when network_access=private)"
+  default     = "true"
+}
+
+variable nat_instance_ad2_enabled {
+  description = "Whether to provision a NAT instance in AD 2 (only applicable when network_access=private)"
+  default     = "false"
+}
+
+variable nat_instance_ad3_enabled {
+  description = "Whether to provision a NAT instance in AD 3 (only applicable when network_access=private)"
+  default     = "false"
 }

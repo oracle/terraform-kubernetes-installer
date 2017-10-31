@@ -122,12 +122,12 @@ output "worker_private_ips" {
   value = "${concat(module.instances-k8sworker-ad1.private_ips,module.instances-k8sworker-ad2.private_ips,module.instances-k8sworker-ad3.private_ips )}"
 }
 
-output "nat_gateway_public_ip" {
-  value = ["${module.vcn.nat_instance_public_ips}"]
+output "nat_instance_public_ips" {
+  value = "${concat(module.vcn.nat_instance_ad1_public_ips,module.vcn.nat_instance_ad2_public_ips,module.vcn.nat_instance_ad3_public_ips)}"
 }
 
-output "nat_gateway_private_ip" {
-  value = ["${module.vcn.nat_instance_private_ips}"]
+output "nat_instance_private_ips" {
+  value = "${concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips)}"
 }
 
 output "network_access" {

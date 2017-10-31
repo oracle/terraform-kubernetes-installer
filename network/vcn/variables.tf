@@ -102,6 +102,14 @@ variable "nat_instance_shape" {
   default = "VM.Standard1.2"
 }
 
-variable nat_instance_availability_domain {
-  default = "1"
+variable nat_instance_ad1_enabled {
+  default = "false"
+}
+
+variable nat_instance_ad2_enabled {
+  default = "true"
+}
+
+variable nat_instance_ad3_enabled {
+  default = "false"
 }

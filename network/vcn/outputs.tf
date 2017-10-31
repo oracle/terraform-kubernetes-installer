@@ -50,12 +50,28 @@ output "public_subnet_ad3_id" {
   value = "${oci_core_subnet.PublicSubnetAD3.0.id}"
 }
 
-output "nat_instance_private_ips" {
-  value = ["${oci_core_instance.NATInstance.*.private_ip}"]
+output "nat_instance_ad1_private_ips" {
+  value = ["${oci_core_instance.NATInstanceAD1.*.private_ip}"]
 }
 
-output "nat_instance_public_ips" {
-  value = ["${oci_core_instance.NATInstance.*.public_ip}"]
+output "nat_instance_ad1_public_ips" {
+  value = ["${oci_core_instance.NATInstanceAD1.*.public_ip}"]
+}
+
+output "nat_instance_ad2_private_ips" {
+  value = ["${oci_core_instance.NATInstanceAD2.*.private_ip}"]
+}
+
+output "nat_instance_ad2_public_ips" {
+  value = ["${oci_core_instance.NATInstanceAD2.*.public_ip}"]
+}
+
+output "nat_instance_ad3_private_ips" {
+  value = ["${oci_core_instance.NATInstanceAD3.*.private_ip}"]
+}
+
+output "nat_instance_ad3_public_ips" {
+  value = ["${oci_core_instance.NATInstanceAD3.*.public_ip}"]
 }
 
 output "network_access" {
