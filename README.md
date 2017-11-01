@@ -204,6 +204,7 @@ k8sWorkerAd3Count                   | 0                       | number of k8s wo
 etcdAd1Count                        | 1                       | number of etcd nodes to create in AD1
 etcdAd2Count                        | 0                       | number of etcd nodes to create in AD2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in AD3
+etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
 etcdLBShape                         | 100Mbps                 | etcd OCI Load Balancer shape / bandwidth
 k8sMasterLBShape                    | 100Mbps                 | master OCI Load Balancer shape / bandwidth
 

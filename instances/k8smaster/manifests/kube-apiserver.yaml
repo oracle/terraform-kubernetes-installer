@@ -12,7 +12,7 @@ spec:
     - /hyperkube
     - apiserver
     - --apiserver-count=${api_server_count}
-    - --etcd-servers=${etcd_lb}
+    - --etcd-servers=${etcd_endpoints}
     - --allow-privileged=true
     - --service-cluster-ip-range=10.21.0.0/16
     - --secure-port=443

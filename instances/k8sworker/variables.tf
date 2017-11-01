@@ -32,8 +32,6 @@ variable "instance_os_ver" {
   default = "7.4"
 }
 
-variable "etcd_lb" {}
-
 variable "etcd_ver" {
   default = "v3.2.2"
 }
@@ -57,3 +55,4 @@ variable "api_server_cert_pem" {}
 
 # etcd
 variable "etcd_discovery_url" {}
+variable "etcd_endpoints" {}

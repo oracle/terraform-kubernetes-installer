@@ -97,6 +97,11 @@ variable "etcdAd3Count" {
   default = 0
 }
 
+variable "etcd_endpoints" {
+  type="string"
+  default = " "
+}
+
 variable "ssh_public_key_openssh" {
   description = "SSH public key in OpenSSH authorized_keys format for instances (generated if left blank)"
   type        = "string"
@@ -148,6 +153,11 @@ variable "ssh_private_key" {
 # Load Balancers
 variable "etcdLBShape" {
   default = "100Mbps"
+}
+
+variable "etcd_lb_enabled" {
+  description = "enable/disable the etcd load balancer. true: use the etcd load balancer ip. false:use a list of etcd instance ips."
+  default = "true"
 }
 
 variable "k8sMasterLBShape" {
