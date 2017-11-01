@@ -91,9 +91,6 @@ resource "oci_load_balancer_backend" "etcd-2379-backends-ad3" {
   weight           = 1
 }
 
-# element workaround
-#propagating_vgws = ["${compact(split(",", var.vpc_vpg == "true" && var.subnet_public_route_vpg == "true" ? join("", aws_vpn_gateway.vpg.*.id) : join("", list(""))))}"]
-#
 resource "oci_load_balancer_backend" "etcd-2380-backends-ad1" {
   load_balancer_id = "${var.etcdLBEnabled=="false"?" ":join(" ",oci_load_balancer.lb-etcd.*.id)}"
   backendset_name  = "${var.etcdLBEnabled=="false"?" ":join(" ",oci_load_balancer_backendset.lb-etcd-backendset-2380.*.name)}"
