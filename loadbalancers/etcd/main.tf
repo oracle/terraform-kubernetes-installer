@@ -121,7 +121,7 @@ resource "oci_load_balancer_backend" "etcd-2380-backends-ad2" {
 resource "oci_load_balancer_backend" "etcd-2380-backends-ad3" {
   load_balancer_id = "${var.etcdLBEnabled=="false"?" ":join(" ",oci_load_balancer.lb-etcd.*.id)}"
   backendset_name  = "${var.etcdLBEnabled=="false"?" ":join(" ",oci_load_balancer_backendset.lb-etcd-backendset-2380.*.name)}"
-  count            = "${var.etcdLBEnabled=="false" ? 0 : var.etcdAd2Count }"
+  count            = "${var.etcdLBEnabled=="false" ? 0 : var.etcdAd3Count }"
   ip_address       = "${var.count==0?" ":element(var.etcd_ad3_private_ips, count.index)}"
   port             = "2380"
   backup           = false
