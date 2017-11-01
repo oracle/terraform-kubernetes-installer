@@ -3,7 +3,7 @@
 # Runs a few checks on the cluster. If you don't see Success and cluster info at the end, something's wrong.
 # Example run: ./scripts/cluster-check.sh
 
-# TODO handle scenario when network_access = "private"
+# TODO handle scenario when control_plane_subnet_access = "private"
 
 trap cleanup INT
 trap cleanup EXIT
@@ -311,8 +311,8 @@ fi
 terraform output ssh_private_key >/tmp/instances_id_rsa
 chmod 600 /tmp/instances_id_rsa
 
-network_access=$(terraform output network_access)
-if [[ $network_access == "private" ]]; then
+control_plane_subnet_access=$(terraform output control_plane_subnet_access)
+if [[ $control_plane_subnet_access == "private" ]]; then
 	echo This script does not currently support checking private clusters
 	exit 1
 fi

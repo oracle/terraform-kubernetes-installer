@@ -20,9 +20,9 @@ Terraform is used to _provision_ the cloud infrastructure and any required local
 
 - Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
 - Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
-- TCP/SSL OCI Load Balancer to to distribute traffic to the Kubernetes masters
-- Private OCI Load Balancer to distribute traffic to the etcd cluster
-- _Optional_ NAT instance for Internet-bound traffic when the input variable `network_access` is set to `private`
+- Public or Private TCP/SSL OCI Load Balancer to to distribute traffic to the Kubernetes Master(s) (see `k8s_master_lb_access`)
+- Private OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
+- _Optional_ NAT instance for Internet-bound traffic when the input variable `control_plane_subnet_access` is set to `private`
 - 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variabless
 - Self-signed CA and TLS cluster certificates when not overridden by the input variables `ca_cert`, `ca_key`, etc.
 
@@ -84,10 +84,11 @@ The Kubernetes cluster will be running after the configuration is applied succes
 ### Access the Kubernetes API server
 
 
-##### Access the cluster using kubectl
+##### Access the cluster using kubectl, continuous build pipelines, or other clients
 
-If you've chosen to configure a _public_ networks (i.e. `network_access=public`), you can use `kubectl` to 
-interact with your cluster from your local machine using the kubeconfig found in the ./generated folder or using the `kubeconfig` Terraform output variable.
+If you've chosen to configure a _public_ Load Balancer for your Kubernetes Master(s) (i.e. `control_plane_subnet_access=public` or 
+`control_plane_subnet_access=private` _and_ `k8s_master_lb_access=public`), you can interact with your cluster using kubectl, continuous build 
+pipelines, or any other client over the Internet. A working kubeconfig can be found in the ./generated folder or generated on the fly using the `kubeconfig` Terraform output variable.
 
 ```bash
 # warning: 0.0.0.0/0 is wide open. Consider limiting HTTPs ingress to smaller set of IPs.
@@ -102,7 +103,8 @@ $ kubectl cluster-info
 $ kubectl get nodes
 ```
 
-If you've chosen to configure a _private_ networks (i.e. `network_access=private`), you'll need to first SSH into the NAT instance, then to one of the private nodes in the cluster (similar to how you would use a bastion host):
+If you've chosen to configure a strictly _private_ cluster (i.e. `control_plane_subnet_access=private` _and_ `k8s_master_lb_access=private`), 
+access to the cluster will be limited to the NAT instance(s) similar to how you would use a bastion host e.g.
 
 ```bash
 $ terraform plan -var public_subnet_ssh_ingress=0.0.0.0/0
@@ -111,19 +113,17 @@ $ terraform output ssh_private_key > generated/instances_id_rsa
 $ chmod 600 generated/instances_id_rsa
 $ scp -i generated/instances_id_rsa generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP:/home/opc/
 $ ssh -i generated/instances_id_rsa opc@NAT_INSTANCE_PUBLIC_IP
-```
-
-```bash
 nat$ ssh -i /home/opc/instances_id_rsa opc@K8SMASTER_INSTANCE_PRIVATE_IP
 master$ kubectl cluster-info
 master$ kubectl get nodes 
 ```
 
-Note, for easier access, consider setting up an SSH tunnel between your local host and the NAT instance.
+Note, for easier access, consider setting up an SSH tunnel between your local host and a NAT instance.
 
 ##### Access the cluster using Kubernetes Dashboard
 
-To access the Kubernetes Dashboard, use `kubectl proxy`:
+Assuming `kubectl` has access to the Kubernetes Master Load Balancer, you can use use `kubectl proxy` to access the 
+Dashboard:
 
 ```
 kubectl proxy &
@@ -167,7 +167,8 @@ kubernetes-dashboard is running at https://129.146.22.175:443/ui
 
 ##### SSH into OCI Instances
 
-If you've chosen to configure a public cluster, you can open access SSH access to your master nodes by adding the following to your `terraform.tfvars` file:
+If you've chosen to launch your control plane instance in _public_ subnets (i.e. `control_plane_subnet_access=public`), you can open
+ access SSH access to your master nodes by adding the following to your `terraform.tfvars` file:
 
 ```bash
 # warning: 0.0.0.0/0 is wide open. remember to undo this.
@@ -191,7 +192,8 @@ $ terraform output worker_public_ips
 $ ssh -i `pwd`/generated/instances_id_rsa opc@K8SWORKER_INSTANCE_PUBLIC_IP
 ```
 
-If you've chosen to configure a private cluster (i.e. `network_access=private`), you'll need to first SSH into the NAT instance, then to a worker, master, or etcd node:
+If you've chosen to launch your control plane instance in _private_ subnets (i.e. `control_plane_subnet_access=private`), you'll 
+need to first SSH into a NAT instance, then to a worker, master, or etcd node:
 
 ```bash
 $ terraform plan -var public_subnet_ssh_ingress=0.0.0.0/0
@@ -221,15 +223,17 @@ region                              | us-phoenix-1            | String value of 
 ### Optional Input Variables:
 
 
-#### Cluster Access Configuration
+#### Network Access Configuration
 
-name                                | default                 | description
-------------------------------------|-------------------------|------------
-network_access                      | public                  | Clusters access can be `public` or `private`
+name                                | default     | description
+------------------------------------|-------------|------------
+control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
+k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
+
 
 ##### _Public_ Network Access (default)
 
-If `network_access=public`, instances in the cluster's control plane will be provisioned in _public_ subnets and automatically get both a public and private IP address. If the inbound security rules allow, you can communicate with them directly via their public IPs. 
+When `control_plane_subnet_access=public` and `k8s_master_lb_access=public`, control plane instances and the Kubernetes Master Load Balancer are provisioned in _public_ subnets and automatically get both a public and private IP address. If the inbound security rules allow, you can communicate with them directly via their public IPs. 
 
 The following input variables are used to configure the inbound security rules on the public etcd, master, and worker subnets:
 
@@ -244,24 +248,39 @@ worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 
 ##### _Private_ Network Access
 
-If `network_access=private`, instances in the cluster's control plane and their Load Balancers will be provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to perform Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. If your worker nodes need to accept incoming traffic from the Internet, an additional Load Balancer will need to be provisioned in the public subnet to route traffic to workers in the private subnets.
+When `control_plane_subnet_access=private` and `k8s_master_lb_access=private`, control plane instances and the Kubernetes Master Load Balancer
+ are provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to 
+ perform  Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. 
+ If your worker nodes need to accept incoming traffic from the Internet, an additional front-end Load Balancer will 
+ need to be provisioned in the public subnet to route traffic to workers in the private subnets.
 
-The following input variables are used to configure the inbound security rules for the NAT instance and any other 
-instance or front-end Load Balancer in the public subnet:
+The following input variables are used to configure the inbound security rules for the NAT instance(s) and any other instance or front-end Load Balancer in the public subnet:
 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
-public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including the NAT instance)
+public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)
 public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
 public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
 natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
-nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when network_access=private)
-nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when network_access=private)
-nat_instance_ad3_enabled            | false                    | whether to provision a NAT instance in AD 3 (only used when network_access=private)
+nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
+nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
+nat_instance_ad3_enabled            | false                   | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
 
 *Note*
 
-If `network_access=private`, you do not need to set the etcd, master, and worker security rules since they already allow all inbound traffic between instances in the VCN.
+When `control_plane_subnet_access=private`, you do not need to set the etcd, master, and worker security rules since they already 
+allow all inbound traffic between instances in the VCN.
+
+##### _Private_ and _Public_ Network Access
+
+It is also valid to set `control_plane_subnet_access=private` while keeping `k8s_master_lb_access=public`. In this scenario, instances in the 
+cluster's control plane will still provisioned in _private_ subnets and require NAT instance(s). However, the Load 
+Balancer for your back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible 
+over the Internet if the inbound security rules allow.
+
+*Note*
+
+When `control_plane_subnet_access=private`, you still cannot SSH directly into your instances without going through a NAT instance. 
 
 #### Instance Shape and Placement Configuration
 name                                | default                 | description
@@ -279,8 +298,8 @@ etcdAd1Count                        | 1                       | number of etcd n
 etcdAd2Count                        | 0                       | number of etcd nodes to create in Availability Domain 2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
 etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
-etcdLBShape                         | 100Mbps                 | etcd OCI Load Balancer shape / bandwidth
-k8sMasterLBShape                    | 100Mbps                 | master OCI Load Balancer shape / bandwidth
+etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
+k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
 
 #### TLS Certificates & SSH key pair
 name                                | default                 | description
@@ -443,7 +462,7 @@ master_docker_max_log_size = "100m"
 ## Known issues and limitations
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Creating a service with `--type=LoadBalancer` is currently unsupported
-* Failover or HA configuration for the NAT instance is currently unsupported
+* Failover or HA configuration for NAT instance(s) is currently unsupported
 
 ## Contributing
 

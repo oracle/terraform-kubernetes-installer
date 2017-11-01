@@ -21,7 +21,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
     tags      = "group:k8s-worker"
   }
 
-  # TODO handle scenario when network_access = "private"
+  # TODO handle scenario when control_plane_subnet_access = "private"
   provisioner "remote-exec" {
     when = "destroy"
 

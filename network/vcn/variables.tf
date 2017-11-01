@@ -1,6 +1,6 @@
 variable "tenancy_ocid" {}
 
-variable "network_access" {
+variable "control_plane_subnet_access" {
   default = "public"
 }
 
@@ -78,7 +78,7 @@ variable "worker_nodeport_ingress" {
   default = "10.0.0.0/16"
 }
 
-# For optional NAT instance (when network_access = "private")
+# For optional NAT instance (when control_plane_subnet_access = "private")
 
 variable "public_subnet_ssh_ingress" {
   default = "0.0.0.0/0"

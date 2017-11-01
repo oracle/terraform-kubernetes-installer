@@ -280,9 +280,14 @@ variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
 }
 
-variable "network_access" {
-  description = "Whether instances and load-balancers in the control plane are launched in a public or private subnets"
+variable "control_plane_subnet_access" {
+  description = "Whether instances in the control plane are launched in a public or private subnets"
   default     = "public"
+}
+
+variable "k8s_master_lb_access" {
+  description = "Whether k8s master load balancer is launched in a public or private subnet"
+  default     = "private"
 }
 
 variable "natInstanceShape" {
@@ -291,16 +296,16 @@ variable "natInstanceShape" {
 }
 
 variable nat_instance_ad1_enabled {
-  description = "Whether to provision a NAT instance in AD 1 (only applicable when network_access=private)"
+  description = "Whether to provision a NAT instance in AD 1 (only applicable when control_plane_subnet_access=private)"
   default     = "true"
 }
 
 variable nat_instance_ad2_enabled {
-  description = "Whether to provision a NAT instance in AD 2 (only applicable when network_access=private)"
+  description = "Whether to provision a NAT instance in AD 2 (only applicable when control_plane_subnet_access=private)"
   default     = "false"
 }
 
 variable nat_instance_ad3_enabled {
-  description = "Whether to provision a NAT instance in AD 3 (only applicable when network_access=private)"
+  description = "Whether to provision a NAT instance in AD 3 (only applicable when control_plane_subnet_access=private)"
   default     = "false"
 }

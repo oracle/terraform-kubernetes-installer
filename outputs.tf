@@ -130,8 +130,8 @@ output "nat_instance_private_ips" {
   value = "${concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips)}"
 }
 
-output "network_access" {
-  value = "${module.vcn.network_access}"
+output "control_plane_subnet_access" {
+  value = "${module.vcn.control_plane_subnet_access}"
 }
 
 output "kubeconfig" {

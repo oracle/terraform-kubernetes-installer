@@ -24,7 +24,7 @@ module "vcn" {
   additional_k8smaster_security_lists_ids = "${var.additional_k8s_master_security_lists_ids}"
   additional_k8sworker_security_lists_ids = "${var.additional_k8s_worker_security_lists_ids}"
   additional_public_security_lists_ids    = "${var.additional_public_security_lists_ids}"
-  network_access                          = "${var.network_access}"
+  control_plane_subnet_access             = "${var.control_plane_subnet_access}"
   etcd_ssh_ingress                        = "${var.etcd_ssh_ingress}"
   etcd_cluster_ingress                    = "${var.etcd_cluster_ingress}"
   master_ssh_ingress                      = "${var.master_ssh_ingress}"
@@ -353,11 +353,13 @@ module "etcd-private-lb" {
 }
 
 module "k8smaster-public-lb" {
-  source                    = "network/loadbalancers/k8smaster"
-  compartment_ocid          = "${var.compartment_ocid}"
-  is_private                = "${var.network_access == "private" ? "true": "false"}"
-  k8smaster_subnet_0_id     = "${module.vcn.k8smaster_subnet_ad1_id}"
-  k8smaster_subnet_1_id     = "${var.network_access == "private" ? "": module.vcn.k8smaster_subnet_ad2_id}"
+  source           = "network/loadbalancers/k8smaster"
+  compartment_ocid = "${var.compartment_ocid}"
+  is_private       = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
+
+  # Handle case where var.k8s_master_lb_access=public, but var.control_plane_subnet_access=private
+  k8smaster_subnet_0_id     = "${var.k8s_master_lb_access == "private" ? module.vcn.k8smaster_subnet_ad1_id: coalesce(join(" ", list(module.vcn.public_subnet_ad1_id)), join(" ", list(module.vcn.k8smaster_subnet_ad1_id)))}"
+  k8smaster_subnet_1_id     = "${var.k8s_master_lb_access == "private" ? "": coalesce(join(" ", list(module.vcn.public_subnet_ad2_id)), join(" ", list(module.vcn.k8smaster_subnet_ad2_id)))}"
   k8smaster_ad1_private_ips = "${module.instances-k8smaster-ad1.private_ips}"
   k8smaster_ad2_private_ips = "${module.instances-k8smaster-ad2.private_ips}"
   k8smaster_ad3_private_ips = "${module.instances-k8smaster-ad3.private_ips}"

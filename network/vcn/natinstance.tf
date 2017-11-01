@@ -3,7 +3,7 @@
  */
 
 resource "oci_core_instance" "NATInstanceAD1" {
-  count               = "${(var.network_access == "private") && (var.nat_instance_ad1_enabled == "true") ? "1" : "0"}"
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad1_enabled == "true") ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}nat-ad1"
@@ -30,7 +30,7 @@ resource "oci_core_instance" "NATInstanceAD1" {
 }
 
 resource "oci_core_instance" "NATInstanceAD2" {
-  count               = "${(var.network_access == "private") && (var.nat_instance_ad2_enabled == "true") ? "1" : "0"}"
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad2_enabled == "true") ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}nat-ad2"
@@ -55,7 +55,7 @@ resource "oci_core_instance" "NATInstanceAD2" {
 }
 
 resource "oci_core_instance" "NATInstanceAD3" {
-  count               = "${(var.network_access == "private") && (var.nat_instance_ad3_enabled == "true") ? "1" : "0"}"
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad3_enabled == "true") ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}nat-ad3"

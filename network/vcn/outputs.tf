@@ -74,6 +74,6 @@ output "nat_instance_ad3_public_ips" {
   value = ["${oci_core_instance.NATInstanceAD3.*.public_ip}"]
 }
 
-output "network_access" {
-  value = "${var.network_access}"
+output "control_plane_subnet_access" {
+  value = "${var.control_plane_subnet_access}"
 }

@@ -162,7 +162,7 @@ resource "oci_core_security_list" "K8SWorkerSubnet" {
 }
 
 resource "oci_core_security_list" "PublicSecurityList" {
-  count          = "${var.network_access == "private" ? "1" : "0"}"
+  count          = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
   compartment_id = "${var.compartment_ocid}"
   display_name   = "public_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
