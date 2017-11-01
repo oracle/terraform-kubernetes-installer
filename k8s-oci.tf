@@ -275,7 +275,7 @@ module "instances-k8smaster-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -310,7 +310,7 @@ module "instances-k8smaster-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)) :
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -345,7 +345,7 @@ module "instances-k8smaster-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -380,7 +380,7 @@ module "instances-k8sworker-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -415,7 +415,7 @@ module "instances-k8sworker-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -450,7 +450,7 @@ module "instances-k8sworker-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
-  etcd_endpoints             = "${var.etcdLBEnabled=="true" ?
+  etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-private-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
@@ -463,8 +463,8 @@ module "instances-k8sworker-ad3" {
 
 module "etcd-private-lb" {
   source               = "loadbalancers/etcd"
-  count                = "${var.etcdLBEnabled=="true"? 1 : 0 }"
-  etcdLBEnabled        = "${var.etcdLBEnabled}"
+  count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
+  etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
   etcd_subnet_0_id     = "${module.subnet-etcd-ad1.id}"
   etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"

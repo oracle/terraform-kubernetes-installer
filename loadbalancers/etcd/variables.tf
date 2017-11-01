@@ -14,7 +14,7 @@ variable "etcdAd2Count" {}
 
 variable "etcdAd3Count" {}
 
-variable "etcdLBEnabled" {}
+variable "etcd_lb_enabled" {}
 
 variable "etcd_ad1_private_ips" {
   type    = "list"

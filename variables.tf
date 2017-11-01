@@ -155,7 +155,7 @@ variable "etcdLBShape" {
   default = "100Mbps"
 }
 
-variable "etcdLBEnabled" {
+variable "etcd_lb_enabled" {
   default = "true"
 }
 
