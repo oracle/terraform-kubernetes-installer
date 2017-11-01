@@ -156,6 +156,7 @@ variable "etcdLBShape" {
 }
 
 variable "etcd_lb_enabled" {
+  description = "enable/disable the etcd load balancer. true: use the etcd load balancer ip. false:use a list of etcd instance ips."
   default = "true"
 }
 
