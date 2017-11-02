@@ -75,6 +75,7 @@ curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --d
 # Download etcdctl client etcd_ver
 while ! curl -L https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz; do
 	sleep 1
+	((secs++)) && ((secs==10)) && break
 	echo "Try again"
 done
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
