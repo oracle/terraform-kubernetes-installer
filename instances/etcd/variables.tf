@@ -10,6 +10,7 @@ variable "shape" {
 variable "subnet_id" {}
 variable "ssh_public_key_openssh" {}
 variable "domain_name" {}
+
 variable "label_prefix" {
   default = ""
 }
@@ -18,8 +19,8 @@ variable "docker_ver" {
   default = "17.03.1.ce"
 }
 
-variable "instance_os_ver" {
-  default = "7.4"
+variable "oracle_linux_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
 }
 
 variable "etcd_ver" {

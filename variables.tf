@@ -219,6 +219,6 @@ variable "k8s_dns_ver" {
   default = "1.14.2"
 }
 
-variable "instance_os_ver" {
-  default = "7.4"
+variable "oracle_linux_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
 }
