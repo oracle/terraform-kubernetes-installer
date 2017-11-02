@@ -248,9 +248,9 @@ name                                | default   | description
 etcd_docker_max_log_size            | 50m       |max size of the etcd docker container logs
 etcd_docker_max_log_files           | 5         |max number of etcd docker logs to rotate
 master_docker_max_log_size          | 50m       |max size of the k8smaster docker container logs
-master_docker_max_log_files         | 5         |max number of k8smaster docker json logs to rotate
+master_docker_max_log_files         | 5         |max number of k8smaster docker container logs to rotate
 worker_docker_max_log_size          | 50m       |max size of the k8sworker docker container logs
-worker_docker_max_log_files         | 5         |max number of k8s master docker json logs to rotate
+worker_docker_max_log_files         | 5         |max number of k8s master docker container logs to rotate
 
 #### Other
 name                                | default                 | description
