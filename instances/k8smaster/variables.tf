@@ -60,3 +60,12 @@ variable "k8s_apiserver_token_admin" {}
 # etcd
 variable "etcd_discovery_url" {}
 variable "etcd_endpoints" {}
+
+variable "master_docker_max_log_size" {
+  description = "Maximum size of the k8s master docker container json logs"
+  default = "50m"
+}
+variable "master_docker_max_log_files" {
+  description = "Maximum number of k8s master docker container json logs to rotate"
+  default = "5"
+}

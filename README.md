@@ -242,6 +242,16 @@ k8s_dns_ver                         | 1.14.2                         | Version o
 k8s_dashboard_ver                   | 1.6.3                          | Version of Kubernetes dashboard to install
 oracle_linux_image_name             | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image
 
+#### Docker logging configuration
+name                                | default   | description
+------------------------------------|-----------|--------------------------
+etcd_docker_max_log_size            | 50m       |max size of the etcd docker container logs
+etcd_docker_max_log_files           | 5         |max number of etcd docker logs to rotate
+master_docker_max_log_size          | 50m       |max size of the k8smaster docker container logs
+master_docker_max_log_files         | 5         |max number of k8smaster docker json logs to rotate
+worker_docker_max_log_size          | 50m       |max size of the k8sworker docker container logs
+worker_docker_max_log_files         | 5         |max number of k8s master docker json logs to rotate
+
 #### Other
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
@@ -342,6 +352,25 @@ $ terraform apply
 
 Replacing etcd cluster members after the initial deployment is not currently supported.
 
+### Configure docker log sizes and rotation file counts
+All docker containers currently are configured to use the json-file logging driver with the following settings:
+```
+max-size=50m  max-file=5
+```
+where:
+```
+   max-size: maximum size of log before it is rolled units(k,m, or g)  
+   max-file: maximum number of files that can be present before oldest is removed  
+   ```
+To change this, add any desired modification to your terraform.tfvars file.  
+For example, to change the k8sworker docker log file rotation from 5 to 3.  
+```
+worker_docker_max_log_files = "3"
+```
+To change the k8smaster docker log file size from 50m to 100m
+```
+master_docker_max_log_size = "100m"
+```
 
 ## Known issues and limitations
 * Unsupported: scaling or replacing etcd members in or out after the initial deployment

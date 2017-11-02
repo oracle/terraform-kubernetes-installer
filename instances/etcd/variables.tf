@@ -28,11 +28,21 @@ variable "etcd_ver" {
 }
 
 variable "tenancy_ocid" {}
-variable flannel_network_cidr {}
-variable flannel_network_subnetlen {}
-variable flannel_backend {}
+variable "flannel_network_cidr" {}
+variable "flannel_network_subnetlen" {}
+variable "flannel_backend" {}
 variable "etcd_discovery_url" {}
 
 variable "count" {
   default = "1"
 }
+
+variable "etcd_docker_max_log_size" {
+  description = "Maximum size of the etcd docker container json logs"
+  default = "50m"
+}
+variable "etcd_docker_max_log_files" {
+  description = "Maximum number of etcd docker container json logs to rotate"
+  default = "5"
+}
+
