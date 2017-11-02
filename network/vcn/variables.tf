@@ -94,8 +94,8 @@ variable "public_subnet_https_ingress" {
 
 variable "nat_instance_ssh_public_key_openssh" {}
 
-variable "nat_instance_os_ver" {
-  default = "7.4"
+variable "nat_instance_oracle_linux_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
 }
 
 variable "nat_instance_shape" {

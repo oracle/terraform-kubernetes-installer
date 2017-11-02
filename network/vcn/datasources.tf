@@ -3,11 +3,10 @@ data "oci_identity_availability_domains" "ADs" {
   compartment_id = "${var.tenancy_ocid}"
 }
 
-# Gets the OCID of the OS image to use for the NAT instance
+# Prevent oci_core_images image list from changing underneath us.
 data "oci_core_images" "ImageOCID" {
-  compartment_id           = "${var.compartment_ocid}"
-  operating_system         = "Oracle Linux"
-  operating_system_version = "${var.nat_instance_os_ver}"
+  compartment_id = "${var.compartment_ocid}"
+  display_name   = "${var.nat_instance_oracle_linux_image_name}"
 }
 
 # Gets a list of VNIC attachments on the NAT instance in AD 1

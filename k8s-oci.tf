@@ -32,6 +32,7 @@ module "vcn" {
   public_subnet_ssh_ingress               = "${var.public_subnet_ssh_ingress}"
   public_subnet_http_ingress              = "${var.public_subnet_http_ingress}"
   public_subnet_https_ingress             = "${var.public_subnet_https_ingress}"
+  nat_instance_oracle_linux_image_name    = "${var.oracle_linux_image_name}"
   nat_instance_shape                      = "${var.natInstanceShape}"
   nat_instance_ad1_enabled                = "${var.nat_instance_ad1_enabled}"
   nat_instance_ad2_enabled                = "${var.nat_instance_ad2_enabled}"
