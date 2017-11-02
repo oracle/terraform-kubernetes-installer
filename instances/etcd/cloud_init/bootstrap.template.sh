@@ -13,6 +13,12 @@ yum-config-manager --enable ol7_addons ol7_latest ol7_UEKR4 ol7_optional ol7_opt
 # Install Docker
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
+cat <<EOF > /etc/sysconfig/docker
+OPTIONS="--selinux-enabled --log-opt max-size=50m --log-opt max-file=5"
+DOCKER_CERT_PATH=/etc/docker
+GOTRACEBACK=crash
+EOF
+
 # Start Docker
 systemctl daemon-reload
 systemctl restart docker
@@ -45,10 +51,6 @@ docker run -d \
 	-listen-peer-urls http://0.0.0.0:2380 \
 	-discovery ${etcd_discovery_url}
 
-# Download etcdctl client etcd_ver
-curl -L --retry 5 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
-tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
-
 # Generate a flannel configuration JSON that we will store into etcd using curl.
 cat >/tmp/flannel-network.json <<EOF
 {
@@ -69,3 +71,10 @@ done
 
 # put the flannel config in etcd
 curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json
+
+# Download etcdctl client etcd_ver
+while ! curl -L https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz; do
+	sleep 1
+	echo "Try again"
+done
+tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
