@@ -32,4 +32,14 @@
 #master_https_ingress = "0.0.0.0/0"
 #worker_nodeport_ingress = "0.0.0.0/0"
 
+#control_plane_subnet_access = "public"
+#k8s_master_lb_access = "public"
+#natInstanceShape = "VM.Standard1.2"
+#nat_instance_ad1_enabled = "true"
+#nat_instance_ad2_enabled = "false"
+#nat_instance_ad3_enabled = "true"
+#nat_ssh_ingress = "0.0.0.0/0"
+#public_subnet_http_ingress = "0.0.0.0/0"
+#public_subnet_https_ingress = "0.0.0.0/0"
+
 # ...
