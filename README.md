@@ -40,7 +40,7 @@ configuration, the modules can be used to form your own customized configuration
 
 ## Prerequisites
 
-1. Download and install [Terraform][terraform]
+1. Download and install [Terraform][terraform] (v0.10.3 or later)
 2. Download and install the [OCI Terraform Provider][oci provider] (v2.0.0 or later)
 3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the OCI provider:
 ```
