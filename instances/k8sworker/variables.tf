@@ -25,7 +25,7 @@ variable "ssh_public_key_openssh" {}
 variable "ssh_private_key" {}
 
 variable "docker_ver" {
-  default = "17.03.1.ce"
+  default = "17.06.2.ol"
 }
 
 variable "oracle_linux_image_name" {

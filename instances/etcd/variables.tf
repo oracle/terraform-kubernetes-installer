@@ -16,7 +16,7 @@ variable "label_prefix" {
 }
 
 variable "docker_ver" {
-  default = "17.03.1.ce"
+  default = "17.06.2.ol"
 }
 
 variable "oracle_linux_image_name" {

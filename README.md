@@ -234,7 +234,7 @@ worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 
 name                                | default                        | description
 ------------------------------------|--------------------------------|------------
-docker_ver                          | 17.03.1                        | Version of Docker to install
+docker_ver                          | 17.06.2.ol                     | Version of Docker to install
 etcd_ver                            | v3.2.2                         | Version of etcd to install
 flannel_ver                         | v0.7.1                         | Version of Flannel to install
 k8s_ver                             | 1.7.4                          | Version of K8s to install (master and workers)
@@ -358,7 +358,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 * Oracle Linux Enterprise (7.4)
 * etcd - (default v3.2.2)
 * flannel - (default v0.7.1)
-* docker - (default 17.03.1.ce)
+* docker - (default 17.06.2.ol)
 * apt-transport-https - (default 1.2.20)
 * kubernetes - (default v1.7.4)
   * master(s) (`kube-apiserver`, `kube-controller-manager`, `kube-scheduler`, `kubernetes-cni`, `kubectl`)

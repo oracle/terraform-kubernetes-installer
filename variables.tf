@@ -196,7 +196,7 @@ variable "api_server_admin_token" {
 }
 
 variable "docker_ver" {
-  default = "17.03.1.ce"
+  default = "17.06.2.ol"
 }
 
 variable "etcd_ver" {
