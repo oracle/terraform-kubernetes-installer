@@ -205,6 +205,8 @@ module "instances-etcd-ad1" {
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad1.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
+  etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
+  etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
 }
 
 module "instances-etcd-ad2" {
@@ -225,6 +227,8 @@ module "instances-etcd-ad2" {
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad2.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
+  etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
+  etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
 }
 
 module "instances-etcd-ad3" {
@@ -247,6 +251,8 @@ module "instances-etcd-ad3" {
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad3.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
+  etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
+  etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
 }
 
 module "instances-k8smaster-ad1" {
@@ -260,6 +266,8 @@ module "instances-k8smaster-ad1" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-master-ad1"
   docker_ver                 = "${var.docker_ver}"
+  master_docker_max_log_size = "${var.master_docker_max_log_size}"
+  master_docker_max_log_files = "${var.master_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"
@@ -295,6 +303,8 @@ module "instances-k8smaster-ad2" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-master-ad2"
   docker_ver                 = "${var.docker_ver}"
+  master_docker_max_log_size = "${var.master_docker_max_log_size}"
+  master_docker_max_log_files = "${var.master_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"
@@ -330,6 +340,8 @@ module "instances-k8smaster-ad3" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-master-ad3"
   docker_ver                 = "${var.docker_ver}"
+  master_docker_max_log_size = "${var.master_docker_max_log_size}"
+  master_docker_max_log_files = "${var.master_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"
@@ -363,6 +375,8 @@ module "instances-k8sworker-ad1" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-worker-ad1"
   docker_ver                 = "${var.docker_ver}"
+  worker_docker_max_log_size = "${var.worker_docker_max_log_size}"
+  worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"
@@ -398,6 +412,8 @@ module "instances-k8sworker-ad2" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-worker-ad2"
   docker_ver                 = "${var.docker_ver}"
+  worker_docker_max_log_size = "${var.worker_docker_max_log_size}"
+  worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"
@@ -433,6 +449,8 @@ module "instances-k8sworker-ad3" {
   compartment_ocid           = "${var.compartment_ocid}"
   display_name_prefix        = "k8s-worker-ad3"
   docker_ver                 = "${var.docker_ver}"
+  worker_docker_max_log_size = "${var.worker_docker_max_log_size}"
+  worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                = "${var.domain_name}"
   etcd_discovery_url         = "${template_file.etcd_discovery_url.id}"
   etcd_ver                   = "${var.etcd_ver}"

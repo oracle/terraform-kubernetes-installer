@@ -56,3 +56,12 @@ variable "api_server_cert_pem" {}
 # etcd
 variable "etcd_discovery_url" {}
 variable "etcd_endpoints" {}
+
+variable "worker_docker_max_log_size" {
+  description = "Maximum size of the k8s worker docker container json logs"
+  default = "50m"
+}
+variable "worker_docker_max_log_files" {
+  description = "Maximum number of the k8s worker docker container json logs to rotate"
+  default = "5"
+}

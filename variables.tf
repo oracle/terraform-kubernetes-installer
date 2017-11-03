@@ -164,6 +164,37 @@ variable "k8sMasterLBShape" {
   default = "100Mbps"
 }
 
+# Docker log file config
+variable "etcd_docker_max_log_size" {
+  description = "Maximum size of the etcd docker container logs"
+  default = "50m"
+}
+
+variable "etcd_docker_max_log_files" {
+  description = "Maximum number of etcd docker container logs to rotate"
+  default = "5"
+}
+
+variable "master_docker_max_log_size" {
+  description = "Maximum size of the etcd docker container logs"
+  default = "50m"
+}
+
+variable "master_docker_max_log_files" {
+  description = "Maximum number of etcd docker container logs to rotate"
+  default = "5"
+}
+
+variable "worker_docker_max_log_size" {
+  description = "Maximum size of the etcd docker container logs"
+  default = "50m"
+}
+
+variable "worker_docker_max_log_files" {
+  description = "Maximum number of etcd docker json logs to rotate"
+  default = "5"
+}
+
 # Kubernetes
 variable "ca_cert" {
   description = "CA certificate (generated if left blank)"

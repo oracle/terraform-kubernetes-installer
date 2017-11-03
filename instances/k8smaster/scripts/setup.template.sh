@@ -46,6 +46,12 @@ cat <<EOF > /etc/sysconfig/docker-network
 DOCKER_NETWORK_OPTIONS="--bridge=cni0 --iptables=false --ip-masq=false"
 EOF
 
+cat <<EOF > /etc/sysconfig/docker
+OPTIONS="--selinux-enabled --log-opt max-size=${docker_max_log_size} --log-opt max-file=${docker_max_log_files}"
+DOCKER_CERT_PATH=/etc/docker
+GOTRACEBACK=crash
+EOF
+
 systemctl daemon-reload
 systemctl enable docker
 systemctl start docker

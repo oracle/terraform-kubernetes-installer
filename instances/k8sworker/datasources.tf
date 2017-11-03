@@ -19,6 +19,8 @@ data "template_file" "setup-template" {
     etcd_ver           = "${var.etcd_ver}"
     flannel_ver        = "${var.flannel_ver}"
     k8s_ver            = "${var.k8s_ver}"
+    docker_max_log_size  = "${var.worker_docker_max_log_size}"
+    docker_max_log_files = "${var.worker_docker_max_log_files}"
     etcd_discovery_url = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
     etcd_endpoints     = "${var.etcd_endpoints}"
   }
