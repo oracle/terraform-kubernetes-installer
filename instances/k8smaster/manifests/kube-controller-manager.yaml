@@ -35,6 +35,9 @@ spec:
     - mountPath: /etc/ssl/certs
       name: ssl-certs-host
       readOnly: true
+    - mountPath: /etc/pki/certs
+      name: pki-certs-host
+      readOnly: true
     - mountPath: /usr/libexec/kubernetes/kubelet-plugins
       name: plugins
   volumes:
@@ -44,6 +47,9 @@ spec:
   - hostPath:
       path: /etc/ssl/certs
     name: ssl-certs-host
+  - hostPath:
+      path: /etc/pki/certs
+    name: pki-certs-host
   - hostPath:
       path: /usr/libexec/kubernetes/kubelet-plugins
     name: plugins
