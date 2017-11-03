@@ -23,6 +23,7 @@ data "template_file" "setup-template" {
     docker_max_log_files = "${var.worker_docker_max_log_files}"
     etcd_discovery_url = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
     etcd_endpoints     = "${var.etcd_endpoints}"
+    docker_device      = "${var.docker_device}"
   }
 }
 

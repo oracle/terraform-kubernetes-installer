@@ -253,3 +253,7 @@ variable "k8s_dns_ver" {
 variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
 }
+
+variable "worker_docker_device" {
+  default = ""
+}
