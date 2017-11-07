@@ -12,3 +12,5 @@ ExecStart=/usr/bin/kubelet \
   --v=2
 Restart=always
 RestartSec=10
+[Install]
+WantedBy=multi-user.target
