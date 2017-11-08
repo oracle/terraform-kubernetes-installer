@@ -73,8 +73,8 @@ data "template_file" "kubelet-service" {
     master_lb   = "${var.master_lb}"
     k8s_ver     = "${var.k8s_ver}"
     domain_name = "${var.domain_name}"
-    region      = "${lower(var.region)}"
-    zone        = "${lower(replace(var.availability_domain,":","-"))}"
+    region      = "${var.region}"
+    zone        = "${element(split(":",var.availability_domain),1)}"
   }
 }
 
