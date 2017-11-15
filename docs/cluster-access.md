@@ -38,47 +38,12 @@ Note, for easier access, consider setting up an SSH tunnel between your local ho
 
 ## Access the cluster using Kubernetes Dashboard
 
-Assuming `kubectl` has access to the Kubernetes Master Load Balancer, you can use use `kubectl proxy` to access the 
+Assuming `kubectl` has access to the Kubernetes Master Load Balancer, you can use `kubectl proxy` to access the 
 Dashboard:
 
 ```
 kubectl proxy &
 open http://localhost:8001/ui
-```
-
-## Verifying your cluster:
-
-If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
-your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
-
-To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
-
-```bash
-# warning: 0.0.0.0/0 is wide open. remember to undo this.
-etcd_ssh_ingress = "0.0.0.0/0"
-master_ssh_ingress = "0.0.0.0/0"
-worker_ssh_ingress = "0.0.0.0/0"
-master_https_ingress = "0.0.0.0/0"
-worker_nodeport_ingress = "0.0.0.0/0"
-```
-
-```bash
-$ scripts/cluster-check.sh
-```
-```
-[cluster-check.sh] Running some basic checks on Kubernetes cluster....
-[cluster-check.sh]   Checking ssh connectivity to each node...
-[cluster-check.sh]   Checking whether instance bootstrap has completed on each node...
-[cluster-check.sh]   Checking Flannel's etcd key from each node...
-[cluster-check.sh]   Checking whether expected system services are running on each node...
-[cluster-check.sh]   Checking status of /healthz endpoint at each k8s master node...
-[cluster-check.sh]   Checking status of /healthz endpoint at the LB...
-[cluster-check.sh]   Running 'kubectl get nodes' a number or times through the master LB...
-
-The Kubernetes cluster is up and appears to be healthy.
-Kubernetes master is running at https://129.146.22.175:443
-KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-system/services/kube-dns
-kubernetes-dashboard is running at https://129.146.22.175:443/ui
 ```
 
 ## SSH into OCI Instances

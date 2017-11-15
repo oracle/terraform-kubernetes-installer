@@ -21,10 +21,10 @@ Terraform is used to _provision_ the cloud infrastructure and any required local
 
 - Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
 - Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
-- Public or Private TCP/SSL OCI Load Balancer to to distribute traffic to the Kubernetes Master(s)
+- Public or Private TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
 - Private OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
 - _Optional_ NAT instance for Internet-bound traffic on any private subnets
-- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variabless
+- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variables
 - Self-signed CA and TLS cluster certificates when not overridden by the input variables `ca_cert`, `ca_key`, etc.
 
 #### Cluster Configuration
@@ -71,7 +71,7 @@ $ cp terraform.example.tfvars terraform.tfvars
 
 ### Deploy the cluster
 
-Initialise Terraform:
+Initialize Terraform:
 
 ```
 $ terraform init
@@ -91,11 +91,46 @@ $ terraform apply
 
 ### Access the cluster
 
-The Kubernetes cluster will be running after the configuration is applied successfully and the cloud-init scripts have been given time to finish asynchronously. Typically this takes around 5 minutes after `terraform apply` and will vary depending on the overall configuration, instance counts, and shapes.
+The Kubernetes cluster will be running after the configuration is applied successfully and the cloud-init scripts have been given time to finish asynchronously. Typically, this takes around 5 minutes after `terraform apply` and will vary depending on the overall configuration, instance counts, and shapes.
 
 A working kubeconfig can be found in the ./generated folder or generated on the fly using the `kubeconfig` Terraform output variable.
 
 Your network access settings determine whether your cluster is accessible from the outside. See [Accessing the Cluster](./docs/cluster-access.md) for more details.
+
+#### Verifying the cluster:
+
+If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
+your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
+
+To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
+
+```bash
+# warning: 0.0.0.0/0 is wide open. remember to undo this.
+etcd_ssh_ingress = "0.0.0.0/0"
+master_ssh_ingress = "0.0.0.0/0"
+worker_ssh_ingress = "0.0.0.0/0"
+master_https_ingress = "0.0.0.0/0"
+worker_nodeport_ingress = "0.0.0.0/0"
+```
+
+```bash
+$ scripts/cluster-check.sh
+```
+```
+[cluster-check.sh] Running some basic checks on Kubernetes cluster....
+[cluster-check.sh]   Checking ssh connectivity to each node...
+[cluster-check.sh]   Checking whether instance bootstrap has completed on each node...
+[cluster-check.sh]   Checking Flannel's etcd key from each node...
+[cluster-check.sh]   Checking whether expected system services are running on each node...
+[cluster-check.sh]   Checking status of /healthz endpoint at each k8s master node...
+[cluster-check.sh]   Checking status of /healthz endpoint at the LB...
+[cluster-check.sh]   Running 'kubectl get nodes' a number of times through the master LB...
+
+The Kubernetes cluster is up and appears to be healthy.
+Kubernetes master is running at https://129.146.22.175:443
+KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-system/services/kube-dns
+kubernetes-dashboard is running at https://129.146.22.175:443/ui
+```
 
 ### Scale, upgrade, or delete the cluster
 
