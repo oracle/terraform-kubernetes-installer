@@ -20,7 +20,7 @@ ExecStart=/usr/bin/kubelet \
   --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem \
   --feature-gates=ExperimentalCriticalPodAnnotation=true \
-  --v=2
+  __SWAP_OPTION__ --v=2
 Restart=always
 RestartSec=10
 [Install]

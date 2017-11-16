@@ -19,6 +19,24 @@ export IP_LOCAL=$(ip route show to 0.0.0.0/0 | awk '{ print $5 }' | xargs ip add
 SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 export WORKER_IP=$IP_LOCAL
 
+## k8s_ver swap option
+######################################
+k8sversion="${k8s_ver}"
+
+if [[ $k8sversion =~ ^[0-1]+\.[0-7]+ ]]; then
+    SWAP_OPTION=""
+else
+    SWAP_OPTION="--fail-swap-on=false"
+fi
+
+## k8s_ver RPM Tag option
+######################################
+if [[ $k8sversion =~ ^[1]+\.[7]+\.[6-8] ]]; then
+    RPM_TAG=1
+else
+    RPM_TAG=0
+fi
+
 ## etcd
 ######################################
 
@@ -107,7 +125,7 @@ EOF
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
-until yum install -y kubelet-${k8s_ver}-0 kubectl-${k8s_ver}-0 kubernetes-cni; do sleep 1 && echo -n ".";done
+until yum install -y kubelet-${k8s_ver}-$RPM_TAG kubectl-${k8s_ver}-$RPM_TAG kubernetes-cni; do sleep 1 && echo -n ".";done
 
 ## Pull etcd docker image from registry
 docker pull quay.io/coreos/etcd:${etcd_ver}
@@ -145,6 +163,7 @@ sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" \
     -e "s/__NODE_ID_PREFIX__/$NODE_ID_0/g" \
     -e "s/__NODE_ID_SUFFIX__/$NODE_ID_1/g" \
     -e "s/__NODE_SHAPE__/$NODE_SHAPE/g" \
+    -e "s/__SWAP_OPTION__/$SWAP_OPTION/g" \
     /root/services/kubelet.service > /etc/systemd/system/kubelet.service
 
 ## Wait for k8s master to be available. There is a possible race on pod networks otherwise.
