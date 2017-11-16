@@ -9,7 +9,7 @@ ExecStart=/usr/bin/kubelet \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --hostname-override=__FQDN_HOSTNAME__ \
   --feature-gates=ExperimentalCriticalPodAnnotation=true \
-  --v=2
+  __SWAP_OPTION__ --v=2
 Restart=always
 RestartSec=10
 [Install]
