@@ -67,6 +67,17 @@ systemctl enable cni-bridge && systemctl start cni-bridge
 
 ## Docker
 ######################################
+if [ -n "${docker_device}" ]; then
+  if [ -e "${docker_device}" ]; then
+    mkfs -t xfs -L DOCKER ${docker_device}
+    mkdir -p /var/lib/docker
+    cat <<-EOF >>/etc/fstab
+	LABEL=DOCKER /var/lib/docker  xfs     defaults 0 0
+	EOF
+    mount /var/lib/docker
+  fi
+fi
+
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
 cat <<EOF > /etc/sysconfig/docker-network
