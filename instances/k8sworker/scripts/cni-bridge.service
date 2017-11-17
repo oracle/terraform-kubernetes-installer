@@ -5,3 +5,5 @@ Before=docker.service
 Type=oneshot
 ExecStart=/usr/local/bin/cni-bridge.sh
 RemainAfterExit=true
+[Install]
+WantedBy=multi-user.target

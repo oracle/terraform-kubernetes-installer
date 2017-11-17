@@ -1,0 +1,33 @@
+### Terraform Version
+
+<details>
+# Run this command to get the terraform version:
+
+$ terraform -v
+
+</details>
+
+### OCI Provider Version
+
+<details>
+# Execute the plugin directly to get the version:
+
+$ \<path-to-plugin\>/terraform-provider-oci
+
+</details>
+
+### Terraform Installer for Kubernetes Version
+
+<details>
+# The version/tag/release or commit hash (of this project) the issue occurred on
+</details>
+
+### Input Variables
+
+<details>
+# Values of non-sensitive input variables
+
+</details>
+
+### Description of issue:
+

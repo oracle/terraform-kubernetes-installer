@@ -1,6 +1,7 @@
 [Unit]
 Description=flannel is an etcd backed network fabric for containers
 Documentation=https://github.com/coreos/flannel
+After=docker.service kubelet.service
 
 [Service]
 Type=notify
@@ -11,7 +12,7 @@ ExecStart=/usr/local/bin/flanneld \
   -etcd-prefix /flannel/network
 Restart=always
 RestartSec=10
-After=docker.service kubelet.service
+
 
 [Install]
 WantedBy=multi-user.target
