@@ -15,8 +15,10 @@ resource "oci_core_instance" "TFInstanceEtcd" {
   extended_metadata {
     roles               = "etcd"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
-    user_data           = "${base64encode(data.template_file.etcd-bootstrap.rendered)}"
-    tags = "group:etcd"
+
+    # Automate etcd instance configuration with cloud init run at launch time
+    user_data = "${base64encode(data.template_file.etcd-bootstrap.rendered)}"
+    tags      = "group:etcd"
   }
 
   timeouts {

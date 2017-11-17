@@ -3,13 +3,15 @@
 # Runs a few checks on the cluster. If you don't see Success and cluster info at the end, something's wrong.
 # Example run: ./scripts/cluster-check.sh
 
+# TODO handle scenario when control_plane_subnet_access = "private"
+
 trap cleanup INT
 trap cleanup EXIT
 
 function cleanup {
 	rm /tmp/instances_id_rsa
-	kubectl delete deployment nginx &>/dev/null
-	kubectl delete service nginx &>/dev/null
+#	kubectl delete deployment nginx &>/dev/null
+#	kubectl delete service nginx &>/dev/null
 }
 
 function log_msg() {
@@ -308,6 +310,12 @@ fi
 
 terraform output ssh_private_key >/tmp/instances_id_rsa
 chmod 600 /tmp/instances_id_rsa
+
+control_plane_subnet_access=$(terraform output control_plane_subnet_access)
+if [[ $control_plane_subnet_access == "private" ]]; then
+	echo This script does not currently support checking private clusters
+	exit 1
+fi
 
 log_msg "Running some basic checks on Kubernetes cluster...."
 

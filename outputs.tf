@@ -26,64 +26,40 @@ output "etcd_lb_backendset_2380_name" {
   value = "${module.etcd-private-lb.backendset_2380_name}"
 }
 
-output "etcd_security_list_id" {
-  value = "${module.security-list-etcd.id}"
-}
-
-output "master_security_list_id" {
-  value = "${module.security-list-k8smaster.id}"
-}
-
-output "worker_security_list_id" {
-  value = "${module.security-list-k8sworker.id}"
-}
-
 output "vcn_id" {
   value = "${module.vcn.id}"
 }
 
-output "vcn_route_for_complete_id" {
-  value = "${module.vcn.route_for_complete_id}"
-}
-
-output "vcn_dhcp_options_id" {
-  value = "${module.vcn.dhcp_options_id}"
-}
-
-output "etcd_subnet_dns_labels" {
-  value = ["${module.subnet-etcd-ad1.dns_label}", "${module.subnet-etcd-ad2.dns_label}", "${module.subnet-etcd-ad3.dns_label}"]
-}
-
 output "etcd_subnet_ids" {
-  value = ["${module.subnet-etcd-ad1.id}", "${module.subnet-etcd-ad2.id}", "${module.subnet-etcd-ad3.id}"]
-}
-
-output "master_subnet_ids" {
-  value = ["${module.subnet-k8sMasterSubnetAd1.id}", "${module.subnet-k8sMasterSubnetAd2.id}", "${module.subnet-k8sMasterSubnetAd3.id}"]
+  value = ["${module.vcn.etcd_subnet_ad1_id}", "${module.vcn.etcd_subnet_ad2_id}", "${module.vcn.etcd_subnet_ad3_id}"]
 }
 
 output "worker_subnet_ids" {
-  value = ["${module.subnet-k8sWorkerSubnetAd1.id}", "${module.subnet-k8sWorkerSubnetAd2.id}", "${module.subnet-k8sWorkerSubnetAd3.id}"]
+  value = ["${module.vcn.k8worker_subnet_ad1_id}", "${module.vcn.k8worker_subnet_ad2_id}", "${module.vcn.k8worker_subnet_ad3_id}"]
+}
+
+output "master_subnet_ids" {
+  value = ["${module.vcn.k8smaster_subnet_ad1_id}", "${module.vcn.k8smaster_subnet_ad2_id}", "${module.vcn.k8smaster_subnet_ad3_id}"]
 }
 
 output "worker_ssh_ingress_cidr" {
-  value = "${module.security-list-k8sworker.default_ssh_ingress_cidr}"
+  value = "${var.worker_ssh_ingress}"
 }
 
 output "worker_node_port_ingress_cidr" {
-  value = "${module.security-list-k8sworker.default_default_node_port_ingress_cidr}"
+  value = "${var.worker_nodeport_ingress}"
 }
 
 output "master_ssh_ingress_cidr" {
-  value = "${module.security-list-k8smaster.default_ssh_ingress_cidr}"
+  value = "${var.master_ssh_ingress}"
 }
 
 output "master_https_ingress_cidr" {
-  value = "${module.security-list-k8smaster.default_default_https_ingress_cidr}"
+  value = "${var.master_https_ingress}"
 }
 
 output "etcd_ssh_ingress_cidr" {
-  value = "${module.security-list-etcd.default_ssh_ingress_cidr}"
+  value = "${var.etcd_ssh_ingress}"
 }
 
 output "root_ca_pem" {
@@ -131,7 +107,7 @@ output "master_lb_ip" {
 }
 
 output "master_public_ips" {
-  value = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips )}"
+  value = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips)}"
 }
 
 output "master_private_ips" {
@@ -139,11 +115,23 @@ output "master_private_ips" {
 }
 
 output "worker_public_ips" {
-  value = "${concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips )}"
+  value = "${concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips)}"
 }
 
 output "worker_private_ips" {
   value = "${concat(module.instances-k8sworker-ad1.private_ips,module.instances-k8sworker-ad2.private_ips,module.instances-k8sworker-ad3.private_ips )}"
+}
+
+output "nat_instance_public_ips" {
+  value = "${concat(module.vcn.nat_instance_ad1_public_ips,module.vcn.nat_instance_ad2_public_ips,module.vcn.nat_instance_ad3_public_ips)}"
+}
+
+output "nat_instance_private_ips" {
+  value = "${concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips)}"
+}
+
+output "control_plane_subnet_access" {
+  value = "${module.vcn.control_plane_subnet_access}"
 }
 
 output "kubeconfig" {

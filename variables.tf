@@ -33,6 +33,11 @@ variable "label_prefix" {
   default     = ""
 }
 
+variable "additional_nat_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
 variable "additional_etcd_security_lists_ids" {
   type    = "list"
   default = []
@@ -48,7 +53,13 @@ variable "additional_k8s_worker_security_lists_ids" {
   default = []
 }
 
+variable "additional_public_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
 # Instance shape, e.g. VM.Standard1.1, VM.Standard1.2, VM.Standard1.4, ..., BM.Standard1.36, ...
+
 variable "etcdShape" {
   default = "VM.Standard1.1"
 }
@@ -115,33 +126,48 @@ variable "flannel_network_cidr" {
 }
 
 variable "etcd_cluster_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the etcd cluster"
+  description = "A CIDR notation IP range that is allowed cluster access to the instances on the etcd subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "etcd_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to etcd nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the etcd subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "master_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to master nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the master subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "master_https_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the HTTPs port on the master nodes"
+  description = "A CIDR notation IP range that is allowed HTTPs access to the instances on the master subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "worker_ssh_ingress" {
-  description = "A CIDR notation IP range that is allowed to SSH to worker nodes"
+  description = "A CIDR notation IP range that is allowed SSH access to the instances on the worker subnet"
   default     = "10.0.0.0/16"
 }
 
 variable "worker_nodeport_ingress" {
-  description = "A CIDR notation IP range that is allowed to access the K8s service / NodePorts on the worker nodes"
+  description = "A CIDR notation IP range that is allowed to access service ports to the instances on the worker subnet"
   default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to instances on the public subnet"
+  default     = "0.0.0.0/0"
+}
+
+variable "public_subnet_http_ingress" {
+  description = "A CIDR notation IP range that is allowed to HTTP to instances on the public subnet"
+  default     = "0.0.0.0/0"
+}
+
+variable "public_subnet_https_ingress" {
+  description = "A CIDR notation IP range that is allowed to HTTPs to instances on the public subnet"
+  default     = "0.0.0.0/0"
 }
 
 variable "ssh_private_key" {
@@ -252,6 +278,36 @@ variable "k8s_dns_ver" {
 
 variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
+}
+
+variable "control_plane_subnet_access" {
+  description = "Whether instances in the control plane are launched in a public or private subnets"
+  default     = "public"
+}
+
+variable "k8s_master_lb_access" {
+  description = "Whether k8s master load balancer is launched in a public or private subnet"
+  default     = "private"
+}
+
+variable "natInstanceShape" {
+  description = "Make sure to size this instance according to the amount of expected outbound traffic"
+  default     = "VM.Standard1.1"
+}
+
+variable nat_instance_ad1_enabled {
+  description = "Whether to provision a NAT instance in AD 1 (only applicable when control_plane_subnet_access=private)"
+  default     = "true"
+}
+
+variable nat_instance_ad2_enabled {
+  description = "Whether to provision a NAT instance in AD 2 (only applicable when control_plane_subnet_access=private)"
+  default     = "false"
+}
+
+variable nat_instance_ad3_enabled {
+  description = "Whether to provision a NAT instance in AD 3 (only applicable when control_plane_subnet_access=private)"
+  default     = "false"
 }
 
 variable "worker_docker_device" {
