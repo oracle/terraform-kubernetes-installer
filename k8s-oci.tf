@@ -341,7 +341,6 @@ module "instances-k8sworker-ad3" {
 
 module "etcd-private-lb" {
   source               = "network/loadbalancers/etcd"
-  source               = "loadbalancers/etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
