@@ -39,15 +39,15 @@ output "k8worker_subnet_ad3_id" {
 }
 
 output "public_subnet_ad1_id" {
-  value = "${oci_core_subnet.PublicSubnetAD1.0.id}"
+  value = "${oci_core_subnet.PublicSubnetAD1.*.id}"
 }
 
 output "public_subnet_ad2_id" {
-  value = "${oci_core_subnet.PublicSubnetAD2.0.id}"
+  value = "${oci_core_subnet.PublicSubnetAD2.*.id}"
 }
 
 output "public_subnet_ad3_id" {
-  value = "${oci_core_subnet.PublicSubnetAD3.0.id}"
+  value = "${oci_core_subnet.PublicSubnetAD3.*.id}"
 }
 
 output "nat_instance_ad1_private_ips" {

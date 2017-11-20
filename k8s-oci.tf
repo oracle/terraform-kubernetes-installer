@@ -361,8 +361,8 @@ module "k8smaster-public-lb" {
   is_private       = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
 
   # Handle case where var.k8s_master_lb_access=public, but var.control_plane_subnet_access=private
-  k8smaster_subnet_0_id     = "${var.k8s_master_lb_access == "private" ? module.vcn.k8smaster_subnet_ad1_id: coalesce(join(" ", list(module.vcn.public_subnet_ad1_id)), join(" ", list(module.vcn.k8smaster_subnet_ad1_id)))}"
-  k8smaster_subnet_1_id     = "${var.k8s_master_lb_access == "private" ? "": coalesce(join(" ", list(module.vcn.public_subnet_ad2_id)), join(" ", list(module.vcn.k8smaster_subnet_ad2_id)))}"
+  k8smaster_subnet_0_id     = "${var.k8s_master_lb_access == "private" ? module.vcn.k8smaster_subnet_ad1_id: coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.k8smaster_subnet_ad1_id)))}"
+  k8smaster_subnet_1_id     = "${var.k8s_master_lb_access == "private" ? "": coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.k8smaster_subnet_ad2_id)))}"
   k8smaster_ad1_private_ips = "${module.instances-k8smaster-ad1.private_ips}"
   k8smaster_ad2_private_ips = "${module.instances-k8smaster-ad2.private_ips}"
   k8smaster_ad3_private_ips = "${module.instances-k8smaster-ad3.private_ips}"
