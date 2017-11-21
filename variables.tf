@@ -287,7 +287,7 @@ variable "control_plane_subnet_access" {
 
 variable "k8s_master_lb_access" {
   description = "Whether k8s master load balancer is launched in a public or private subnet"
-  default     = "private"
+  default     = "public"
 }
 
 variable "natInstanceShape" {
