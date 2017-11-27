@@ -1,7 +1,7 @@
 ### CA and Cluster Certificates
 
 module "k8s-tls" {
-  source                 = "tls/"
+  source                 = "./tls/"
   api_server_private_key = "${var.api_server_private_key}"
   api_server_cert        = "${var.api_server_cert}"
   ca_cert                = "${var.ca_cert}"
@@ -15,7 +15,7 @@ module "k8s-tls" {
 ### Virtual Cloud Network
 
 module "vcn" {
-  source                                  = "network/vcn"
+  source                                  = "./network/vcn"
   compartment_ocid                        = "${var.compartment_ocid}"
   label_prefix                            = "${var.label_prefix}"
   tenancy_ocid                            = "${var.tenancy_ocid}"
@@ -45,7 +45,7 @@ module "vcn" {
 ### Compute Instance(s)
 
 module "instances-etcd-ad1" {
-  source                    = "instances/etcd"
+  source                    = "./instances/etcd"
   count                     = "${var.etcdAd1Count}"
   availability_domain       = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   compartment_ocid          = "${var.compartment_ocid}"
@@ -67,7 +67,7 @@ module "instances-etcd-ad1" {
 }
 
 module "instances-etcd-ad2" {
-  source                    = "instances/etcd"
+  source                    = "./instances/etcd"
   count                     = "${var.etcdAd2Count}"
   availability_domain       = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
   compartment_ocid          = "${var.compartment_ocid}"
@@ -89,7 +89,7 @@ module "instances-etcd-ad2" {
 }
 
 module "instances-etcd-ad3" {
-  source                    = "instances/etcd"
+  source                    = "./instances/etcd"
   count                     = "${var.etcdAd3Count}"
   availability_domain       = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
   compartment_ocid          = "${var.compartment_ocid}"
@@ -113,7 +113,7 @@ module "instances-etcd-ad3" {
 }
 
 module "instances-k8smaster-ad1" {
-  source                     = "instances/k8smaster"
+  source                     = "./instances/k8smaster"
   count                      = "${var.k8sMasterAd1Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_count           = "${var.k8sMasterAd1Count + var.k8sMasterAd2Count + var.k8sMasterAd3Count}"
@@ -150,7 +150,7 @@ module "instances-k8smaster-ad1" {
 }
 
 module "instances-k8smaster-ad2" {
-  source                     = "instances/k8smaster"
+  source                     = "./instances/k8smaster"
   count                      = "${var.k8sMasterAd2Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_count           = "${var.k8sMasterAd1Count + var.k8sMasterAd2Count + var.k8sMasterAd3Count}"
@@ -187,7 +187,7 @@ module "instances-k8smaster-ad2" {
 }
 
 module "instances-k8smaster-ad3" {
-  source                     = "instances/k8smaster"
+  source                     = "./instances/k8smaster"
   count                      = "${var.k8sMasterAd3Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_count           = "${var.k8sMasterAd1Count + var.k8sMasterAd2Count + var.k8sMasterAd3Count}"
@@ -224,7 +224,7 @@ module "instances-k8smaster-ad3" {
 }
 
 module "instances-k8sworker-ad1" {
-  source                     = "instances/k8sworker"
+  source                     = "./instances/k8sworker"
   count                      = "${var.k8sWorkerAd1Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_private_key_pem = "${module.k8s-tls.api_server_private_key_pem}"
@@ -262,7 +262,7 @@ module "instances-k8sworker-ad1" {
 }
 
 module "instances-k8sworker-ad2" {
-  source                     = "instances/k8sworker"
+  source                     = "./instances/k8sworker"
   count                      = "${var.k8sWorkerAd2Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_private_key_pem = "${module.k8s-tls.api_server_private_key_pem}"
@@ -300,7 +300,7 @@ module "instances-k8sworker-ad2" {
 }
 
 module "instances-k8sworker-ad3" {
-  source                     = "instances/k8sworker"
+  source                     = "./instances/k8sworker"
   count                      = "${var.k8sWorkerAd3Count}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   api_server_private_key_pem = "${module.k8s-tls.api_server_private_key_pem}"
@@ -340,7 +340,7 @@ module "instances-k8sworker-ad3" {
 ### Load Balancers
 
 module "etcd-private-lb" {
-  source               = "network/loadbalancers/etcd"
+  source               = "./network/loadbalancers/etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
@@ -356,7 +356,7 @@ module "etcd-private-lb" {
 }
 
 module "k8smaster-public-lb" {
-  source           = "network/loadbalancers/k8smaster"
+  source           = "./network/loadbalancers/k8smaster"
   compartment_ocid = "${var.compartment_ocid}"
   is_private       = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
 
@@ -374,7 +374,7 @@ module "k8smaster-public-lb" {
 }
 
 module "kubeconfig" {
-  source                     = "kubernetes/kubeconfig"
+  source                     = "./kubernetes/kubeconfig"
   api_server_private_key_pem = "${module.k8s-tls.api_server_private_key_pem}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   k8s_master                 = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"
