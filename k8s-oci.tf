@@ -340,7 +340,7 @@ module "instances-k8sworker-ad3" {
 ### Load Balancers
 
 module "etcd-private-lb" {
-  source               = "network/loadbalancers/etcd"
+  source               = "network/loadbalancers_etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
@@ -356,7 +356,7 @@ module "etcd-private-lb" {
 }
 
 module "k8smaster-public-lb" {
-  source           = "network/loadbalancers/k8smaster"
+  source           = "network/loadbalancers_k8smaster"
   compartment_ocid = "${var.compartment_ocid}"
   is_private       = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
 
