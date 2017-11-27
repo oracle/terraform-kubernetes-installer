@@ -5,7 +5,7 @@ output "ids" {
 }
 
 output "hostname_label" {
-  value = "${oci_core_instance.TFInstanceEtcd.hostname_label}"
+  value = "${oci_core_instance.TFInstanceEtcd.*.hostname_label}"
 }
 
 output "private_ips" {
