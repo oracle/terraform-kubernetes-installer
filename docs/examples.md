@@ -51,7 +51,7 @@ Scaling the etcd nodes in or out after the initial deployment is not currently s
 ## Replacing worker nodes using terraform taint 
 
 We can use `terraform taint` to worker instances in a particular AD as "tainted", which will cause
- them to be destroyed and recreated on the next apply. This can be a useful strategy for reverting local changes or 
+ them to be drained, destroyed, and recreated on the next apply. This can be a useful strategy for reverting local changes or 
  regenerating a misbehaving worker.
 
 ```bash
@@ -64,9 +64,11 @@ terraform taint -module=instances-k8sworker-ad1 oci_core_instance.TFInstanceK8sW
 # preview changes
 $ terraform plan
 
-# replace workers
+# drain and replace workers
 $ terraform apply
 ```
+
+When you are ready to make the new worker node schedulable again, use `kubectl uncordon` to undo the `kubectl drain`. 
 
 ## Replacing masters using terraform taint
 
@@ -104,7 +106,7 @@ Set the `k8s_ver` and follow the original instructions in the [README](../README
 
 The example `terraform apply` command below will destroy then re-create all master and worker instances using as much parallelism as possible. It's the easiest and quickest upgrade scenario, but will result in some downtime for the workers and masters while they are being re-created. The single example `terraform apply` below will:
 
-1. destroy all worker nodes
+1. drain, destroy all worker nodes
 2. destroy all master nodes
 3. destroy all master load-balancer backends that point to old master instances
 4. re-create master instances using Kubernetes 1.7.5
@@ -118,6 +120,8 @@ $ terraform plan -var k8s_ver=1.7.5
 # perform upgrade/replace
 $ terraform apply -var k8s_ver=1.7.5
 ```
+
+When you are ready to make the new 1.7.5 worker node schedulable, use `kubectl uncordon`. 
 
 #### Option 3: Upgrade cluster instances incrementally (most complicated, most control over roll-out)
 
@@ -169,6 +173,8 @@ $ terraform plan -var k8s_ver=1.7.5 -target=module.instances-k8smaster-ad1.oci_c
 # perform upgrade/replace of worker
 $ terraform apply -var k8s_ver=1.7.5 -target=module.instances-k8sworker-ad1
 ```
+
+When you are ready to make the new 1.7.5 worker node schedulable, use `kubectl uncordon`. 
 
 ## Replacing etcd cluster members using terraform taint
 
