@@ -6,6 +6,8 @@
 
 # Terraform Kubernetes Installer for Oracle Cloud Infrastructure
 
+[![wercker status](https://app.wercker.com/status/7dd9fa20b980673dc0e252961950f590/s/master "wercker status")](https://app.wercker.com/project/byKey/7dd9fa20b980673dc0e252961950f590)
+
 ## About
 
 The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
@@ -140,6 +142,12 @@ Check out the [example operations](./docs/examples.md) for details on how to use
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Creating a service with `--type=LoadBalancer` is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
+
+## Testing
+
+Tests run _automatically_ on every commit to the main branch. Additionally, the tests should be run against any pull-request before it is merged.
+
+See [Testing](tests/README.md) for details.
 
 ## Contributing
 
