@@ -65,8 +65,3 @@ variable "worker_docker_max_log_files" {
   description = "Maximum number of the k8s worker docker container json logs to rotate"
   default = "5"
 }
-
-# Docker device
-variable "docker_device" {
-  default = ""
-}
