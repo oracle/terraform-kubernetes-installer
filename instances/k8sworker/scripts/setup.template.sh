@@ -65,17 +65,22 @@ cp /root/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
 cp /root/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
 systemctl enable cni-bridge && systemctl start cni-bridge
 
-## Docker
+## Setup NVMe drives and mount at /var/lib/docker
 ######################################
-if [ -n "${docker_device}" ]; then
-  if [ -e "${docker_device}" ]; then
-    mkfs -t xfs -L DOCKER ${docker_device}
-    mkdir -p /var/lib/docker
-    cat <<-EOF >>/etc/fstab
-	LABEL=DOCKER /var/lib/docker  xfs     defaults 0 0
-	EOF
-    mount /var/lib/docker
-  fi
+NVMEVGNAME="NVMeVG"
+NVMELVNAME="DockerVol"
+NVMEDEVS=$(lsblk -I259 -pn -oNAME -d)
+if [[ ! -z "$${NVMEDEVS}" ]]; then
+    lvs $${NVMEVGNAME}/$${NVMELVNAME} --noheadings --logonly 1>/dev/null
+    if [ $$? -ne 0 ]; then
+	pvcreate $${NVMEDEVS}
+	vgcreate $${NVMEVGNAME} $${NVMEDEVS}
+	lvcreate --extents 100%FREE --name $${NVMELVNAME} $${NVMEVGNAME} $${NVMEDEVS}
+	mkfs -t xfs /dev/$${NVMEVGNAME}/$${NVMELVNAME}
+	mkdir -p /var/lib/docker
+	mount -t xfs /dev/$${NVMEVGNAME}/$${NVMELVNAME} /var/lib/docker
+	echo "/dev/$${NVMEVGNAME}/$${NVMELVNAME} /var/lib/docker xfs rw,relatime,seclabel,attr2,inode64,noquota 0 2" >> /etc/fstab
+    fi
 fi
 
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
