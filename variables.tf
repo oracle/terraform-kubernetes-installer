@@ -309,3 +309,19 @@ variable nat_instance_ad3_enabled {
   description = "Whether to provision a NAT instance in AD 3 (only applicable when control_plane_subnet_access=private)"
   default     = "false"
 }
+
+# iSCSI
+variable "worker_iscsi_volume_create" {
+  description = "Bool if an iscsi volume should be attached and mounted at /var/lib/docker"
+  default = false
+}
+
+variable "worker_iscsi_volume_size" {
+  description = "Size of iscsi volume to be created"
+  default = 50
+}
+
+variable "worker_iscsi_volume_mount" {
+  description = "Mount point of iscsi volume"
+  default = "/var/lib/docker"
+}

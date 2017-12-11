@@ -42,4 +42,8 @@
 #public_subnet_http_ingress = "0.0.0.0/0"
 #public_subnet_https_ingress = "0.0.0.0/0"
 
+#worker_iscsi_volume_create is a bool not a string
+#worker_iscsi_volume_create = true
+#worker_iscsi_volume_size = 100
+
 # ...

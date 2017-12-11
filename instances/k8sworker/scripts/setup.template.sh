@@ -83,6 +83,25 @@ if [[ ! -z "$${NVMEDEVS}" ]]; then
     fi
 fi
 
+## Login iSCSI volume mount and create filesystem
+######################################
+iqn=$(iscsiadm --mode discoverydb --type sendtargets --portal 169.254.2.2:3260 --discover| cut -f2 -d" ")
+
+if [ -n "$${iqn}" ]; then
+    echo "iSCSI Login $${iqn}"
+    iscsiadm -m node -o new -T $${iqn} -p 169.254.2.2:3260
+    iscsiadm -m node -o update -T $${iqn} -n node.startup -v automatic
+    iscsiadm -m node -T $${iqn} -p 169.254.2.2:3260 -l
+    # Wait for device to apear...
+    until ls "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1"; do sleep 1 && echo -n "."; done
+    # If the volume has been created and formatted before but it's just a new instance this may fail
+    # but if so ignore and carry on.
+    mkfs -t xfs "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1";
+    echo "$$(readlink -f /dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1) ${worker_iscsi_volume_mount} xfs defaults,noatime,_netdev 0 2" >> /etc/fstab
+    mkdir -p ${worker_iscsi_volume_mount}
+    mount -t xfs "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1" ${worker_iscsi_volume_mount}
+fi
+
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
 cat <<EOF > /etc/sysconfig/docker-network

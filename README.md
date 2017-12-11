@@ -136,10 +136,24 @@ kubernetes-dashboard is running at https://129.146.22.175:443/ui
 
 Check out the [example operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
 
+### Worker iSCSI Volume attachemnt.
+
+If you'd like to have a iSCSI volume created and attached to each worker then simply set the 2 variable below
+
+```worker_iscsi_volume_create = true
+worker_iscsi_volume_size = 100
+```
+This will by default mount the volume at /var/lib/docker. If you wich to mount this volume anywhere else set the Variable.
+
+```
+worker_iscsi_volume_mount  = "/mymountpoint"
+```
+
 ## Known issues and limitations
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Creating a service with `--type=LoadBalancer` is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
+* Resizing the iSCSI volume will delete and recreate the volume.
 
 ## Contributing
 
