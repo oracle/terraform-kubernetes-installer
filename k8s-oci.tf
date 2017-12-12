@@ -260,7 +260,7 @@ module "instances-k8sworker-ad1" {
                                                               module.instances-etcd-ad3.private_ips)))) }"
   worker_iscsi_volume_create = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size   = "${var.worker_iscsi_volume_size}"
-  worker_iscsi_volume_mount  = "${worker_iscsi_volume_mount}"
+  worker_iscsi_volume_mount  = "${var.worker_iscsi_volume_mount}"
 }
 
 module "instances-k8sworker-ad2" {
@@ -300,7 +300,7 @@ module "instances-k8sworker-ad2" {
                                                               module.instances-etcd-ad3.private_ips)))) }"
   worker_iscsi_volume_create = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size   = "${var.worker_iscsi_volume_size}"
-  worker_iscsi_volume_mount  = "${worker_iscsi_volume_mount}"
+  worker_iscsi_volume_mount  = "${var.worker_iscsi_volume_mount}"
 }
 
 module "instances-k8sworker-ad3" {
@@ -340,7 +340,7 @@ module "instances-k8sworker-ad3" {
                                                               module.instances-etcd-ad3.private_ips)))) }"
   worker_iscsi_volume_create = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size   = "${var.worker_iscsi_volume_size}"
-  worker_iscsi_volume_mount  = "${worker_iscsi_volume_mount}"
+  worker_iscsi_volume_mount  = "${var.worker_iscsi_volume_mount}"
 }
 
 ### Load Balancers

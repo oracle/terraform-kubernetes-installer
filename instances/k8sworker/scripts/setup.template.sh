@@ -93,7 +93,7 @@ if [ -n "$${iqn}" ]; then
     iscsiadm -m node -o update -T $${iqn} -n node.startup -v automatic
     iscsiadm -m node -T $${iqn} -p 169.254.2.2:3260 -l
     # Wait for device to apear...
-    until ls "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1"; do sleep 1 && echo -n "."; done
+    until [[ -e "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1" ]]; do sleep 1 && echo -n "."; done
     # If the volume has been created and formatted before but it's just a new instance this may fail
     # but if so ignore and carry on.
     mkfs -t xfs "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1";

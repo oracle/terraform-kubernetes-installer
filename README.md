@@ -138,12 +138,12 @@ Check out the [example operations](./docs/examples.md) for details on how to use
 
 ### Worker iSCSI Volume attachemnt.
 
-If you'd like to have a iSCSI volume created and attached to each worker then simply set the 2 variable below
+If you'd like to have a iSCSI volume created and attached to each worker then simply set the two variables below
 
 ```worker_iscsi_volume_create = true
 worker_iscsi_volume_size = 100
 ```
-This will by default mount the volume at /var/lib/docker. If you wich to mount this volume anywhere else set the Variable.
+This will by default mount the volume at /var/lib/docker. If you wish to mount this volume anywhere else set the Variable.
 
 ```
 worker_iscsi_volume_mount  = "/mymountpoint"
