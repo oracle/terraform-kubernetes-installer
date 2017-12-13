@@ -1,0 +1,93 @@
+no-response-timeout: 15
+command-timeout: 60
+
+build:
+  box: 
+    id: alpine:3.7
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: install curl and unzip
+        code: apk upgrade && apk update && apk add curl && apk add unzip
+    - script:
+        name: download Terraform binary
+        code: |
+          curl -LO --retry 3 https://releases.hashicorp.com/terraform/0.11.1/terraform_0.11.1_linux_amd64.zip
+          unzip terraform_0.11.1_linux_amd64.zip
+          chmod +x ./terraform
+          mv terraform /usr/bin/
+    - script:
+        name: download and configure Terraform OCI Provider
+        code: |
+          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.4/linux.tar.gz
+          tar -xzvf linux.tar.gz -C /
+          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.4" }' > ~/.terraformrc
+    - script:
+        name: run terraform validate for static validation
+        code: |
+          export TF_VAR_private_key_path=/tmp/bmcs_api_key.pem
+          echo -e "$TF_VAR_private_key" > $TF_VAR_private_key_path
+          terraform init
+          terraform validate
+
+deploy:
+  box: 
+    id: python:2.7
+  steps:
+    - install-packages:
+        packages: unzip
+    - pip-install:
+        requirements_file: "tests/requirements.txt"
+    - script:
+        name: download Terraform binary
+        code: |
+          curl -LO --retry 3 https://releases.hashicorp.com/terraform/0.11.1/terraform_0.11.1_linux_amd64.zip
+          unzip terraform_0.11.1_linux_amd64.zip
+          chmod +x ./terraform
+          mv terraform /usr/bin/
+    - script:
+        name: download and configure Terraform OCI Provider
+        code: |
+          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.4/linux.tar.gz
+          tar -xzvf linux.tar.gz -C /
+          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.4" }' > ~/.terraformrc
+    - script:
+        name: download kubectl binary
+        code: |
+          curl -LO --retry 3 https://storage.googleapis.com/kubernetes-release/release/v1.7.4/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mv kubectl /usr/bin/
+    - script:
+        name: run cluster creation tests
+        code: |
+          rm -rf .terraform/
+          export TF_VAR_private_key_path=/tmp/bmcs_api_key.pem
+          echo -e "$TF_VAR_private_key" > $TF_VAR_private_key_path
+          terraform init
+          terraform validate
+          cd tests/
+          export EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
+          find ./resources/configs -type f -exec sed -i "s/0.0.0.0\/0/$EXTERNAL_IP\/32/g" {} +
+          python2.7 create/runner.py 2>&1 | tee createtests.log ; test ${PIPESTATUS[0]} -eq 0
+
+  after-steps:
+    - script:
+        name: print cluster creation test log
+        code: |
+          cat tests/createtests.log || true
+    - script:
+        name: perform additional cleanup after tests
+        code: |
+          export TF_VAR_private_key_path=/tmp/bmcs_api_key.pem
+          echo -e "$TF_VAR_private_key" > $TF_VAR_private_key_path
+          terraform destroy -force || true
+          terraform destroy -refresh=true -force || true
+          terraform destroy -force -target=module.instances-k8smaster-ad1 || true
+          terraform destroy -force -target=module.instances-k8smaster-ad2 || true
+          terraform destroy -force -target=module.instances-k8smaster-ad3 || true
+          terraform destroy -force -target=module.instances-k8sworker-ad1 || true
+          terraform destroy -force -target=module.instances-k8sworker-ad2 || true
+          terraform destroy -force -target=module.instances-k8sworker-ad3 || true
+          terraform destroy -force -target=module.instances-etcd-ad1 || true
+          terraform destroy -force -target=module.instances-etcd-ad2 || true
+          terraform destroy -force -target=module.instances-etcd-ad3 || true

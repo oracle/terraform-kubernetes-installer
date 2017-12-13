@@ -63,30 +63,37 @@ output "etcd_ssh_ingress_cidr" {
 }
 
 output "root_ca_pem" {
+  sensitive = true
   value = "${module.k8s-tls.root_ca_pem}"
 }
 
 output "root_ca_key" {
+  sensitive = true
   value = "${module.k8s-tls.root_ca_key}"
 }
 
 output "api_server_private_key_pem" {
+  sensitive = true
   value = "${module.k8s-tls.api_server_private_key_pem}"
 }
 
 output "api_server_cert_pem" {
+  sensitive = true
   value = "${module.k8s-tls.api_server_cert_pem}"
 }
 
 output "api_server_admin_token" {
+  sensitive = true
   value = "${module.k8s-tls.api_server_admin_token}"
 }
 
 output "ssh_private_key" {
+  sensitive = true
   value = "${module.k8s-tls.ssh_private_key}"
 }
 
 output "ssh_public_key_openssh" {
+  sensitive = true
   value = "${module.k8s-tls.ssh_public_key_openssh}"
 }
 
@@ -135,5 +142,6 @@ output "control_plane_subnet_access" {
 }
 
 output "kubeconfig" {
+  sensitive = true
   value = "${module.kubeconfig.kubeconfig}"
 }
