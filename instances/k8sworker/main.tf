@@ -47,3 +47,18 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
     create = "60m"
   }
 }
+
+resource "oci_core_volume" "TFVolumeK8sWorker" {
+  count               = "${var.worker_iscsi_volume_create ? var.count : 0}"
+  availability_domain = "${var.availability_domain}"
+  compartment_id      = "${var.compartment_ocid}"
+  size_in_gbs         = "${var.worker_iscsi_volume_size}"
+}
+
+resource "oci_core_volume_attachment" "TFVolumeAttachmentK8sWorker" {
+  count           = "${var.worker_iscsi_volume_create ? var.count : 0}"
+  attachment_type = "iscsi"
+  compartment_id  = "${var.compartment_ocid}"
+  instance_id     = "${oci_core_instance.TFInstanceK8sWorker.id}"
+  volume_id       = "${oci_core_volume.TFVolumeK8sWorker.id}"
+}
