@@ -1,8 +1,17 @@
 no-response-timeout: 15
 command-timeout: 60
 
+dev:
+  box:
+    id: alpine:3.7
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: init
+        code: echo "init"
+
 build:
-  box: 
+  box:
     id: alpine:3.7
     cmd: /bin/sh
   steps:
