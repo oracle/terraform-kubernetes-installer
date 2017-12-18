@@ -46,3 +46,13 @@ variable "etcd_docker_max_log_files" {
   default = "5"
 }
 
+# iSCSI
+variable "etcd_iscsi_volume_create" {
+  description = "Bool if an iscsi volume should be attached and mounted at the etcd volume mount point /etcd"
+  default = false
+}
+
+variable "etcd_iscsi_volume_size" {
+  description = "Size of iscsi volume to be created"
+  default = 50
+}

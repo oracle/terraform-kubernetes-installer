@@ -29,3 +29,18 @@ resource "oci_core_instance" "TFInstanceEtcd" {
     command = "sleep 10"
   }
 }
+
+resource "oci_core_volume" "TFVolumeInstanceEtcd" {
+  count               = "${var.etcd_iscsi_volume_create ? var.count : 0}"
+  availability_domain = "${var.availability_domain}"
+  compartment_id      = "${var.compartment_ocid}"
+  size_in_gbs         = "${var.etcd_iscsi_volume_size}"
+}
+
+resource "oci_core_volume_attachment" "TFVolumeAttachmentInstanceEtcd" {
+  count           = "${var.etcd_iscsi_volume_create ? var.count : 0}"
+  attachment_type = "iscsi"
+  compartment_id  = "${var.compartment_ocid}"
+  instance_id     = "${oci_core_instance.TFInstanceEtcd.id}"
+  volume_id       = "${oci_core_volume.TFVolumeInstanceEtcd.id}"
+}
