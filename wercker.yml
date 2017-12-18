@@ -1,7 +1,7 @@
 no-response-timeout: 15
 command-timeout: 60
 
-dev:
+init:
   box:
     id: alpine:3.7
     cmd: /bin/sh
