@@ -8,7 +8,7 @@ init:
   steps:
     - script:
         name: init
-        code: echo "init"
+        code: echo "Init"
 
 build:
   box:
