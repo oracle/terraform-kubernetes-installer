@@ -276,7 +276,19 @@ variable "k8s_dns_ver" {
   default = "1.14.2"
 }
 
-variable "oracle_linux_image_name" {
+variable "master_ol_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
+}
+
+variable "worker_ol_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
+}
+
+variable "etcd_ol_image_name" {
+  default = "Oracle-Linux-7.4-2017.10.25-0"
+}
+
+variable "nat_ol_image_name" {
   default = "Oracle-Linux-7.4-2017.10.25-0"
 }
 
