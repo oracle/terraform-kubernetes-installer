@@ -80,7 +80,7 @@ over the Internet if the inbound security rules allow.
 
 When `control_plane_subnet_access=private`, you still cannot SSH directly into your instances without going through a NAT instance. 
 
-### Instance Shape and Placement Configuration
+### Compute Instance Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
@@ -95,6 +95,8 @@ k8sWorkerAd3Count                   | 0                       | number of k8s wo
 etcdAd1Count                        | 1                       | number of etcd nodes to create in Availability Domain 1
 etcdAd2Count                        | 0                       | number of etcd nodes to create in Availability Domain 2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
+worker_iscsi_volume_size            | unset                   | optional size of an iSCSI volume to attach to each worker
+worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
 etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
 etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
 k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth

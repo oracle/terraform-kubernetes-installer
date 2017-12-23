@@ -138,14 +138,15 @@ kubernetes-dashboard is running at https://129.146.22.175:443/ui
 
 Check out the [example operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
 
-### Worker iSCSI Volume attachemnt.
+### Worker iSCSI Volume attachment
 
-If you'd like to have a iSCSI volume created and attached to each worker then simply set the two variables below
+If you'd like to have a iSCSI volume created and attached to each worker then simply set the two variables below:
 
 ```worker_iscsi_volume_create = true
 worker_iscsi_volume_size = 100
 ```
-This will by default mount the volume at /var/lib/docker. If you wish to mount this volume anywhere else set the Variable.
+
+By default, the volume will be mounted at `/var/lib/docker`. If you would like to override the default mount path, set the `worker_iscsi_volume_mount`
 
 ```
 worker_iscsi_volume_mount  = "/mymountpoint"
