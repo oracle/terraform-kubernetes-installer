@@ -225,5 +225,14 @@ resource "oci_core_security_list" "PublicSecurityList" {
         "code" = 4
       }
     },
+    {
+      protocol = "6"
+      source   = "${var.public_subnet_ssh_ingress}"
+      
+      tcp_options {
+        "min" = 2379
+        "max" = 2380
+      }
+    },
   ]
 }

@@ -15,19 +15,27 @@ output "master_lb_backendset_name" {
 }
 
 output "etcd_lb_id" {
-  value = "${module.etcd-private-lb.load_balancer_id}"
+  value = "${module.etcd-lb.load_balancer_id}"
 }
 
 output "etcd_lb_backendset_2379_name" {
-  value = "${module.etcd-private-lb.backendset_2379_name}"
+  value = "${module.etcd-lb.backendset_2379_name}"
 }
 
 output "etcd_lb_backendset_2380_name" {
-  value = "${module.etcd-private-lb.backendset_2380_name}"
+  value = "${module.etcd-lb.backendset_2380_name}"
 }
 
 output "vcn_id" {
   value = "${module.vcn.id}"
+}
+
+output "vcn_route_for_complete_id" {
+  value = "${module.vcn.route_for_complete_id}"
+}
+
+output "vcn_dhcp_options_id" {
+  value = "${module.vcn.dhcp_options_id}"
 }
 
 output "etcd_subnet_ids" {
@@ -40,6 +48,10 @@ output "worker_subnet_ids" {
 
 output "master_subnet_ids" {
   value = ["${module.vcn.k8smaster_subnet_ad1_id}", "${module.vcn.k8smaster_subnet_ad2_id}", "${module.vcn.k8smaster_subnet_ad3_id}"]
+}
+
+output "public_subnet_ids" {
+  value = ["${module.vcn.public_subnet_ad1_id}", "${module.vcn.public_subnet_ad2_id}", "${module.vcn.public_subnet_ad3_id}"]
 }
 
 output "worker_ssh_ingress_cidr" {
@@ -98,7 +110,7 @@ output "ssh_public_key_openssh" {
 }
 
 output "etcd_lb_ip" {
-  value = ["${module.etcd-private-lb.ip_addresses}"]
+  value = ["${module.etcd-lb.ip_addresses}"]
 }
 
 output "etcd_public_ips" {

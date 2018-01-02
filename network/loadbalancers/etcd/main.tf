@@ -3,12 +3,10 @@ resource "oci_load_balancer" "lb-etcd" {
   shape          = "${var.shape}"
   compartment_id = "${var.compartment_ocid}"
 
-  subnet_ids = [
-    "${var.etcd_subnet_0_id}",
-  ]
+  subnet_ids = ["${compact(list(var.etcd_subnet_0_id,var.etcd_subnet_1_id))}"]
 
   display_name = "${var.label_prefix}lb-etcd"
-  is_private   = true
+  is_private   = "${var.is_private}"
 }
 
 resource "oci_load_balancer_backendset" "lb-etcd-backendset-2379" {

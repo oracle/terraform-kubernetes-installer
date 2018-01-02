@@ -21,6 +21,7 @@ name                                | default     | description
 ------------------------------------|-------------|------------
 control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
 k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
+etcd_lb_access                	    | public      | Whether the etcd Load Balancer is launched in a public or private subnets
 
 
 #### _Public_ Network Access (default)
@@ -44,7 +45,7 @@ worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 
 ![](./images/private_cp_subnet_private_lb_access.jpg)
 
-When `control_plane_subnet_access=private` and `k8s_master_lb_access=private`, control plane instances and the Kubernetes Master Load Balancer
+When `control_plane_subnet_access=private`, `etcd_lb_access=private` and `k8s_master_lb_access=private`, control plane instances, etcd Load Balancer and the Kubernetes Master Load Balancer
  are provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to 
  perform  Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. 
  If your worker nodes need to accept incoming traffic from the Internet, an additional front-end Load Balancer will 
@@ -71,10 +72,9 @@ Even though we can configure a NAT instance per AD, this [diagram](./images/priv
 
 ![](./images/private_cp_subnet_public_lb_access.jpg)
 
-It is also valid to set `control_plane_subnet_access=private` while keeping `k8s_master_lb_access=public`. In this scenario, instances in the 
+It is also valid to set `control_plane_subnet_access=private` while keeping `etcd_lb_access=public` and `k8s_master_lb_access=public`. In this scenario, instances in the 
 cluster's control plane will still provisioned in _private_ subnets and require NAT instance(s). However, the Load 
-Balancer for your back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible 
-over the Internet if the inbound security rules allow.
+Balancer for your etcd and  back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible over the Internet if the inbound security rules allow.
 
 *Note*
 
