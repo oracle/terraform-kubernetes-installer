@@ -41,6 +41,7 @@ resource "oci_core_volume_attachment" "TFVolumeAttachmentInstanceEtcd" {
   count           = "${var.etcd_iscsi_volume_create ? var.count : 0}"
   attachment_type = "iscsi"
   compartment_id  = "${var.compartment_ocid}"
-  instance_id     = "${oci_core_instance.TFInstanceEtcd.id}"
-  volume_id       = "${oci_core_volume.TFVolumeInstanceEtcd.id}"
+  instance_id     = "${oci_core_instance.TFInstanceEtcd.*.id[count.index]}"
+  volume_id       = "${element(oci_core_volume.TFVolumeInstanceEtcd.*.id, count.index)}"
+  depends_on      = ["oci_core_instance.TFInstanceEtcd", "oci_core_volume.TFVolumeInstanceEtcd"]
 }
