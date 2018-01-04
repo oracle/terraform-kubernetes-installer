@@ -36,12 +36,13 @@ configure:
 
 - Highly Available (HA) Kubernetes master configuration
 - Highly Available (HA) etcd cluster configuration
+- Optional GPU-enabled worker nodes for running specific workloads
 - Kubernetes Dashboard and kube-DNS cluster add-ons
 - Kubernetes RBAC (role-based authorization control)
 - Flannel/CNI container networking
 - Integration with OCI Cloud Controller Manager (CCM)
 
-The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
+The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
 ![](./docs/images/arch.jpg)
 
@@ -77,7 +78,7 @@ $ cp terraform.example.tfvars terraform.tfvars
 ```
 
 * Set [mandatory](./docs/input-variables.md#mandatory-input-variables) OCI input variables relating to your tenancy, user, and compartment.
-* Override [optional](./docs/input-variables.md#optional-input-variables) input variables to customize the default configuration
+* Override [optional](./docs/input-variables.md#optional-input-variables) input variables to customize the default configuration.
 
 ### Deploy the cluster
 
@@ -146,24 +147,13 @@ kubernetes-dashboard is running at https://129.146.22.175:443/ui
 
 Check out the [example operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
 
-### Worker iSCSI Volume attachment
-
-If you'd like to have a iSCSI volume created and attached to each worker then simply set the two variables below:
-
-```worker_iscsi_volume_create = true
-worker_iscsi_volume_size = 100
-```
-
-By default, the volume will be mounted at `/var/lib/docker`. If you would like to override the default mount path, set the `worker_iscsi_volume_mount`
-
-```
-worker_iscsi_volume_mount  = "/mymountpoint"
-```
-
 ## Known issues and limitations
+
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
 * Resizing the iSCSI volume will delete and recreate the volume.
+* GPU Bare Metal instance shapes are currently only available in the Ashburn region and may be limited to specific availability domains.
+* Provisioning a _mix_ of GPU-enabled and non-GPU-enabled worker node instance shapes is currently unsupported
 
 ## Testing
 
