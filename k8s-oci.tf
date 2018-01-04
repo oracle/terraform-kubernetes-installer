@@ -64,6 +64,8 @@ module "instances-etcd-ad1" {
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
+  etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
+  etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
 }
 
 module "instances-etcd-ad2" {
@@ -86,6 +88,9 @@ module "instances-etcd-ad2" {
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
+  etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
+  etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
+
 }
 
 module "instances-etcd-ad3" {
@@ -110,6 +115,8 @@ module "instances-etcd-ad3" {
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
+  etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
+  etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
 }
 
 module "instances-k8smaster-ad1" {
