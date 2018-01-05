@@ -94,6 +94,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 EOF
 
 # Disable SELinux and firewall
+sudo sed -i  s/SELINUX=enforcing/SELINUX=SELINUX=permissive/ /etc/selinux/config
 setenforce 0
 systemctl stop firewalld.service
 systemctl disable firewalld.service

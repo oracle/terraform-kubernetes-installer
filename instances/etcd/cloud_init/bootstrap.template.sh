@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 # Turn off SELinux
+sudo sed -i  s/SELINUX=enforcing/SELINUX=SELINUX=permissive/ /etc/selinux/config
 setenforce 0
 
 # Set working dir
@@ -60,6 +61,7 @@ if [ -n "$${iqn}" ]; then
 fi
 
 docker run -d \
+        --restart=always \
 	-p 2380:2380 -p 2379:2379 \
 	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
 	-v /etcd:/$HOSTNAME.etcd \
