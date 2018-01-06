@@ -152,19 +152,31 @@ EOF
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+yum search -y kubernetes
 
-until yum install -y kubernetes-cni-0.5.2; do sleep 1 && echo -n ".";done
+VER_IN_REPO=$(repoquery --nvr --show-duplicates kubelet | sort --version-sort | grep ${k8s_ver} | tail -n 1)
+if [[ -z "$${VER_IN_REPO}" ]]; then
+   MAJOR_VER=$(echo ${k8s_ver} | cut -d. -f-2)
+   echo "Falling back to latest version available in: $MAJOR_VER"
+   VER_IN_REPO=$(repoquery --nvr --show-duplicates kubelet | sort --version-sort | grep $MAJOR_VER | tail -n 1)
+   echo "Installing kubelet version: $VER_IN_REPO"
+   yum install -y $VER_IN_REPO
+   ## Replace kubelet binary since rpm at the exact k8s_ver was not available.
+   curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubelet -o /bin/kubelet && chmod 755 /bin/kubelet
+else
+   echo "Installing kubelet version: $VER_IN_REPO"
+   yum install -y $VER_IN_REPO
+fi
 
-MAJOR_VER=$(echo ${k8s_ver} | cut -d. -f-2)
-echo "Major version of kubelet: $MAJOR_VER"
+# Check if kubernetes-cni was automatically installed as a dependency
+K8S_CNI=$(rpm -qa | grep kubernetes-cni)
+if [[ -z "$${K8S_CNI}" ]]; then
+   echo "$K8S_CNI already installed"
+else
+   echo "Installing: $K8S_CNI"
+   yum install -y kubernetes-cni
+fi
 
-VER_IN_REPO=$(repoquery --nvr --show-duplicates kubelet | sort --version-sort | grep $MAJOR_VER | tail -n 1)
-
-until yum install -y $VER_IN_REPO; do sleep 1 && echo -n ".";done
-
-## Replace kubelet binary in case the rpm at the exact k8s_ver was not available.
-# TODO, we may want to revisit this strategy, or using yum in general.
-curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubelet -o /bin/kubelet && chmod 755 /bin/kubelet
 curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubectl -o /bin/kubectl && chmod 755 /bin/kubectl
 
 ## Pull etcd docker image from registry
