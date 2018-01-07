@@ -124,10 +124,10 @@ fi
 # Check if kubernetes-cni was automatically installed as a dependency
 K8S_CNI=$(rpm -qa | grep kubernetes-cni)
 if [[ -z "$${K8S_CNI}" ]]; then
-   echo "$K8S_CNI already installed"
-else
    echo "Installing: $K8S_CNI"
    yum install -y kubernetes-cni
+else
+   echo "$K8S_CNI already installed"
 fi
 
 curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubectl -o /bin/kubectl && chmod 755 /bin/kubectl
