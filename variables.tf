@@ -265,7 +265,7 @@ variable "flannel_ver" {
 }
 
 variable "k8s_ver" {
-  default = "1.7.4"
+  default = "1.7.10"
 }
 
 variable "k8s_dashboard_ver" {
@@ -341,4 +341,14 @@ variable "worker_iscsi_volume_size" {
 variable "worker_iscsi_volume_mount" {
   description = "Mount point of iscsi volume"
   default = "/var/lib/docker"
+}
+
+variable "etcd_iscsi_volume_create" {
+  description = "Bool if an iscsi volume should be attached and mounted at the etcd volume mount point /etcd"
+  default = false
+}
+
+variable "etcd_iscsi_volume_size" {
+  description = "Size of iscsi volume to be created"
+  default = 50
 }

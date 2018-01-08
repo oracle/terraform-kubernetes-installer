@@ -21,6 +21,7 @@ EOF
 
 # Start Docker
 systemctl daemon-reload
+systemctl enable docker
 systemctl restart docker
 
 docker info
@@ -39,9 +40,30 @@ SUBNET=$(getent hosts $IP_LOCAL | awk '{print $2}' | cut -d. -f2)
 HOSTNAME=$(hostname)
 FQDN_HOSTNAME="$(getent hosts $IP_LOCAL | awk '{print $2}')"
 
+## Login iSCSI volume mount and create filesystem at /etcd
+######################################
+iqn=$(iscsiadm --mode discoverydb --type sendtargets --portal 169.254.2.2:3260 --discover| cut -f2 -d" ")
+
+if [ -n "$${iqn}" ]; then
+    echo "iSCSI Login $${iqn}"
+    iscsiadm -m node -o new -T $${iqn} -p 169.254.2.2:3260
+    iscsiadm -m node -o update -T $${iqn} -n node.startup -v automatic
+    iscsiadm -m node -T $${iqn} -p 169.254.2.2:3260 -l
+    # Wait for device to apear...
+    until [[ -e "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1" ]]; do sleep 1 && echo -n "."; done
+    # If the volume has been created and formatted before but it's just a new instance this may fail
+    # but if so ignore and carry on.
+    mkfs -t xfs "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1";
+    echo "$$(readlink -f /dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1) /etcd xfs defaults,noatime,_netdev 0 2" >> /etc/fstab
+    mkdir -p  /etcd
+    mount -t xfs "/dev/disk/by-path/ip-169.254.2.2:3260-iscsi-$${iqn}-lun-1"  /etcd
+fi
+
 docker run -d \
+        --restart=always \
 	-p 2380:2380 -p 2379:2379 \
 	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
+	-v /etcd:/$HOSTNAME.etcd \
 	--net=host \
 	quay.io/coreos/etcd:${etcd_ver} \
 	/usr/local/bin/etcd \

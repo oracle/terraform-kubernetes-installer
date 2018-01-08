@@ -97,6 +97,8 @@ etcdAd2Count                        | 0                       | number of etcd n
 etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
 worker_iscsi_volume_size            | unset                   | optional size of an iSCSI volume to attach to each worker
 worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
+etcd_iscsi_volume_create            | false                   | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
+etcd_iscsi_volume_size              | 50                      | size in GBs of volume when etcd_iscsi_volume_create is set
 etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
 etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
 k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
@@ -123,7 +125,7 @@ name                                | default            | description
 docker_ver                          | 17.06.2.ol                     | Version of Docker to install
 etcd_ver                            | v3.2.2                         | Version of etcd to install
 flannel_ver                         | v0.7.1                         | Version of Flannel to install
-k8s_ver                             | 1.7.4                          | Version of K8s to install (master and workers)
+k8s_ver                             | 1.7.10                         | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2                         | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3                          | Version of Kubernetes dashboard to install
 master_ol_image_name                | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image to use for masters

@@ -21,14 +21,6 @@ else
     SWAP_OPTION="--fail-swap-on=false"
 fi
 
-## k8s_ver RPM option
-######################################
-if [[ $k8sversion =~ ^[1]+\.[7]+\.[6-8] ]]; then
-    RPM_TAG=1
-else
-    RPM_TAG=0
-fi
-
 ## etcd
 ######################################
 
@@ -113,7 +105,32 @@ EOF
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
-until yum install -y kubelet-${k8s_ver}-$RPM_TAG kubectl-${k8s_ver}-$RPM_TAG kubernetes-cni; do sleep 1 && echo -n ".";done
+yum search -y kubernetes
+
+VER_IN_REPO=$(repoquery --nvr --show-duplicates kubelet | sort --version-sort | grep ${k8s_ver} | tail -n 1)
+if [[ -z "$${VER_IN_REPO}" ]]; then
+   MAJOR_VER=$(echo ${k8s_ver} | cut -d. -f-2)
+   echo "Falling back to latest version available in: $MAJOR_VER"
+   VER_IN_REPO=$(repoquery --nvr --show-duplicates kubelet | sort --version-sort | grep $MAJOR_VER | tail -n 1)
+   echo "Installing kubelet version: $VER_IN_REPO"
+   yum install -y $VER_IN_REPO
+   ## Replace kubelet binary since rpm at the exact k8s_ver was not available.
+   curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubelet -o /bin/kubelet && chmod 755 /bin/kubelet
+else
+   echo "Installing kubelet version: $VER_IN_REPO"
+   yum install -y $VER_IN_REPO
+fi
+
+# Check if kubernetes-cni was automatically installed as a dependency
+K8S_CNI=$(rpm -qa | grep kubernetes-cni)
+if [[ -z "$${K8S_CNI}" ]]; then
+   echo "Installing: $K8S_CNI"
+   yum install -y kubernetes-cni
+else
+   echo "$K8S_CNI already installed"
+fi
+
+curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubectl -o /bin/kubectl && chmod 755 /bin/kubectl
 
 # Pull etcd docker image from registry
 docker pull quay.io/coreos/etcd:${etcd_ver}
