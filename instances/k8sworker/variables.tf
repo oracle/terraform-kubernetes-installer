@@ -45,7 +45,7 @@ variable "flannel_ver" {
 variable "master_lb" {}
 
 variable "k8s_ver" {
-  default = "1.7.4"
+  default = "1.7.10"
 }
 
 variable "root_ca_pem" {}
