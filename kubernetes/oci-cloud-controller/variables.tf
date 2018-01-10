@@ -1,6 +1,5 @@
-
-
 variable "oci_cloud_controller_manager_version" {
+  # Set the happy version??
   default = "master"
 }
 

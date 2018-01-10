@@ -12,9 +12,6 @@ module "k8s-tls" {
   ssh_public_key_openssh = "${var.ssh_public_key_openssh}"
 }
 
-
-
-
 ### Virtual Cloud Network
 
 module "vcn" {
@@ -53,7 +50,6 @@ module "oci-cloud-controller" {
   region               = "${var.region}"
   subnet1              = "${module.vcn.etcd_subnet_ad1_id}"
   subnet2              = "${module.vcn.etcd_subnet_ad2_id}"
-  
 }
 
 ### Compute Instance(s)
@@ -409,5 +405,3 @@ module "kubeconfig" {
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
   k8s_master                 = "https://${module.k8smaster-public-lb.ip_addresses[0]}:443"
 }
-
-

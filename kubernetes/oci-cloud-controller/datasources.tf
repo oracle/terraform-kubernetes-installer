@@ -1,10 +1,3 @@
-data "http" "oci-cloud-controller-manifest" {
-  url = "https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/${var.oci_cloud_controller_manager_version}/manifests/oci-cloud-controller-manager.yaml"
-}
-
-data "http" "oci-cloud-controller-rbac" {
-  url = "https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/${var.oci_cloud_controller_manager_version}/manifests/oci-cloud-controller-manager-rbac.yaml"
-}
 
 data "template_file" "oci-cloud-controller-secret" {
   template = "${file("${path.module}/cloud-provider-secret.yaml")}"

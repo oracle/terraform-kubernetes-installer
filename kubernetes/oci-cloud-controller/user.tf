@@ -8,27 +8,21 @@ resource "oci_identity_group" "cloud_controller_group" {
     description = "Terraform created group for ocii cloud controller"
 }
 
-
-
 resource "oci_identity_user" "cloud_controller_user" {
   name = "${var.label_prefix}cloud_controller_user"
   description = "Terraform created user for ocii cloud controller"
 }
-
-
 
 resource "oci_identity_api_key" "cloud_controller_key_assoc" {
   user_id = "${oci_identity_user.cloud_controller_user.id}"
   key_value = "${tls_private_key.cloud_controller_user_key.public_key_pem}"
 }
 
-
 resource "oci_identity_user_group_membership" "cloud_controller_user_group_assoc" {
   compartment_id = "${var.tenancy}"
   user_id = "${oci_identity_user.cloud_controller_user.id}"
   group_id = "${oci_identity_group.cloud_controller_group.id}"
 }
-
 
 resource "oci_identity_policy" "cloud_controller_policy" {
   depends_on = ["oci_identity_group.cloud_controller_group"]
