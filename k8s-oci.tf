@@ -42,6 +42,21 @@ module "vcn" {
   worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
 }
 
+module "oci-cloud-controller" {
+  source                                 = "./kubernetes/oci-cloud-controller"
+  label_prefix                           = "${var.label_prefix}"
+  compartment_ocid                       = "${var.compartment_ocid}"
+  tenancy                                = "${var.tenancy_ocid}"
+  region                                 = "${var.region}"
+
+  cloud_controller_user_ocid             = "${var.cloud_controller_user_ocid}"
+  cloud_controller_user_fingerprint      = "${var.cloud_controller_user_fingerprint}"
+  cloud_controller_user_private_key_path = "${var.cloud_controller_user_private_key_path}"
+  
+  subnet1                                = "${module.vcn.k8worker_subnet_ad1_id}"
+  subnet2                                = "${module.vcn.k8worker_subnet_ad2_id}"
+}
+
 ### Compute Instance(s)
 
 module "instances-etcd-ad1" {
@@ -147,6 +162,7 @@ module "instances-k8smaster-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
@@ -184,6 +200,7 @@ module "instances-k8smaster-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)) :
@@ -221,6 +238,7 @@ module "instances-k8smaster-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):

@@ -69,3 +69,5 @@ variable "master_docker_max_log_files" {
   description = "Maximum number of k8s master docker container json logs to rotate"
   default = "5"
 }
+
+variable "cloud_controller_secret" {}
