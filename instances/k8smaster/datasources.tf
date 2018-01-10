@@ -139,6 +139,7 @@ data "template_file" "kube_master_cloud_init_file" {
     flannel_service_content                  = "${base64encode(data.template_file.flannel-service.rendered)}"
     cnibridge_service_content                = "${base64encode(data.template_file.cnibridge-service.rendered)}"
     cnibridge_sh_content                     = "${base64encode(data.template_file.cnibridge-sh.rendered)}"
+    cloud_provider_secret_content            = "${base64encode(var.cloud_controller_secret)}"
   }
 }
 
