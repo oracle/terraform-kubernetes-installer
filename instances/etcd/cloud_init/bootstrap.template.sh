@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 # Turn off SELinux
+sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 setenforce 0
 
 # Set working dir

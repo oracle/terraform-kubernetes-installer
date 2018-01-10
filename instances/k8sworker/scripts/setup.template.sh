@@ -134,6 +134,7 @@ EOF
 
 # Disable SELinux and firewall
 setenforce 0
+sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 systemctl stop firewalld.service
 systemctl disable firewalld.service
 
