@@ -5,11 +5,12 @@ variable "oci_cloud_controller_manager_version" {
 }
 
 variable "compartment_ocid" {}
-variable "user_ocid" {}
-variable "fingerprint" {}
-variable "private_key_path" {}
-variable "private_key_password" {}
 variable "region" {}
 variable "tenancy" {}
 variable "subnet1" {}
 variable "subnet2" {}
+
+variable "label_prefix" {
+  description = "To create unique identifier for multiple clusters in a compartment."
+  type        = "string"
+}

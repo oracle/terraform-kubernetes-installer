@@ -11,10 +11,12 @@ data "template_file" "oci-cloud-controller-secret" {
   vars = {
     tenancy = "${var.tenancy}"
     region = "${var.region}"
-    fingerprint = "${var.fingerprint}"
     compartment = "${var.compartment_ocid}"
-    user= "${var.user_ocid}"
-    key = "${jsonencode(file(var.private_key_path))}"
+    
+    fingerprint = "${oci_identity_api_key.cloud_controller_key_assoc.fingerprint}"
+    user= "${oci_identity_user.cloud_controller_user.id}"
+    key = "${jsonencode(tls_private_key.cloud_controller_user_key.private_key_pem)}"
+    
     subnet1 = "${var.subnet1}"
     subnet2 = "${var.subnet1}"
   }
