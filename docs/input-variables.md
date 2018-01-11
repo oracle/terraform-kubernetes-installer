@@ -118,6 +118,7 @@ ssh_public_key_openssh              | (generated)             | String value of 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 flannel_network_cidr                | 10.99.0.0/16            | A CIDR notation IP range to use for flannel
+flannel_backend                     | VXLAN                   | Backend to use for Flannel, choices are vxlan, udp, and host-gw
 
 ### Software Versions Installed on OCI Instances
 name                                | default            | description

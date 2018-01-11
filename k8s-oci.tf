@@ -52,7 +52,7 @@ module "instances-etcd-ad1" {
   display_name              = "etcd-ad1"
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad1"
@@ -76,7 +76,7 @@ module "instances-etcd-ad2" {
   display_name              = "etcd-ad2"
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad2"
@@ -103,7 +103,7 @@ module "instances-etcd-ad3" {
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
   etcd_ver                  = "${var.etcd_ver}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad3"
