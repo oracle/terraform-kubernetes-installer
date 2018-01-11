@@ -347,3 +347,8 @@ variable "etcd_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
   default = 50
 }
+
+variable "flannel_backend" {
+  description = "Flannel backend - possible choices are vxlan, udp, and host-gw"
+  default = "VXLAN"
+}
