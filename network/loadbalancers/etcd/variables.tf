@@ -38,5 +38,5 @@ variable "shape" {
 }
 
 variable "is_private" {
-  default = "false"
+  default = "true"
 }

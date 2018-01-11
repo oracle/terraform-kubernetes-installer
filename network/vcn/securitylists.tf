@@ -227,7 +227,7 @@ resource "oci_core_security_list" "PublicSecurityList" {
     },
     {
       protocol = "6"
-      source   = "${var.public_subnet_ssh_ingress}"
+      source   = "${var.etcd_cluster_ingress}"
       
       tcp_options {
         "min" = 2379

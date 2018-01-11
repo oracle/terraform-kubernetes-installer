@@ -21,7 +21,7 @@ name                                | default     | description
 ------------------------------------|-------------|------------
 control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
 k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
-etcd_lb_access                	    | public      | Whether the etcd Load Balancer is launched in a public or private subnets
+etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
 
 
 #### _Public_ Network Access (default)

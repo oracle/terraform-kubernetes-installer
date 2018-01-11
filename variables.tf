@@ -304,7 +304,7 @@ variable "k8s_master_lb_access" {
 
 variable "etcd_lb_access" {
   description = "Whether etcd load balancer is launched in a public or private subnet"
-  default     = "public"
+  default     = "private"
 }
 
 variable "natInstanceShape" {
