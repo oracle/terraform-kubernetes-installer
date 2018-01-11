@@ -8,6 +8,7 @@ ExecStart=/usr/bin/kubelet \
   --kubeconfig=http://127.0.0.1:8080 \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --hostname-override=__FQDN_HOSTNAME__ \
+  --cloud-provider=external \
   --feature-gates=ExperimentalCriticalPodAnnotation=true \
   __SWAP_OPTION__ --v=2
 Restart=always
