@@ -347,3 +347,13 @@ variable "etcd_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
   default = 50
 }
+
+variable "cloud_controller_user_ocid" {
+  default = ""
+}
+variable "cloud_controller_user_fingerprint" {
+  default = ""
+}
+variable "cloud_controller_user_private_key_path" {
+  default = ""
+}

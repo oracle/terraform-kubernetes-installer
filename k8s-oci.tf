@@ -43,13 +43,18 @@ module "vcn" {
 }
 
 module "oci-cloud-controller" {
-  source               = "./kubernetes/oci-cloud-controller"
-  label_prefix         = "${var.label_prefix}"
-  compartment_ocid     = "${var.compartment_ocid}"
-  tenancy              = "${var.tenancy_ocid}"
-  region               = "${var.region}"
-  subnet1              = "${module.vcn.etcd_subnet_ad1_id}"
-  subnet2              = "${module.vcn.etcd_subnet_ad2_id}"
+  source                                 = "./kubernetes/oci-cloud-controller"
+  label_prefix                           = "${var.label_prefix}"
+  compartment_ocid                       = "${var.compartment_ocid}"
+  tenancy                                = "${var.tenancy_ocid}"
+  region                                 = "${var.region}"
+
+  cloud_controller_user_ocid             = "${var.cloud_controller_user_ocid}"
+  cloud_controller_user_fingerprint      = "${var.cloud_controller_user_fingerprint}"
+  cloud_controller_user_private_key_path = "${var.cloud_controller_user_private_key_path}"
+  
+  subnet1                                = "${module.vcn.etcd_subnet_ad1_id}"
+  subnet2                                = "${module.vcn.etcd_subnet_ad2_id}"
 }
 
 ### Compute Instance(s)
