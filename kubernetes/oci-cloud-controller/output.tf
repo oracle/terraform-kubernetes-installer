@@ -1,3 +1,3 @@
-output "cloud-provider-yaml" {
-  value = "${data.template_file.cloud-provider-yaml.rendered}"
+output "cloud-provider-json" {
+  value = "${data.template_file.cloud-provider-json.rendered}"
 }
