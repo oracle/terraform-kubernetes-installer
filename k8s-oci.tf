@@ -149,7 +149,7 @@ module "instances-k8smaster-ad1" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -186,7 +186,7 @@ module "instances-k8smaster-ad2" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)) :
+                                                              module.etcd-lb.ip_addresses)) :
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -223,7 +223,7 @@ module "instances-k8smaster-ad3" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -260,7 +260,7 @@ module "instances-k8sworker-ad1" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -300,7 +300,7 @@ module "instances-k8sworker-ad2" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -340,7 +340,7 @@ module "instances-k8sworker-ad3" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -352,12 +352,15 @@ module "instances-k8sworker-ad3" {
 
 ### Load Balancers
 
-module "etcd-private-lb" {
+module "etcd-lb" {
   source               = "./network/loadbalancers/etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
-  etcd_subnet_0_id     = "${module.vcn.etcd_subnet_ad1_id}"
+  is_private       = "${var.etcd_lb_access == "private" ? "true": "false"}"
+  # Handle case where var.etcd_lb_access=public, but var.control_plane_subnet_access=private
+  etcd_subnet_0_id     = "${var.etcd_lb_access == "private" ? module.vcn.etcd_subnet_ad1_id: coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.etcd_subnet_ad1_id)))}"
+  etcd_subnet_1_id     = "${var.etcd_lb_access == "private" ? "": coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.etcd_subnet_ad2_id)))}"
   etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"
   etcd_ad2_private_ips = "${module.instances-etcd-ad2.private_ips}"
   etcd_ad3_private_ips = "${module.instances-etcd-ad3.private_ips}"

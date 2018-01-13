@@ -77,3 +77,11 @@ output "nat_instance_ad3_public_ips" {
 output "control_plane_subnet_access" {
   value = "${var.control_plane_subnet_access}"
 }
+
+output "route_for_complete_id" {
+  value = "${oci_core_route_table.PublicRouteTable.id}"
+}
+
+output "dhcp_options_id" {
+  value = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+}
