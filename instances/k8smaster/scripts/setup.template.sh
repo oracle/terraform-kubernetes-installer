@@ -24,6 +24,14 @@ fi
 ## etcd
 ######################################
 
+## Disable TX checksum offloading so we don't break VXLAN
+######################################
+BROADCOM_DRIVER=$(lsmod | grep bnxt_en | awk '{print $1}')
+if [[ -n "$${BROADCOM_DRIVER}" ]]; then
+   echo "Disabling hardware TX checksum offloading"
+   ethtool --offload ens3 tx off
+fi
+
 # Download etcdctl client
 curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
