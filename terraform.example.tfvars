@@ -5,6 +5,11 @@
 #private_key_path = "/tmp/bmcs_api_key.pem"
 #user_ocid = "ocid1.user.oc1..aaaaaaaa5fy2l5aki6z2bzff5yrrmlahiif44vzodeetygxmpulq3mbnckya"
 
+# CCM user
+#cloud_controller_user_ocid = "ocid1.tenancy.oc1..aaaaaaaa763cu5f3m7qpzwnvr2shs3o26ftrn7fkgz55cpzgxmglgtui3v7q"
+#cloud_controller_user_fingerprint = "ed:51:83:3b:d2:04:f4:af:9d:7b:17:96:dd:8a:99:bc"
+#cloud_controller_user_private_key_path = "/tmp/bmcs_api_key.pem"
+
 #etcdShape = "VM.Standard1.2"
 #k8sMasterShape = "VM.Standard1.8"
 #k8sWorkerShape = "VM.Standard1.8"
@@ -46,4 +51,6 @@
 #worker_iscsi_volume_create = true
 #worker_iscsi_volume_size = 100
 
-# ...
+#etcd_iscsi_volume_create = true
+#etcd_iscsi_volume_size = 50
+

@@ -134,6 +134,13 @@ worker_ol_image_name                | Oracle-Linux-7.4-2018.01.10-0  | Image nam
 etcd_ol_image_name                  | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for etcd nodes
 nat_ol_image_name                   | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for NAT instances (if applicable)
 
+#### OCI Plugins
+name                                     | default   | description
+-----------------------------------------|------------------|--------------------------
+cloud_controller_user_ocid               | user_ocid        | OCID of the user calling the OCI API to create Load Balancers
+cloud_controller_user_fingerprint        | fingerprint      | Fingerprint of the OCI user calling the OCI API to create Load Balancers
+cloud_controller_user_private_key_path   | private_key_path | Private key file path of the OCI user calling the OCI API to create Load Balancers
+
 #### Docker logging configuration
 name                                | default   | description
 ------------------------------------|-----------|--------------------------
@@ -143,6 +150,7 @@ master_docker_max_log_size          | 50m       |max size of the k8smaster docke
 master_docker_max_log_files         | 5         |max number of k8smaster docker container logs to rotate
 worker_docker_max_log_size          | 50m       |max size of the k8sworker docker container logs
 worker_docker_max_log_files         | 5         |max number of k8s master docker container logs to rotate
+
 
 ### Other
 name                                | default                 | description

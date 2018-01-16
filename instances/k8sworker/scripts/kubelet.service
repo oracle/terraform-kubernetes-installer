@@ -21,6 +21,8 @@ ExecStart=/usr/bin/kubelet \
   --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem \
   --feature-gates=ExperimentalCriticalPodAnnotation=true \
   --eviction-hard=memory.available<500Mi,nodefs.available<2Gi,imagefs.available<2Gi \
+  --cloud-provider=external \
+  --provider-id=__NODE_ID_PREFIX__.__NODE_ID_SUFFIX__ \
   __SWAP_OPTION__ --v=2
 Restart=always
 RestartSec=10
