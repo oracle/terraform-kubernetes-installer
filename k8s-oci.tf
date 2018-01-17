@@ -51,8 +51,10 @@ module "oci-cloud-controller" {
   cloud_controller_user_ocid             = "${var.cloud_controller_user_ocid == "" ? var.user_ocid : var.cloud_controller_user_ocid}"
   cloud_controller_user_fingerprint      = "${var.cloud_controller_user_fingerprint == "" ? var.fingerprint : var.cloud_controller_user_fingerprint}"
   cloud_controller_user_private_key_path = "${var.cloud_controller_user_private_key_path == "" ? var.private_key_path : var.cloud_controller_user_private_key_path}"
-  subnet1  = "${coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.k8worker_subnet_ad1_id)))}"
-  subnet2  = "${coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.k8worker_subnet_ad2_id)))}"
+  subnet1  = "${coalesce(module.vcn.ccmlb_subnet_ad1_id)}"
+  subnet2  = "${coalesce(module.vcn.ccmlb_subnet_ad2_id)}"
+# add to CCM
+# subnet3  = "${coalesce(module.vcn.ccmlb_subnet_ad3_id)}"
 }
 
 ### Compute Instance(s)
