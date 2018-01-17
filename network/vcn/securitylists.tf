@@ -239,7 +239,7 @@ resource "oci_core_security_list" "PublicSecurityList" {
 
 resource "oci_core_security_list" "K8SCCMLBSubnet" {
   compartment_id = "${var.compartment_ocid}"
-  display_name   = "${var.label_prefix}etcd_security_list"
+  display_name   = "${var.label_prefix}k8sccmlbsubnet"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   egress_security_rules = [{
     protocol    = "all"
