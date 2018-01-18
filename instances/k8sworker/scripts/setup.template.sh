@@ -232,6 +232,20 @@ until [ "$(curl -k --cert /etc/kubernetes/ssl/apiserver.pem --key /etc/kubernete
 	sleep 3
 done
 
+# Setup CUDA devices before starting kubelet, so it detects the gpu(s)
+/sbin/modprobe nvidia
+if [ "$?" -eq 0 ]; then
+	# Create the /dev/nvidia* files by running nvidia-smi
+	nvidia-smi
+fi
+
+/sbin/modprobe nvidia-uvm
+if [ "$?" -eq 0 ]; then
+	# Find out the major device number used by the nvidia-uvm driver
+	DEVICE=$(grep nvidia-uvm /proc/devices | awk '{print $1}')
+	mknod -m 666 /dev/nvidia-uvm c $DEVICE 0
+fi
+
 sleep $[ ( $RANDOM % 10 )  + 1 ]s
 systemctl daemon-reload
 systemctl enable kubelet
