@@ -145,6 +145,8 @@ data "template_file" "kube_master_cloud_init_file" {
     cnibridge_service_content                = "${base64gzip(data.template_file.cnibridge-service.rendered)}"
     cnibridge_sh_content                     = "${base64gzip(data.template_file.cnibridge-sh.rendered)}"
     cloud_provider_secret_content            = "${base64gzip(var.cloud_controller_secret)}"
+    flexvolume_driver_secret_content         = "${base64gzip(var.flexvolume_driver_secret)}"
+    volume_provisioner_secret_content        = "${base64gzip(var.volume_provisioner_secret)}"
   }
 }
 

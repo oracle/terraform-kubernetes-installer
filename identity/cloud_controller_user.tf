@@ -18,7 +18,7 @@ resource "oci_identity_api_key" "cloud_controller_key_assoc" {
 }
 
 resource "oci_identity_user_group_membership" "cloud_controller_user_group_assoc" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${var.tenancy_ocid}"
   user_id = "${oci_identity_user.cloud_controller_user.id}"
   group_id = "${oci_identity_group.cloud_controller_group.id}"
 }

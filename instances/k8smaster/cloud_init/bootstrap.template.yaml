@@ -57,6 +57,16 @@ write_files:
     encoding: "gzip+base64"
     content: |
       ${cloud_provider_secret_content}
+  - path: "/root/flexvolume-driver-secret.yaml"
+    permissions: "0600"
+    encoding: "gzip+base64"
+    content: |
+      ${flexvolume_driver_secret_content}
+  - path: "/root/volume-provisioner-secret.yaml"
+    permissions: "0600"
+    encoding: "gzip+base64"
+    content: |
+      ${volume_provisioner_secret_content}
   - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: "gzip+base64"

@@ -1,0 +1,7 @@
+---
+auth:
+  tenancy: ${tenancy}
+  user: ${user}
+  key: ${key}
+  fingerprint: ${fingerprint}
+  vcn: ${vcn}
