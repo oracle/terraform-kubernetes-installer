@@ -57,6 +57,11 @@ write_files:
     encoding: b64
     content: |
       ${cloud_provider_secret_content}
+  - path: "/root/flexvolume-driver-secret.yaml"
+    permissions: "0600"
+    encoding: b64
+    content: |
+      ${flexvolume_driver_secret_content}
   - path: "/root/services/flannel.service"
     permissions: "0600"
     encoding: b64

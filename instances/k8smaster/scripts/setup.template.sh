@@ -114,6 +114,13 @@ cat >/etc/cni/net.d/10-flannel.conf <<EOF
 }
 EOF
 
+## Install Flex Volume Driver for OCI
+#####################################
+mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.1.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
+
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64

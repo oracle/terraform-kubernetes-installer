@@ -60,6 +60,16 @@ module "oci-cloud-controller" {
 # subnet3  = "${coalesce(module.vcn.ccmlb_subnet_ad3_id)}"
 }
 
+
+module "oci-flexvolume-driver" {
+  source                                 = "./kubernetes/oci-flexvolume-driver"
+  tenancy                                = "${var.tenancy_ocid}"
+
+  flexvolume_driver_user_ocid             = "${var.flexvolume_driver_user_ocid == "" ? var.user_ocid : var.flexvolume_driver_user_ocid}"
+  flexvolume_driver_user_fingerprint      = "${var.flexvolume_driver_user_fingerprint == "" ? var.fingerprint : var.flexvolume_driver_user_fingerprint}"
+  flexvolume_driver_user_private_key_path = "${var.flexvolume_driver_user_private_key_path == "" ? var.private_key_path : var.flexvolume_driver_user_private_key_path}"
+}
+
 ### Compute Instance(s)
 
 module "instances-etcd-ad1" {
@@ -167,6 +177,7 @@ module "instances-k8smaster-ad1" {
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
@@ -206,6 +217,7 @@ module "instances-k8smaster-ad2" {
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)) :
@@ -245,6 +257,7 @@ module "instances-k8smaster-ad3" {
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
