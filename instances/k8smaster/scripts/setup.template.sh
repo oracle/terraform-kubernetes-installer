@@ -24,6 +24,14 @@ fi
 ## etcd
 ######################################
 
+## Disable TX checksum offloading so we don't break VXLAN
+######################################
+BROADCOM_DRIVER=$(lsmod | grep bnxt_en | awk '{print $1}')
+if [[ -n "$${BROADCOM_DRIVER}" ]]; then
+   echo "Disabling hardware TX checksum offloading"
+   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx off
+fi
+
 # Download etcdctl client
 curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
 tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
@@ -86,6 +94,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 EOF
 
 # Disable SELinux and firewall
+sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 setenforce 0
 systemctl stop firewalld.service
 systemctl disable firewalld.service
@@ -163,6 +172,11 @@ systemctl restart flannel
 until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do
 	sleep 3
 done
+
+# Install oci cloud controller manager
+kubectl apply -f /root/cloud-controller-secret.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-pod.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml

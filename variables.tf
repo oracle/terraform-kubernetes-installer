@@ -277,19 +277,19 @@ variable "k8s_dns_ver" {
 }
 
 variable "master_ol_image_name" {
-  default = "Oracle-Linux-7.4-2017.10.25-0"
+  default = "Oracle-Linux-7.4-2018.01.10-0"
 }
 
 variable "worker_ol_image_name" {
-  default = "Oracle-Linux-7.4-2017.10.25-0"
+  default = "Oracle-Linux-7.4-2018.01.10-0"
 }
 
 variable "etcd_ol_image_name" {
-  default = "Oracle-Linux-7.4-2017.10.25-0"
+  default = "Oracle-Linux-7.4-2018.01.10-0"
 }
 
 variable "nat_ol_image_name" {
-  default = "Oracle-Linux-7.4-2017.10.25-0"
+  default = "Oracle-Linux-7.4-2018.01.10-0"
 }
 
 variable "control_plane_subnet_access" {
@@ -300,6 +300,11 @@ variable "control_plane_subnet_access" {
 variable "k8s_master_lb_access" {
   description = "Whether k8s master load balancer is launched in a public or private subnet"
   default     = "public"
+}
+
+variable "etcd_lb_access" {
+  description = "Whether etcd load balancer is launched in a public or private subnet"
+  default     = "private"
 }
 
 variable "natInstanceShape" {
@@ -346,4 +351,19 @@ variable "etcd_iscsi_volume_create" {
 variable "etcd_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
   default = 50
+}
+
+variable "flannel_backend" {
+  description = "Flannel backend - possible choices are vxlan, udp, and host-gw"
+  default = "VXLAN"
+}
+
+variable "cloud_controller_user_ocid" {
+  default = ""
+}
+variable "cloud_controller_user_fingerprint" {
+  default = ""
+}
+variable "cloud_controller_user_private_key_path" {
+  default = ""
 }

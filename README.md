@@ -39,6 +39,7 @@ configure:
 - Kubernetes Dashboard and kube-DNS cluster add-ons
 - Kubernetes RBAC (role-based authorization control)
 - Flannel/CNI container networking
+- Integration with OCI Cloud Controller Manager (CCM)
 
 The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
@@ -56,6 +57,13 @@ providers {
 ```
 4.  Ensure you have [Kubectl][Kubectl] installed if you plan to interact with the cluster locally
 
+###### Optionally create separate IAM resources for OCI plugins
+
+The OCI [Cloud Controller Manager (CCM)](https://github.com/oracle/oci-cloud-controller-manager) and [Volume Provisioner (VP)](https://github.com/oracle/oci-volume-provisioner) enables Kubernetes to dynamically provision OCI resources such as Load Balancers and Block Volumes as a part of pod and service creation. In order to facilitate this, OCI credentials and OCID information are automatically stored in the cluster as a Kubernet Secrets.
+
+By default, the credentials of the user creating the cluster is used. However, in some cases, it makes sense to use a more restricted set of credentials whose policies are limited to a particular set of resources within the compartment.
+
+To Terraform separate IAM users, groups, and policy resources, run the `terraform plan` and `terraform apply` commands from the `identity` directory and set the appropriate [input variables](./docs/input-variables.md#mandatory-input-variables) relating to your custom users, fingerprints, and key paths.
 
 ## Quick start
 
@@ -154,7 +162,6 @@ worker_iscsi_volume_mount  = "/mymountpoint"
 
 ## Known issues and limitations
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
-* Creating a service with `--type=LoadBalancer` is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
 * Resizing the iSCSI volume will delete and recreate the volume.
 

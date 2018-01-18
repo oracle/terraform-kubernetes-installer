@@ -42,6 +42,19 @@ module "vcn" {
   worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
 }
 
+module "oci-cloud-controller" {
+  source                                 = "./kubernetes/oci-cloud-controller"
+  label_prefix                           = "${var.label_prefix}"
+  compartment_ocid                       = "${var.compartment_ocid}"
+  tenancy                                = "${var.tenancy_ocid}"
+  region                                 = "${var.region}"
+  cloud_controller_user_ocid             = "${var.cloud_controller_user_ocid == "" ? var.user_ocid : var.cloud_controller_user_ocid}"
+  cloud_controller_user_fingerprint      = "${var.cloud_controller_user_fingerprint == "" ? var.fingerprint : var.cloud_controller_user_fingerprint}"
+  cloud_controller_user_private_key_path = "${var.cloud_controller_user_private_key_path == "" ? var.private_key_path : var.cloud_controller_user_private_key_path}"
+  subnet1  = "${coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.k8worker_subnet_ad1_id)))}"
+  subnet2  = "${coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.k8worker_subnet_ad2_id)))}"
+}
+
 ### Compute Instance(s)
 
 module "instances-etcd-ad1" {
@@ -52,7 +65,7 @@ module "instances-etcd-ad1" {
   display_name              = "etcd-ad1"
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad1"
@@ -76,7 +89,7 @@ module "instances-etcd-ad2" {
   display_name              = "etcd-ad2"
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad2"
@@ -103,7 +116,7 @@ module "instances-etcd-ad3" {
   domain_name               = "${var.domain_name}"
   etcd_discovery_url        = "${template_file.etcd_discovery_url.id}"
   etcd_ver                  = "${var.etcd_ver}"
-  flannel_backend           = "VXLAN"
+  flannel_backend           = "${var.flannel_backend}"
   flannel_network_cidr      = "10.99.0.0/16"
   flannel_network_subnetlen = 24
   hostname_label            = "etcd-ad3"
@@ -147,9 +160,10 @@ module "instances-k8smaster-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -184,9 +198,10 @@ module "instances-k8smaster-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)) :
+                                                              module.etcd-lb.ip_addresses)) :
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -221,9 +236,10 @@ module "instances-k8smaster-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -260,7 +276,7 @@ module "instances-k8sworker-ad1" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -300,7 +316,7 @@ module "instances-k8sworker-ad2" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -340,7 +356,7 @@ module "instances-k8sworker-ad3" {
   tenancy_ocid               = "${var.compartment_ocid}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
-                                                              module.etcd-private-lb.ip_addresses)):
+                                                              module.etcd-lb.ip_addresses)):
                                     join(",",formatlist("http://%s:2379",compact(concat(
                                                               module.instances-etcd-ad1.private_ips,
                                                               module.instances-etcd-ad2.private_ips,
@@ -352,12 +368,15 @@ module "instances-k8sworker-ad3" {
 
 ### Load Balancers
 
-module "etcd-private-lb" {
+module "etcd-lb" {
   source               = "./network/loadbalancers/etcd"
   count                = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled        = "${var.etcd_lb_enabled}"
   compartment_ocid     = "${var.compartment_ocid}"
-  etcd_subnet_0_id     = "${module.vcn.etcd_subnet_ad1_id}"
+  is_private       = "${var.etcd_lb_access == "private" ? "true": "false"}"
+  # Handle case where var.etcd_lb_access=public, but var.control_plane_subnet_access=private
+  etcd_subnet_0_id     = "${var.etcd_lb_access == "private" ? module.vcn.etcd_subnet_ad1_id: coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.etcd_subnet_ad1_id)))}"
+  etcd_subnet_1_id     = "${var.etcd_lb_access == "private" ? "": coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.etcd_subnet_ad2_id)))}"
   etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"
   etcd_ad2_private_ips = "${module.instances-etcd-ad2.private_ips}"
   etcd_ad3_private_ips = "${module.instances-etcd-ad3.private_ips}"

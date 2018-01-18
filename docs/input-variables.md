@@ -21,6 +21,7 @@ name                                | default     | description
 ------------------------------------|-------------|------------
 control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
 k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
+etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
 
 
 #### _Public_ Network Access (default)
@@ -44,7 +45,7 @@ worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 
 ![](./images/private_cp_subnet_private_lb_access.jpg)
 
-When `control_plane_subnet_access=private` and `k8s_master_lb_access=private`, control plane instances and the Kubernetes Master Load Balancer
+When `control_plane_subnet_access=private`, `etcd_lb_access=private` and `k8s_master_lb_access=private`, control plane instances, etcd Load Balancer and the Kubernetes Master Load Balancer
  are provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to 
  perform  Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. 
  If your worker nodes need to accept incoming traffic from the Internet, an additional front-end Load Balancer will 
@@ -71,10 +72,9 @@ Even though we can configure a NAT instance per AD, this [diagram](./images/priv
 
 ![](./images/private_cp_subnet_public_lb_access.jpg)
 
-It is also valid to set `control_plane_subnet_access=private` while keeping `k8s_master_lb_access=public`. In this scenario, instances in the 
+It is also valid to set `control_plane_subnet_access=private` while keeping `etcd_lb_access=public` and `k8s_master_lb_access=public`. In this scenario, instances in the 
 cluster's control plane will still provisioned in _private_ subnets and require NAT instance(s). However, the Load 
-Balancer for your back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible 
-over the Internet if the inbound security rules allow.
+Balancer for your etcd and  back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible over the Internet if the inbound security rules allow.
 
 *Note*
 
@@ -118,6 +118,7 @@ ssh_public_key_openssh              | (generated)             | String value of 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 flannel_network_cidr                | 10.99.0.0/16            | A CIDR notation IP range to use for flannel
+flannel_backend                     | VXLAN                   | Backend to use for Flannel, choices are vxlan, udp, and host-gw
 
 ### Software Versions Installed on OCI Instances
 name                                | default            | description
@@ -128,10 +129,17 @@ flannel_ver                         | v0.7.1                         | Version o
 k8s_ver                             | 1.7.10                         | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2                         | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3                          | Version of Kubernetes dashboard to install
-master_ol_image_name                | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image to use for masters
-worker_ol_image_name                | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image to use for workers
-etcd_ol_image_name                  | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image to use for etcd nodes
-nat_ol_image_name                   | Oracle-Linux-7.4-2017.10.25-0  | Image name of an Oracle-Linux-7.X image to use for NAT instances (if applicable)
+master_ol_image_name                | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for masters
+worker_ol_image_name                | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for workers
+etcd_ol_image_name                  | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for etcd nodes
+nat_ol_image_name                   | Oracle-Linux-7.4-2018.01.10-0  | Image name of an Oracle-Linux-7.X image to use for NAT instances (if applicable)
+
+#### OCI Plugins
+name                                     | default   | description
+-----------------------------------------|------------------|--------------------------
+cloud_controller_user_ocid               | user_ocid        | OCID of the user calling the OCI API to create Load Balancers
+cloud_controller_user_fingerprint        | fingerprint      | Fingerprint of the OCI user calling the OCI API to create Load Balancers
+cloud_controller_user_private_key_path   | private_key_path | Private key file path of the OCI user calling the OCI API to create Load Balancers
 
 #### Docker logging configuration
 name                                | default   | description
@@ -142,6 +150,7 @@ master_docker_max_log_size          | 50m       |max size of the k8smaster docke
 master_docker_max_log_files         | 5         |max number of k8smaster docker container logs to rotate
 worker_docker_max_log_size          | 50m       |max size of the k8sworker docker container logs
 worker_docker_max_log_files         | 5         |max number of k8s master docker container logs to rotate
+
 
 ### Other
 name                                | default                 | description

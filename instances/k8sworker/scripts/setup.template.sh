@@ -29,6 +29,14 @@ else
     SWAP_OPTION="--fail-swap-on=false"
 fi
 
+## Disable TX checksum offloading so we don't break VXLAN
+######################################
+BROADCOM_DRIVER=$(lsmod | grep bnxt_en | awk '{print $1}')
+if [[ -n "$${BROADCOM_DRIVER}" ]]; then
+   echo "Disabling hardware TX checksum offloading"
+   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx off
+fi
+
 ## etcd
 ######################################
 
@@ -134,6 +142,7 @@ EOF
 
 # Disable SELinux and firewall
 setenforce 0
+sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 systemctl stop firewalld.service
 systemctl disable firewalld.service
 
