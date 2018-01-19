@@ -170,6 +170,16 @@ variable "public_subnet_https_ingress" {
   default     = "0.0.0.0/0"
 }
 
+variable "external_icmp_ingress" {
+  description = "A CIDR notation IP range that is allowed to ICMP to instances on all the subnets"
+  default     = "0.0.0.0/0"
+}
+
+variable "internal_icmp_ingress" {
+  description = "A CIDR notation IP range that is allowed to ICMP to instances on all the subnets"
+  default     = "10.0.0.0/16"
+}
+
 variable "ssh_private_key" {
   description = "SSH private key used for instances (generated if left blank)"
   type        = "string"
