@@ -50,6 +50,20 @@ output "public_subnet_ad3_id" {
   value = "${oci_core_subnet.PublicSubnetAD3.*.id}"
 }
 
+output "ccmlb_subnet_ad1_id" {
+  value = "${oci_core_subnet.k8sCCMLBSubnetAD1.*.id}"
+}
+
+output "ccmlb_subnet_ad2_id" {
+  value = "${oci_core_subnet.k8sCCMLBSubnetAD2.*.id}"
+}
+
+output "ccmlb_subnet_ad3_id" {
+  value = "${oci_core_subnet.k8sCCMLBSubnetAD3.*.id}"
+}
+
+
+
 output "nat_instance_ad1_private_ips" {
   value = ["${oci_core_instance.NATInstanceAD1.*.private_ip}"]
 }
