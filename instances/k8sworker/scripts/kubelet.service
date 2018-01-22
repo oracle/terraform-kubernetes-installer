@@ -19,7 +19,7 @@ ExecStart=/usr/bin/kubelet \
   --serialize-image-pulls=false \
   --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem \
   --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem \
-  --feature-gates=ExperimentalCriticalPodAnnotation=true \
+  --feature-gates=ExperimentalCriticalPodAnnotation=true,Accelerators=true \
   --eviction-hard=memory.available<500Mi,nodefs.available<2Gi,imagefs.available<2Gi \
   --cloud-provider=external \
   --provider-id=__NODE_ID_PREFIX__.__NODE_ID_SUFFIX__ \
