@@ -4,6 +4,9 @@ EXTERNAL_IP=$(curl -s -m 10 http://whatismyip.akamai.com/)
 NAMESPACE=$(echo -n "${domain_name}" | sed "s/\.oraclevcn\.com//g")
 FQDN_HOSTNAME=$(getent hosts $(ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}')
 
+# Pull instance metadata
+curl -sL --retry 3 http://169.254.169.254/opc/v1/instance/ | tee /tmp/instance_meta.json
+
 ETCD_ENDPOINTS=${etcd_endpoints}
 export HOSTNAME=$(hostname)
 
@@ -157,8 +160,11 @@ docker run -d \
 
 ## kubelet for the master
 systemctl daemon-reload
+read NODE_ID_0 NODE_ID_1 <<< $(jq -r '.id' /tmp/instance_meta.json | perl -pe 's/(.*?\.){4}\K/ /g' | perl -pe 's/\.+\s/ /g')
 sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" \
     -e "s/__SWAP_OPTION__/$SWAP_OPTION/g" \
+    -e "s/__NODE_ID_PREFIX__/$NODE_ID_0/g" \
+    -e "s/__NODE_ID_SUFFIX__/$NODE_ID_1/g" \
      /root/services/kubelet.service >/etc/systemd/system/kubelet.service
 systemctl daemon-reload
 systemctl enable kubelet

@@ -72,6 +72,11 @@ write_files:
     encoding: b64
     content: |
       ${cnibridge_sh_content}
+  - path: "/etc/kubernetes/manifests/master-kubeconfig.yaml"
+    permissions: "0755"
+    encoding: b64
+    content: |
+      ${master_kubeconfig_template_content}
 # systemd services
   - path: "/root/services/kubelet.service"
     permissions: "0600"
