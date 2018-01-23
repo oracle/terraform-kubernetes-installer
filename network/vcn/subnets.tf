@@ -4,7 +4,7 @@ resource "oci_core_subnet" "PublicSubnetAD1" {
   # Provisioned only when k8s instances are in private subnets
   count               = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block          = "10.0.10.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "PublicSubnetAD1")}"
   display_name        = "${var.label_prefix}publicSubnetAD1"
   compartment_id      = "${var.compartment_ocid}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
@@ -16,7 +16,7 @@ resource "oci_core_subnet" "PublicSubnetAD1" {
 resource "oci_core_subnet" "PublicSubnetAD2" {
   count               = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block          = "10.0.11.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "PublicSubnetAD2")}"
   display_name        = "${var.label_prefix}publicSubnetAD2"
   compartment_id      = "${var.compartment_ocid}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
@@ -28,7 +28,7 @@ resource "oci_core_subnet" "PublicSubnetAD2" {
 resource "oci_core_subnet" "PublicSubnetAD3" {
   count               = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block          = "10.0.12.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "PublicSubnetAD3")}"
   display_name        = "${var.label_prefix}publicSubnetAD3"
   compartment_id      = "${var.compartment_ocid}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
@@ -39,7 +39,7 @@ resource "oci_core_subnet" "PublicSubnetAD3" {
 
 resource "oci_core_subnet" "etcdSubnetAD1" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block          = "10.0.20.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD1")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD1"
   dns_label           = "etcdsubnet1"
@@ -58,7 +58,7 @@ resource "oci_core_subnet" "etcdSubnetAD1" {
 
 resource "oci_core_subnet" "etcdSubnetAD2" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block          = "10.0.21.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD2")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD2"
   dns_label           = "etcdsubnet2"
@@ -77,7 +77,7 @@ resource "oci_core_subnet" "etcdSubnetAD2" {
 
 resource "oci_core_subnet" "etcdSubnetAD3" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block          = "10.0.22.0/24"
+  cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD3")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD3"
   dns_label           = "etcdsubnet3"
@@ -96,7 +96,7 @@ resource "oci_core_subnet" "etcdSubnetAD3" {
 
 resource "oci_core_subnet" "k8sMasterSubnetAD1" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                 = "10.0.30.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD1"
   dns_label                  = "k8smasterad1"
@@ -113,7 +113,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD1" {
 
 resource "oci_core_subnet" "k8sMasterSubnetAD2" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                 = "10.0.31.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD2"
   dns_label                  = "k8smasterad2"
@@ -130,7 +130,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD2" {
 
 resource "oci_core_subnet" "k8sMasterSubnetAD3" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                 = "10.0.32.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD3"
   dns_label                  = "k8smasterad3"
@@ -147,7 +147,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD3" {
 
 resource "oci_core_subnet" "k8sWorkerSubnetAD1" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                 = "10.0.40.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD1"
   dns_label                  = "k8sworkerad1"
@@ -164,7 +164,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD1" {
 
 resource "oci_core_subnet" "k8sWorkerSubnetAD2" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                 = "10.0.41.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD2"
   dns_label                  = "k8sworkerad2"
@@ -181,7 +181,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD2" {
 
 resource "oci_core_subnet" "k8sWorkerSubnetAD3" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                 = "10.0.42.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD3"
   dns_label                  = "k8sworkerad3"
@@ -201,7 +201,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD3" {
 
 resource "oci_core_subnet" "k8sCCMLBSubnetAD1" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  cidr_block                 = "10.0.50.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD1"
   dns_label                  = "k8sccmlbad1"
@@ -218,7 +218,7 @@ resource "oci_core_subnet" "k8sCCMLBSubnetAD1" {
 
 resource "oci_core_subnet" "k8sCCMLBSubnetAD2" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  cidr_block                 = "10.0.51.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD2"
   dns_label                  = "k8sccmlbad2"
@@ -235,7 +235,7 @@ resource "oci_core_subnet" "k8sCCMLBSubnetAD2" {
 
 resource "oci_core_subnet" "k8sCCMLBSubnetAD3" {
   availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  cidr_block                 = "10.0.52.0/24"
+  cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD3"
   dns_label                  = "k8sccmlbad3"
