@@ -60,7 +60,7 @@ providers {
 
 ###### Optionally create separate IAM resources for OCI plugins
 
-The OCI [Cloud Controller Manager (CCM)](https://github.com/oracle/oci-cloud-controller-manager) and [Volume Provisioner (VP)](https://github.com/oracle/oci-volume-provisioner) enables Kubernetes to dynamically provision OCI resources such as Load Balancers and Block Volumes as a part of pod and service creation. In order to facilitate this, OCI credentials and OCID information are automatically stored in the cluster as a Kubernet Secrets.
+The OCI [Cloud Controller Manager (CCM)](https://github.com/oracle/oci-cloud-controller-manager) and [Volume Provisioner (VP)](https://github.com/oracle/oci-volume-provisioner) enables Kubernetes to dynamically provision OCI resources such as Load Balancers and Block Volumes as a part of pod and service creation. In order to facilitate this, OCI credentials and OCID information are automatically stored in the cluster as a Kubernetes Secret.
 
 By default, the credentials of the user creating the cluster is used. However, in some cases, it makes sense to use a more restricted set of credentials whose policies are limited to a particular set of resources within the compartment.
 
