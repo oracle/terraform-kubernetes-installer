@@ -104,11 +104,11 @@ $ terraform apply
 
 The Kubernetes cluster will be running after the configuration is applied successfully and the cloud-init scripts have been given time to finish asynchronously. Typically, this takes around 5 minutes after `terraform apply` and will vary depending on the overall configuration, instance counts, and shapes.
 
-A working kubeconfig can be found in the ./generated folder or generated on the fly using the `kubeconfig` Terraform output variable.
+A working kubeconfig can be found in the `./generated` folder or generated on the fly using the `kubeconfig` Terraform output variable.
 
 Your network access settings determine whether your cluster is accessible from the outside. See [Accessing the Cluster](./docs/cluster-access.md) for more details.
 
-#### Verifying the cluster:
+#### Verify the cluster:
 
 If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
 your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
