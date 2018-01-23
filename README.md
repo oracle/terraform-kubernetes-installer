@@ -151,8 +151,8 @@ Check out the [example operations](./docs/examples.md) for details on how to use
 
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
-* Resizing the iSCSI volume will delete and recreate the volume.
-* GPU Bare Metal instance shapes are currently only available in the Ashburn region and may be limited to specific availability domains.
+* Resizing the iSCSI volume will delete and recreate the volume
+* GPU Bare Metal instance shapes are currently only available in the Ashburn region and may be limited to specific availability domains
 * Provisioning a _mix_ of GPU-enabled and non-GPU-enabled worker node instance shapes is currently unsupported
 
 ## Testing
