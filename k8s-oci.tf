@@ -40,6 +40,8 @@ module "vcn" {
   nat_instance_ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   worker_ssh_ingress                      = "${var.worker_ssh_ingress}"
   worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
+  external_icmp_ingress		  	  = "${var.external_icmp_ingress}"
+  internal_icmp_ingress		  	  = "${var.internal_icmp_ingress}"
 }
 
 module "oci-cloud-controller" {

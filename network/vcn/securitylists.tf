@@ -12,6 +12,24 @@ resource "oci_core_security_list" "EtcdSubnet" {
 
   ingress_security_rules = [
     {
+      protocol = "1"
+      source   = "${var.external_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
+      protocol = "1"
+      source   = "${var.internal_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
       # Allow LBaaS and internal VCN traffic
       protocol = "6"
       source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
@@ -62,6 +80,24 @@ resource "oci_core_security_list" "K8SMasterSubnet" {
   ]
 
   ingress_security_rules = [
+    {
+      protocol = "1"
+      source   = "${var.external_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
+      protocol = "1"
+      source   = "${var.internal_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
     {
       # Allow LBaaS and internal VCN traffic
       protocol = "6"
@@ -123,6 +159,24 @@ resource "oci_core_security_list" "K8SWorkerSubnet" {
 
   ingress_security_rules = [
     {
+      protocol = "1"
+      source   = "${var.external_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
+      protocol = "1"
+      source   = "${var.internal_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
       # LBaaS and internal VCN traffic
       protocol = "6"
       source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
@@ -174,6 +228,24 @@ resource "oci_core_security_list" "PublicSecurityList" {
 
   ingress_security_rules = [
     {
+      protocol = "1"
+      source   = "${var.external_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
+      protocol = "1"
+      source   = "${var.internal_icmp_ingress}"
+
+      icmp_options {
+        "type" = 3
+        "code" = 4
+      }
+    },
+    {
       # Allow LBaaS
       protocol = "6"
       source   = "${lookup(var.bmc_ingress_cidrs, "LBAAS-PHOENIX-1-CIDR")}"
@@ -214,15 +286,6 @@ resource "oci_core_security_list" "PublicSecurityList" {
       tcp_options {
         "min" = 443
         "max" = 443
-      }
-    },
-    {
-      protocol = "1"
-      source   = "0.0.0.0/0"
-
-      icmp_options {
-        "type" = 3
-        "code" = 4
       }
     },
     {
