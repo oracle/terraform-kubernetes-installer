@@ -62,13 +62,27 @@ module "oci-cloud-controller" {
 
 
 module "oci-flexvolume-driver" {
-  source                                 = "./kubernetes/oci-flexvolume-driver"
-  tenancy                                = "${var.tenancy_ocid}"
+  source                                  = "./kubernetes/oci-flexvolume-driver"
+  tenancy                                 = "${var.tenancy_ocid}"
 
   flexvolume_driver_user_ocid             = "${var.flexvolume_driver_user_ocid == "" ? var.user_ocid : var.flexvolume_driver_user_ocid}"
   flexvolume_driver_user_fingerprint      = "${var.flexvolume_driver_user_fingerprint == "" ? var.fingerprint : var.flexvolume_driver_user_fingerprint}"
   flexvolume_driver_user_private_key_path = "${var.flexvolume_driver_user_private_key_path == "" ? var.private_key_path : var.flexvolume_driver_user_private_key_path}"
 }
+
+
+module "oci-volume-provisioner" {
+  source                                   = "./kubernetes/oci-volume-provisioner"
+  tenancy                                  = "${var.tenancy_ocid}"
+  region                                   = "${var.region}"
+  
+  compartment                              = "${var.compartment_ocid}"
+  volume_provisioner_user_ocid             = "${var.volume_provisioner_user_ocid == "" ? var.user_ocid : var.volume_provisioner_user_ocid}"
+  volume_provisioner_user_fingerprint      = "${var.volume_provisioner_user_fingerprint == "" ? var.fingerprint : var.volume_provisioner_user_fingerprint}"
+  volume_provisioner_user_private_key_path = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_path : var.volume_provisioner_user_private_key_path}"
+}
+
+
 
 ### Compute Instance(s)
 
@@ -178,6 +192,7 @@ module "instances-k8smaster-ad1" {
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
@@ -218,6 +233,7 @@ module "instances-k8smaster-ad2" {
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)) :
@@ -258,6 +274,7 @@ module "instances-k8smaster-ad3" {
   tenancy_ocid               = "${var.compartment_ocid}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):

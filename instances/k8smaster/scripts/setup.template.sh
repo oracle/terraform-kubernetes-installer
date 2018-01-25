@@ -197,4 +197,10 @@ kubectl create -f /root/services/kube-dns.yaml
 ## install kubernetes-dashboard
 kubectl create -f /root/services/kubernetes-dashboard.yaml
 
+## Install Volume Provisioner of OCI
+kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner-rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner.yaml
+rm -f /root/volume-provisioner-secret.yaml
+
 echo "Finished running setup.sh"

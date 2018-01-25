@@ -414,5 +414,16 @@ variable "flexvolume_driver_user_private_key_path" {
   default = ""
 }
 
+# Flexvolume driver
+variable "volume_provisioner_user_ocid" {
+  default = ""
+}
+variable "volume_provisioner_user_fingerprint" {
+  default = ""
+}
+variable "volume_provisioner_user_private_key_path" {
+  default = ""
+}
+
 
 
