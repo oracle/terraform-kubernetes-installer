@@ -189,7 +189,7 @@ done
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-pod.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml
@@ -201,6 +201,9 @@ kubectl create -f /root/services/kubernetes-dashboard.yaml
 kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner-rbac.yaml
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class-ext3.yaml
+
 rm -f /root/volume-provisioner-secret.yaml
 
 echo "Finished running setup.sh"
