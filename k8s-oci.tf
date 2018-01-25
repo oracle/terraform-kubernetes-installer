@@ -29,6 +29,7 @@ module "vcn" {
   etcd_cluster_ingress                    = "${var.etcd_cluster_ingress}"
   master_ssh_ingress                      = "${var.master_ssh_ingress}"
   master_https_ingress                    = "${var.master_https_ingress}"
+  network_cidrs                           = "${var.network_cidrs}"
   public_subnet_ssh_ingress               = "${var.public_subnet_ssh_ingress}"
   public_subnet_http_ingress              = "${var.public_subnet_http_ingress}"
   public_subnet_https_ingress             = "${var.public_subnet_https_ingress}"
