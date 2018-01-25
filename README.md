@@ -23,11 +23,11 @@ Terraform is used to _provision_ the cloud infrastructure and any required local
 
 - Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
 - Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
-- Public or Private TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
-- Private OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
-- _Optional_ NAT instance for Internet-bound traffic on any private subnets
-- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variables
-- Self-signed CA and TLS cluster certificates when not overridden by the input variables `ca_cert`, `ca_key`, etc.
+- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
+- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
+- [Optional](./docs/input-variables.md#private-network-access) NAT instance for Internet-bound traffic on any private subnets
+- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair)
+- Self-signed CA and TLS cluster certificates when not overridden by the [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair) `ca_cert`, `ca_key`, etc.
 
 #### Cluster Configuration
 
@@ -39,11 +39,10 @@ configure:
 - Optional [GPU support](./docs/gpu-workers.md) for worker nodes that need to run specific workloads
 - Kubernetes Dashboard and kube-DNS cluster add-ons
 - Kubernetes RBAC (role-based authorization control)
-- Flannel/CNI container networking
 - Integration with OCI [Cloud Controller Manager](https://github.com/oracle/oci-cloud-controller-manager) (CCM)
 - Integration with OCI [Flexvolume Driver](https://github.com/oracle/oci-flexvolume-driver)
 
-The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
+The Terraform scripts also accept a number of other [input variables](./docs/input-variables.md) to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
 ![](./docs/images/arch.jpg)
 
