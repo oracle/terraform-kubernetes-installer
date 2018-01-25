@@ -180,6 +180,10 @@ When you are ready to make the new 1.7.5 worker node schedulable, use `kubectl u
 
 Replacing etcd cluster members after the initial deployment is not currently supported.
 
+## Deploying a GPU-enabled cluster
+
+See [deploying GPU-enabled worker nodes](./gpu-workers.md) for details.
+
 ## Deleting a cluster using terraform destroy
 
 ```bash

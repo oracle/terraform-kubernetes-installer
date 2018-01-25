@@ -195,3 +195,60 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD3" {
     command = "sleep 5"
   }
 }
+
+
+##### LB Subnets
+
+resource "oci_core_subnet" "k8sCCMLBSubnetAD1" {
+  availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
+  cidr_block                 = "10.0.50.0/24"
+  compartment_id             = "${var.compartment_ocid}"
+  display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD1"
+  dns_label                  = "k8sccmlbad1"
+  vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
+  dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+  security_list_ids          = ["${oci_core_security_list.K8SCCMLBSubnet.id}"]
+  prohibit_public_ip_on_vnic = "false"
+
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+
+resource "oci_core_subnet" "k8sCCMLBSubnetAD2" {
+  availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
+  cidr_block                 = "10.0.51.0/24"
+  compartment_id             = "${var.compartment_ocid}"
+  display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD2"
+  dns_label                  = "k8sccmlbad2"
+  vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
+  dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+  security_list_ids          = ["${oci_core_security_list.K8SCCMLBSubnet.id}"]
+  prohibit_public_ip_on_vnic = "false"
+
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+
+resource "oci_core_subnet" "k8sCCMLBSubnetAD3" {
+  availability_domain        = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
+  cidr_block                 = "10.0.52.0/24"
+  compartment_id             = "${var.compartment_ocid}"
+  display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD3"
+  dns_label                  = "k8sccmlbad3"
+  vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
+  dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+  security_list_ids          = ["${oci_core_security_list.K8SCCMLBSubnet.id}"]  
+  prohibit_public_ip_on_vnic = "false"
+
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+
+
+

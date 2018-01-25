@@ -1,6 +1,5 @@
 output "cloud_controller_user" {
-  sensitive = true
-  value = "${oci_identity_group.cloud_controller_group.id}"
+  value = "${oci_identity_user.cloud_controller_user.id}"
 }
 
 output "cloud_controller_public_key" {

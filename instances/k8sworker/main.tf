@@ -60,6 +60,6 @@ resource "oci_core_volume_attachment" "TFVolumeAttachmentK8sWorker" {
   attachment_type = "iscsi"
   compartment_id  = "${var.compartment_ocid}"
   instance_id     = "${oci_core_instance.TFInstanceK8sWorker.*.id[count.index]}"
-  volume_id       = "${element(oci_core_volume.TFVolumeK8sWorker.*.id, count.index)}"
+  volume_id       = "${oci_core_volume.TFVolumeK8sWorker.*.id[count.index]}"
   depends_on      = ["oci_core_instance.TFInstanceK8sWorker", "oci_core_volume.TFVolumeK8sWorker"]
 }
