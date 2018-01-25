@@ -1,5 +1,5 @@
 resource "oci_core_virtual_network" "CompleteVCN" {
-  cidr_block     = "${lookup(var.ingress_cidrs, "VPC-CIDR")}"
+  cidr_block     = "${lookup(var.network_cidrs, "VCN-CIDR")}"
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}${var.vcn_dns_name}"
   dns_label      = "${var.vcn_dns_name}"

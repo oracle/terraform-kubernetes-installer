@@ -21,6 +21,27 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
     tags      = "group:k8s-master"
   }
 
+  provisioner "remote-exec" {
+    when = "destroy"
+
+    inline = [
+      "nodeName=`getent hosts $(/usr/sbin/ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
+      "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/master-kubeconfig.yaml drain $nodeName --force",
+      "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/master-kubeconfig.yaml delete node $nodeName",
+      "exit 0",
+    ]
+
+    on_failure = "continue"
+
+    connection {
+      host        = "${self.public_ip}"
+      user        = "opc"
+      private_key = "${var.ssh_private_key}"
+      agent       = false
+      timeout     = "30s"
+    }
+  }
+
   timeouts {
     create = "60m"
   }
