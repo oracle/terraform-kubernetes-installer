@@ -181,8 +181,8 @@ done
 
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-pod.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager-rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml
