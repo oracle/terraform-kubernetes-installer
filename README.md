@@ -36,11 +36,12 @@ configure:
 
 - Highly Available (HA) Kubernetes master configuration
 - Highly Available (HA) etcd cluster configuration
-- Optional GPU-enabled worker nodes for running specific workloads
+- Optional [GPU support](./docs/gpu-workers.md) for worker nodes that need to run specific workloads
 - Kubernetes Dashboard and kube-DNS cluster add-ons
 - Kubernetes RBAC (role-based authorization control)
 - Flannel/CNI container networking
-- Integration with OCI Cloud Controller Manager (CCM)
+- Integration with OCI [Cloud Controller Manager](https://github.com/oracle/oci-cloud-controller-manager) (CCM)
+- Integration with OCI [Flexvolume Driver](https://github.com/oracle/oci-flexvolume-driver)
 
 The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
