@@ -73,3 +73,7 @@ variable "master_docker_max_log_files" {
 }
 
 variable "cloud_controller_secret" {}
+
+variable "flexvolume_driver_secret" {}
+
+variable "volume_provisioner_secret" {}

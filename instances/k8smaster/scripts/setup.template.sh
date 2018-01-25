@@ -114,6 +114,13 @@ cat >/etc/cni/net.d/10-flannel.conf <<EOF
 }
 EOF
 
+## Install Flex Volume Driver for OCI
+#####################################
+mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.1.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
+
 ## Install kubelet, kubectl, and kubernetes-cni
 ###############################################
 yum-config-manager --add-repo http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
@@ -182,12 +189,21 @@ done
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/9c0bbf019d0417fa3f27f05f50734f2038322d50/manifests/oci-cloud-controller-manager-pod.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml
 
 ## install kubernetes-dashboard
 kubectl create -f /root/services/kubernetes-dashboard.yaml
+
+## Install Volume Provisioner of OCI
+kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner-rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class.yaml
+kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class-ext3.yaml
+
+rm -f /root/volume-provisioner-secret.yaml
 
 echo "Finished running setup.sh"

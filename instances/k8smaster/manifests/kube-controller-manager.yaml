@@ -32,10 +32,10 @@ spec:
     - mountPath: /etc/kubernetes/ca
       name: ssl-certs-kubernetes
       readOnly: true
-    - mountPath: /etc/ssl/certs
+    - mountPath: /etc/ssl
       name: ssl-certs-host
       readOnly: true
-    - mountPath: /etc/pki/certs
+    - mountPath: /etc/pki
       name: pki-certs-host
       readOnly: true
     - mountPath: /usr/libexec/kubernetes/kubelet-plugins
@@ -45,10 +45,10 @@ spec:
       path: /etc/kubernetes/ssl
     name: ssl-certs-kubernetes
   - hostPath:
-      path: /etc/ssl/certs
+      path: /etc/ssl
     name: ssl-certs-host
   - hostPath:
-      path: /etc/pki/certs
+      path: /etc/pki
     name: pki-certs-host
   - hostPath:
       path: /usr/libexec/kubernetes/kubelet-plugins
