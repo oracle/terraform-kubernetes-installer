@@ -37,6 +37,8 @@ variable "flannel_ver" {
   default = "v0.7.1"
 }
 
+variable "ssh_private_key" {}
+
 # Kubernetes
 variable "k8s_ver" {
   default = "1.7.9"
