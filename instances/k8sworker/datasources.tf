@@ -84,18 +84,18 @@ data "template_file" "kube_worker_cloud_init_file" {
 
   vars = {
     k8s_ver                            = "${var.k8s_ver}"
-    setup_preflight_sh_content         = "${base64encode(data.template_file.setup-preflight.rendered)}"
-    setup_template_sh_content          = "${base64encode(data.template_file.setup-template.rendered)}"
-    kube_proxy_template_content        = "${base64encode(data.template_file.kube-proxy.rendered)}"
-    worker_kubeconfig_template_content = "${base64encode(data.template_file.worker-kubeconfig.rendered)}"
-    flannel_service_content            = "${base64encode(data.template_file.flannel-service.rendered)}"
-    cnibridge_service_content          = "${base64encode(data.template_file.cnibridge-service.rendered)}"
-    cnibridge_sh_content               = "${base64encode(data.template_file.cnibridge-sh.rendered)}"
-    kubelet_service_content            = "${base64encode(data.template_file.kubelet-service.rendered)}"
-    ca-pem-content                     = "${base64encode(var.root_ca_pem)}"
-    ca-key-content                     = "${base64encode(var.root_ca_key)}"
-    api-server-key-content             = "${base64encode(var.api_server_private_key_pem)}"
-    api-server-cert-content            = "${base64encode(var.api_server_cert_pem)}"
+    setup_preflight_sh_content         = "${base64gzip(data.template_file.setup-preflight.rendered)}"
+    setup_template_sh_content          = "${base64gzip(data.template_file.setup-template.rendered)}"
+    kube_proxy_template_content        = "${base64gzip(data.template_file.kube-proxy.rendered)}"
+    worker_kubeconfig_template_content = "${base64gzip(data.template_file.worker-kubeconfig.rendered)}"
+    flannel_service_content            = "${base64gzip(data.template_file.flannel-service.rendered)}"
+    cnibridge_service_content          = "${base64gzip(data.template_file.cnibridge-service.rendered)}"
+    cnibridge_sh_content               = "${base64gzip(data.template_file.cnibridge-sh.rendered)}"
+    kubelet_service_content            = "${base64gzip(data.template_file.kubelet-service.rendered)}"
+    ca-pem-content                     = "${base64gzip(var.root_ca_pem)}"
+    ca-key-content                     = "${base64gzip(var.root_ca_key)}"
+    api-server-key-content             = "${base64gzip(var.api_server_private_key_pem)}"
+    api-server-cert-content            = "${base64gzip(var.api_server_cert_pem)}"
   }
 }
 
