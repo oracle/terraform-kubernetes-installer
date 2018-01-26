@@ -4,3 +4,4 @@ auth:
   user: ${user}
   key: ${key}
   fingerprint: ${fingerprint}
+  vcn: ${vcn}

@@ -3,6 +3,7 @@ variable "oci_flexvolume_driver_manager_version" {
 }
 
 variable "tenancy" {}
+variable "vcn" {}
 
 # Flexvolume driver credentials to use.
 variable "flexvolume_driver_user_ocid" {}

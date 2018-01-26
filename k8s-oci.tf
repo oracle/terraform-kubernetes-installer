@@ -64,6 +64,7 @@ module "oci-cloud-controller" {
 module "oci-flexvolume-driver" {
   source                                  = "./kubernetes/oci-flexvolume-driver"
   tenancy                                 = "${var.tenancy_ocid}"
+  vcn                                     = "${module.vcn.id}"
 
   flexvolume_driver_user_ocid             = "${var.flexvolume_driver_user_ocid == "" ? var.user_ocid : var.flexvolume_driver_user_ocid}"
   flexvolume_driver_user_fingerprint      = "${var.flexvolume_driver_user_fingerprint == "" ? var.fingerprint : var.flexvolume_driver_user_fingerprint}"
