@@ -104,11 +104,13 @@ module "instances-etcd-ad1" {
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.vcn.etcd_subnet_ad1_id}"
+  subnet_name               = "etcdSubnetAD1"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
   etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
   etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
+  assign_private_ip         = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
 }
 
 module "instances-etcd-ad2" {
@@ -128,11 +130,13 @@ module "instances-etcd-ad2" {
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.vcn.etcd_subnet_ad2_id}"
+  subnet_name               = "etcdSubnetAD2"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
   etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
   etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
+  assign_private_ip         = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
 
 }
 
@@ -155,11 +159,13 @@ module "instances-etcd-ad3" {
   shape                     = "${var.etcdShape}"
   ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.vcn.etcd_subnet_ad3_id}"
+  subnet_name               = "etcdSubnetAD3"
   tenancy_ocid              = "${var.compartment_ocid}"
   etcd_docker_max_log_size  = "${var.etcd_docker_max_log_size}"
   etcd_docker_max_log_files = "${var.etcd_docker_max_log_files}"
   etcd_iscsi_volume_create  = "${var.etcd_iscsi_volume_create}"
   etcd_iscsi_volume_size    = "${var.etcd_iscsi_volume_size}"
+  assign_private_ip         = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
 }
 
 module "instances-k8smaster-ad1" {

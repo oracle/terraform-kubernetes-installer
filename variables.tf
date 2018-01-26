@@ -339,6 +339,11 @@ variable "etcd_lb_access" {
   default     = "private"
 }
 
+variable "etcd_maintain_private_ip" {
+  description = "Assign an etcd instance a private ip based on the CIDR for that AD"
+  default     = "false"
+}
+
 variable "natInstanceShape" {
   description = "Make sure to size this instance according to the amount of expected outbound traffic"
   default     = "VM.Standard1.1"
