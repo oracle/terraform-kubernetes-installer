@@ -149,7 +149,8 @@ Check out the [example operations](./docs/examples.md) for details on how to use
 
 ## Known issues and limitations
 
-* The OCI Load Balancer that gets created and attached to the VCN when a service of type `--type=LoadBalancer` is an out-of-band change to Terraform. As a result, the cluster's VCN will not be able to be destroyed until all services of type `LoadBalancer` have been deleted using `kubectl` or the OCI Console.
+* The OCI Load Balancers that gets created and attached to the VCN when a service of type `--type=LoadBalancer` is an out-of-band change to Terraform. As a result, the cluster's VCN will not be able to be destroyed until all services of type `LoadBalancer` have been deleted using `kubectl` or the OCI Console.
+* The OCI Block Volumes that gets created and attached to the workers when persistent volumes are create is also an out-of-band change to Terraform. As a result, the instances will not be able to be destroyed until all persistent volumes have been deleted using `kubectl` or the OCI Console.
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
 * Resizing the iSCSI volume will delete and recreate the volume
