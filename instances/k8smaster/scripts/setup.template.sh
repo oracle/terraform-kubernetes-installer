@@ -204,6 +204,9 @@ kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class.yaml
 kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class-ext3.yaml
 
+## Mark OCI StorageClass as the default
+kubectl patch storageclass oci -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 rm -f /root/volume-provisioner-secret.yaml
 
 echo "Finished running setup.sh"
