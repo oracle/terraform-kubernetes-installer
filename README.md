@@ -143,9 +143,13 @@ KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-sy
 kubernetes-dashboard is running at https://129.146.22.175:443/ui
 ```
 
+### Deploy a simple load-balanced application with shared volumes
+
+Check out the [example application deployment](./docs/example-deployments.md) for a walk through of deploying a simple application that leverages both the Cloud Controller Manager and Flexvolume Driver plugins.
+
 ### Scale, upgrade, or delete the cluster
 
-Check out the [example operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
+Check out the [example cluster operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
 
 ## Known issues and limitations
 

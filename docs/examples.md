@@ -1,4 +1,4 @@
-# Example Operations
+# Example Installer Operations
 
 ## Deploying a new cluster using terraform apply
 
