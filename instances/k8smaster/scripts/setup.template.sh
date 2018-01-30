@@ -117,7 +117,7 @@ EOF
 ## Install Flex Volume Driver for OCI
 #####################################
 mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
-curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.1.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.2.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
 

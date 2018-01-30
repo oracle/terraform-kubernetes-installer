@@ -1,7 +1,3 @@
-variable "oci_flexvolume_driver_manager_version" {
-  default = "0.1.0"
-}
-
 variable "tenancy" {}
 variable "vcn" {}
 
