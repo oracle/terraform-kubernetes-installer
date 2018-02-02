@@ -15,73 +15,6 @@ region                              | us-phoenix-1            | String value of 
 
 ## Optional Input Variables:
 
-### Network Access Configuration
-
-name                                | default     | description
-------------------------------------|-------------|------------
-control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
-k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
-etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
-
-
-#### _Public_ Network Access (default)
-
-![](./images/public_cp_subnet_access.jpg)
-
-When `control_plane_subnet_access=public` and `k8s_master_lb_access=public`, control plane instances and the Kubernetes Master Load Balancer are provisioned in _public_ subnets and automatically get both a public and private IP address. If the inbound security rules allow, you can communicate with them directly via their public IPs. 
-
-The following input variables are used to configure the inbound security rules on the public etcd, master, and worker subnets:
-
-name                                | default                 | description
-------------------------------------|-------------------------|------------
-network_cidrs                       | See map in variables.tf | A CIDR notation IP range of the VCN and its subnets.
-etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster. Must be a subset of the VCN CIDR.
-etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes. Must be a subset of the VCN CIDR.
-master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s). Must be a subset of the VCN CIDR.
-master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the HTTPs port on the master(s). Must be a subset of the VCN CIDR.
-worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s). Must be a subset of the VCN CIDR.
-worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s). Must be a subset of the VCN CIDR.
-
-
-#### _Private_ Network Access
-
-![](./images/private_cp_subnet_private_lb_access.jpg)
-
-When `control_plane_subnet_access=private`, `etcd_lb_access=private` and `k8s_master_lb_access=private`, control plane instances, etcd Load Balancer and the Kubernetes Master Load Balancer
- are provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to 
- perform  Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic. 
- If your worker nodes need to accept incoming traffic from the Internet, an additional front-end Load Balancer will 
- need to be provisioned in the public subnet to route traffic to workers in the private subnets.
-
-
-The following input variables are used to configure the inbound security rules for the NAT instance(s) and any other instance or front-end Load Balancer in the public subnet:
-
-name                                | default                 | description
-------------------------------------|-------------------------|------------
-public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)
-public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
-public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
-natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
-nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
-nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
-nat_instance_ad3_enabled            | false                   | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
-
-*Note*
-
-Even though we can configure a NAT instance per AD, this [diagram](./images/private_cp_subnet_public_lb_failure.jpg) illustrates that each NAT Instance is still represents a single point of failure for the private subnet that routes outbound traffic to it.
-
-#### _Private_ and _Public_ Network Access
-
-![](./images/private_cp_subnet_public_lb_access.jpg)
-
-It is also valid to set `control_plane_subnet_access=private` while keeping `etcd_lb_access=public` and `k8s_master_lb_access=public`. In this scenario, instances in the 
-cluster's control plane will still provisioned in _private_ subnets and require NAT instance(s). However, the Load 
-Balancer for your etcd and  back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible over the Internet if the inbound security rules allow.
-
-*Note*
-
-When `control_plane_subnet_access=private`, you still cannot SSH directly into your instances without going through a NAT instance. 
-
 ### Compute Instance Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
@@ -153,8 +86,73 @@ master_docker_max_log_files         | 5         |max number of k8smaster docker 
 worker_docker_max_log_size          | 50m       |max size of the k8sworker docker container logs
 worker_docker_max_log_files         | 5         |max number of k8s master docker container logs to rotate
 
-
 ### Other
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 label_prefix                        | ""                      | Unique identifier to prefix to OCI resources
+
+### Network Access Configuration
+
+name                                | default     | description
+------------------------------------|-------------|------------
+control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
+k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
+etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
+
+#### _Public_ Network Access (default)
+
+![](./images/public_cp_subnet_access.jpg)
+
+When `control_plane_subnet_access=public` and `k8s_master_lb_access=public`, control plane instances and the Kubernetes Master Load Balancer are provisioned in _public_ subnets and automatically get both a public and private IP address. If the inbound security rules allow, you can communicate with them directly via their public IPs.
+
+The following input variables are used to configure the inbound security rules on the public etcd, master, and worker subnets:
+
+name                                | default                 | description
+------------------------------------|-------------------------|------------
+network_cidrs                       | See map in variables.tf | A CIDR notation IP range of the VCN and its subnets.
+etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster. Must be a subset of the VCN CIDR.
+etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes. Must be a subset of the VCN CIDR.
+master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s). Must be a subset of the VCN CIDR.
+master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the HTTPs port on the master(s). Must be a subset of the VCN CIDR.
+worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s). Must be a subset of the VCN CIDR.
+worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s). Must be a subset of the VCN CIDR.
+
+
+#### _Private_ Network Access
+
+![](./images/private_cp_subnet_private_lb_access.jpg)
+
+When `control_plane_subnet_access=private`, `etcd_lb_access=private` and `k8s_master_lb_access=private`, control plane instances, etcd Load Balancer and the Kubernetes Master Load Balancer
+ are provisioned in _private_ subnets. In this scenario, we will also set up an instance in a public subnet to
+ perform  Network Address Translation (NAT) for instances in the private subnets so they can send outbound traffic.
+ If your worker nodes need to accept incoming traffic from the Internet, an additional front-end Load Balancer will
+ need to be provisioned in the public subnet to route traffic to workers in the private subnets.
+
+
+The following input variables are used to configure the inbound security rules for the NAT instance(s) and any other instance or front-end Load Balancer in the public subnet:
+
+name                                | default                 | description
+------------------------------------|-------------------------|------------
+public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)
+public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
+public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
+natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
+nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
+nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
+nat_instance_ad3_enabled            | false                   | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
+
+*Note*
+
+Even though we can configure a NAT instance per AD, this [diagram](./images/private_cp_subnet_public_lb_failure.jpg) illustrates that each NAT Instance is still represents a single point of failure for the private subnet that routes outbound traffic to it.
+
+#### _Private_ and _Public_ Network Access
+
+![](./images/private_cp_subnet_public_lb_access.jpg)
+
+It is also valid to set `control_plane_subnet_access=private` while keeping `etcd_lb_access=public` and `k8s_master_lb_access=public`. In this scenario, instances in the
+cluster's control plane will still provisioned in _private_ subnets and require NAT instance(s). However, the Load
+Balancer for your etcd and  back-end Kubernetes Master(s) will be launched in a public subnet and will therefore be accessible over the Internet if the inbound security rules allow.
+
+*Note*
+
+When `control_plane_subnet_access=private`, you still cannot SSH directly into your instances without going through a NAT instance.

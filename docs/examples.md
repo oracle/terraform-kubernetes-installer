@@ -1,4 +1,4 @@
-# Example Operations
+# Example Installer Operations
 
 ## Deploying a new cluster using terraform apply
 
@@ -185,6 +185,8 @@ Replacing etcd cluster members after the initial deployment is not currently sup
 See [deploying GPU-enabled worker nodes](./gpu-workers.md) for details.
 
 ## Deleting a cluster using terraform destroy
+
+Don't forget to delete any OCI Load Balancers that were created by the [Cloud Controller Manager](https://github.com/oracle/oci-cloud-controller-manager) for services with `--type=LoadBalancer` by running `kubectl delete svc` before trying to destroy the cluster using Terraform.
 
 ```bash
 $ terraform destroy

@@ -23,11 +23,11 @@ Terraform is used to _provision_ the cloud infrastructure and any required local
 
 - Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
 - Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
-- Public or Private TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
-- Private OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
-- _Optional_ NAT instance for Internet-bound traffic on any private subnets
-- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` input variables
-- Self-signed CA and TLS cluster certificates when not overridden by the input variables `ca_cert`, `ca_key`, etc.
+- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
+- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
+- [Optional](./docs/input-variables.md#private-network-access) NAT instance for Internet-bound traffic on any private subnets
+- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair)
+- Self-signed CA and TLS cluster certificates when not overridden by the [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair) `ca_cert`, `ca_key`, etc.
 
 #### Cluster Configuration
 
@@ -36,13 +36,13 @@ configure:
 
 - Highly Available (HA) Kubernetes master configuration
 - Highly Available (HA) etcd cluster configuration
-- Optional GPU-enabled worker nodes for running specific workloads
+- Optional [GPU support](./docs/gpu-workers.md) for worker nodes that need to run specific workloads
 - Kubernetes Dashboard and kube-DNS cluster add-ons
 - Kubernetes RBAC (role-based authorization control)
-- Flannel/CNI container networking
-- Integration with OCI Cloud Controller Manager (CCM)
+- Integration with OCI [Cloud Controller Manager](https://github.com/oracle/oci-cloud-controller-manager) (CCM)
+- Integration with OCI [Flexvolume Driver](https://github.com/oracle/oci-flexvolume-driver)
 
-The Terraform scripts also accept a number of other input variables that are detailed below to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
+The Terraform scripts also accept a number of other [input variables](./docs/input-variables.md) to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
 
 ![](./docs/images/arch.jpg)
 
@@ -143,12 +143,18 @@ KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-sy
 kubernetes-dashboard is running at https://129.146.22.175:443/ui
 ```
 
+### Deploy a simple load-balanced application with shared volumes
+
+Check out the [example application deployment](./docs/example-deployments.md) for a walk through of deploying a simple application that leverages both the Cloud Controller Manager and Flexvolume Driver plugins.
+
 ### Scale, upgrade, or delete the cluster
 
-Check out the [example operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
+Check out the [example cluster operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
 
 ## Known issues and limitations
 
+* The OCI Load Balancers that gets created and attached to the VCN when a service of type `--type=LoadBalancer` is an out-of-band change to Terraform. As a result, the cluster's VCN will not be able to be destroyed until all services of type `LoadBalancer` have been deleted using `kubectl` or the OCI Console.
+* The OCI Block Volumes that gets created and attached to the workers when persistent volumes are create is also an out-of-band change to Terraform. As a result, the instances will not be able to be destroyed until all persistent volumes have been deleted using `kubectl` or the OCI Console.
 * Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
 * Failover or HA configuration for NAT instance(s) is currently unsupported
 * Resizing the iSCSI volume will delete and recreate the volume

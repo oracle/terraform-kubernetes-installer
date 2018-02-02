@@ -339,6 +339,11 @@ variable "etcd_lb_access" {
   default     = "private"
 }
 
+variable "etcd_maintain_private_ip" {
+  description = "Assign an etcd instance a private ip based on the CIDR for that AD"
+  default     = "false"
+}
+
 variable "natInstanceShape" {
   description = "Make sure to size this instance according to the amount of expected outbound traffic"
   default     = "VM.Standard1.1"
@@ -390,6 +395,7 @@ variable "flannel_backend" {
   default = "VXLAN"
 }
 
+# Cloud controller 
 variable "cloud_controller_user_ocid" {
   default = ""
 }
@@ -401,3 +407,28 @@ variable "cloud_controller_user_fingerprint" {
 variable "cloud_controller_user_private_key_path" {
   default = ""
 }
+
+# Flexvolume driver
+variable "flexvolume_driver_user_ocid" {
+  default = ""
+}
+variable "flexvolume_driver_user_fingerprint" {
+  default = ""
+}
+variable "flexvolume_driver_user_private_key_path" {
+  default = ""
+}
+
+# Flexvolume driver
+variable "volume_provisioner_user_ocid" {
+  default = ""
+}
+variable "volume_provisioner_user_fingerprint" {
+  default = ""
+}
+variable "volume_provisioner_user_private_key_path" {
+  default = ""
+}
+
+
+
