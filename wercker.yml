@@ -28,9 +28,9 @@ build:
     - script:
         name: download and configure Terraform OCI Provider
         code: |
-          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.4/linux.tar.gz
+          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.6/linux.tar.gz
           tar -xzvf linux.tar.gz -C /
-          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.4" }' > ~/.terraformrc
+          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.6" }' > ~/.terraformrc
     - script:
         name: run terraform validate for static validation
         code: |
@@ -57,9 +57,9 @@ deploy:
     - script:
         name: download and configure Terraform OCI Provider
         code: |
-          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.4/linux.tar.gz
+          curl -LO --retry 3 https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.6/linux.tar.gz
           tar -xzvf linux.tar.gz -C /
-          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.4" }' > ~/.terraformrc
+          echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.6" }' > ~/.terraformrc
     - script:
         name: download kubectl binary
         code: |
