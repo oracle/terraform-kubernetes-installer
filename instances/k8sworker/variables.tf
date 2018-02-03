@@ -38,7 +38,7 @@ variable "etcd_ver" {
 
 # TODO - because the bootstrap template uses yum, we only support Oracle Linux 7
 variable "flannel_ver" {
-  default = "v0.7.1"
+  default = "v0.10.0"
 }
 
 # Kubernetes
