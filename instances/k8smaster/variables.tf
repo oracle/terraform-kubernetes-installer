@@ -41,7 +41,7 @@ variable "ssh_private_key" {}
 
 # Kubernetes
 variable "k8s_ver" {
-  default = "1.7.9"
+  default = "1.8.5"
 }
 
 variable "k8s_dashboard_ver" {
