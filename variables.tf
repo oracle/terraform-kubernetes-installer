@@ -10,6 +10,9 @@ variable "network_cidrs" {
     PublicSubnetAD1   = "10.0.10.0/24"
     PublicSubnetAD2   = "10.0.11.0/24"
     PublicSubnetAD3   = "10.0.12.0/24"
+    natSubnetAD1      = "10.0.13.0/24"
+    natSubnetAD2      = "10.0.14.0/24"
+    natSubnetAD3      = "10.0.15.0/24"
     etcdSubnetAD1     = "10.0.20.0/24"
     etcdSubnetAD2     = "10.0.21.0/24"
     etcdSubnetAD3     = "10.0.22.0/24"
@@ -55,11 +58,6 @@ variable "label_prefix" {
   default     = ""
 }
 
-variable "additional_nat_security_lists_ids" {
-  type    = "list"
-  default = []
-}
-
 variable "additional_etcd_security_lists_ids" {
   type    = "list"
   default = []
@@ -76,6 +74,11 @@ variable "additional_k8s_worker_security_lists_ids" {
 }
 
 variable "additional_public_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
+variable "additional_nat_security_lists_ids" {
   type    = "list"
   default = []
 }
@@ -361,6 +364,11 @@ variable nat_instance_ad2_enabled {
 
 variable nat_instance_ad3_enabled {
   description = "Whether to provision a NAT instance in AD 3 (only applicable when control_plane_subnet_access=private)"
+  default     = "false"
+}
+
+variable nat_separate_subnets_enabled {
+  description = "Whether to provision separate subnets for NAT instances in AD 1/2/3 (only applicable when control_plane_subnet_access=private)"
   default     = "false"
 }
 

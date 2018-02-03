@@ -37,6 +37,43 @@ resource "oci_core_subnet" "PublicSubnetAD3" {
   dhcp_options_id     = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
 }
 
+resource "oci_core_subnet" "NATSubnetAD1" {
+  # Provisioned only when k8s instances are in private subnets
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "1" : "0"}"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
+  cidr_block          = "${lookup(var.network_cidrs, "natSubnetAD1")}"
+  display_name        = "${var.label_prefix}natSubnetAD1"
+  compartment_id      = "${var.compartment_ocid}"
+  vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id      = "${oci_core_route_table.PublicRouteTable.id}"
+  security_list_ids   = ["${concat(list(oci_core_security_list.NatSecurityList.id), var.additional_nat_security_lists_ids)}"]
+  dhcp_options_id     = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+}
+
+resource "oci_core_subnet" "NATSubnetAD2" {
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "1" : "0"}"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
+  cidr_block          = "${lookup(var.network_cidrs, "natSubnetAD2")}"
+  display_name        = "${var.label_prefix}natSubnetAD2"
+  compartment_id      = "${var.compartment_ocid}"
+  vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id      = "${oci_core_route_table.PublicRouteTable.id}"
+  security_list_ids   = ["${concat(list(oci_core_security_list.NatSecurityList.id), var.additional_nat_security_lists_ids)}"]
+  dhcp_options_id     = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+}
+
+resource "oci_core_subnet" "NATSubnetAD3" {
+  count               = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "1" : "0"}"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
+  cidr_block          = "${lookup(var.network_cidrs, "natSubnetAD3")}"
+  display_name        = "${var.label_prefix}natSubnetAD3"
+  compartment_id      = "${var.compartment_ocid}"
+  vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
+  route_table_id      = "${oci_core_route_table.PublicRouteTable.id}"
+  security_list_ids   = ["${concat(list(oci_core_security_list.NatSecurityList.id), var.additional_nat_security_lists_ids)}"]
+  dhcp_options_id     = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
+}
+
 resource "oci_core_subnet" "etcdSubnetAD1" {
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD1")}"

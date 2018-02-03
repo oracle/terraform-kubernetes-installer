@@ -11,7 +11,7 @@ resource "oci_core_instance" "NATInstanceAD1" {
   shape               = "${var.nat_instance_shape}"
 
   create_vnic_details {
-    subnet_id = "${oci_core_subnet.PublicSubnetAD1.id}"
+    subnet_id = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "${element(concat(oci_core_subnet.NATSubnetAD1.*.id,list("")),0)}" : "${oci_core_subnet.PublicSubnetAD1.id}"}"
 
     # Skip the source/destination check so that the VNIC will forward traffic.
     skip_source_dest_check = true
@@ -38,7 +38,7 @@ resource "oci_core_instance" "NATInstanceAD2" {
   shape               = "${var.nat_instance_shape}"
 
   create_vnic_details {
-    subnet_id = "${oci_core_subnet.PublicSubnetAD2.id}"
+    subnet_id = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "${element(concat(oci_core_subnet.NATSubnetAD2.*.id,list("")),0)}" : "${oci_core_subnet.PublicSubnetAD2.id}"}"
 
     # Skip the source/destination check so that the VNIC will forward traffic.
     skip_source_dest_check = true
@@ -63,7 +63,7 @@ resource "oci_core_instance" "NATInstanceAD3" {
   shape               = "${var.nat_instance_shape}"
 
   create_vnic_details {
-    subnet_id = "${oci_core_subnet.PublicSubnetAD3.id}"
+    subnet_id = "${(var.control_plane_subnet_access == "private") && (var.nat_separate_subnets_enabled == "true") ? "${element(concat(oci_core_subnet.NATSubnetAD3.*.id,list("")),0)}" : "${oci_core_subnet.PublicSubnetAD3.id}"}"
 
     # Skip the source/destination check so that the VNIC will forward traffic.
     skip_source_dest_check = true
