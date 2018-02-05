@@ -59,6 +59,11 @@ variable "count" {
   default = "1"
 }
 
+variable "control_plane_subnet_access" {
+  description = "Whether instances in the control plane are launched in a public or private subnets"
+  default     = "public"
+}
+
 variable "etcd_docker_max_log_size" {
   description = "Maximum size of the etcd docker container json logs"
   default = "50m"
