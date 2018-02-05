@@ -19,9 +19,9 @@ TEMPLATES_DIR = SCRIPTS_DIR + '/templates'
 ANSIBLE_VAULT_CHALLENGE_FILE = SCRIPTS_DIR + '/ansible-vault-challenge.txt'
 RESUMABLE_FILE_NAME = 'resumeable.txt'
 RESUME_SECTION = 'RESUME'
-SAURON_SECTION = 'SAURON'
+K8S_SECTION = 'K8S'
 DESTROY_FILE_NAME = 'destroy.sh'
-PREFS_FILE_DEFAULT = os.path.expanduser('~') + '/.sauron/config'
+PREFS_FILE_DEFAULT = os.path.expanduser('~') + '/.k8s/config'
 
 helpers.logger = helpers.setup_logging('create_env.log')
 
@@ -119,7 +119,7 @@ def parse_args():
     args.prefs = PREFS_FILE_DEFAULT if args.prefs == None else args.prefs
     if os.path.exists(args.prefs):
         helpers.logger.info('Loading preferences from %s...' % args.prefs)
-        helpers.load_attributes_from_file(args, args.prefs, params, SAURON_SECTION, overwrite=False)
+        helpers.load_attributes_from_file(args, args.prefs, params, K8S_SECTION, overwrite=False)
 
     # Ensure all expected boolean types have boolean values (no Nones)
     for param in params:
@@ -188,14 +188,14 @@ def parse_args():
         param_defaults['region'] = region
         param_defaults['admin_user'] = team_name
         param_defaults['admin_password'] = helpers.generate_password()
-        param_defaults['external_domain'] = '%s.%s.sauron.%s.oracledx.com' % (stage_name, team_name, region)
+        param_defaults['external_domain'] = '%s.%s.k8s.%s.oracledx.com' % (stage_name, team_name, region)
     else:
         param_defaults['shape'] = 'VM.Standard1.2'
         local_user = getpass.getuser()
         param_defaults['region'] = 'us-ashburn-1'
         param_defaults['admin_user'] = local_user
         param_defaults['admin_password'] = helpers.generate_password()
-        param_defaults['external_domain'] = '%s.sandbox.sauron.%s.oracledx.com' % (local_user, params['region'])
+        param_defaults['external_domain'] = '%s.sandbox.k8s.%s.oracledx.com' % (local_user, params['region'])
     for param in param_defaults:
         if getattr(args, param) is None:
             setattr(args, param, helpers.prompt_for_value(params[param]['help'], param_defaults[param]))

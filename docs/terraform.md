@@ -1,5 +1,8 @@
 # Terraform References
 
+Usually, you'll be dealing with the helper scripts under `./scripts` to manage your environments, in which case
+you won't need to interact with Terraform/Terragrunt directly.  But for whenever you do:
+
 ## Determine Details of the Deployed Environment
 
 With a deployed environment, use ```terragrunt output``` to determine various details of interest:

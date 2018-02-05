@@ -75,28 +75,3 @@ Or with a specific tag:
 ```
 python ./scripts/ansible_deploy_env.py prod-region/some-env --tags some-tag
 ```
-
-#### Deploy Ansible for All Envs
-
-Use this with extreme caution - it will roll out changes to all managed environments.
-```
-python ./scripts/ansible_deploy_all_envs.py
-```
-
-Or with healthcheck option:
-```
-python ./scripts/ansible_deploy_all_envs.py --healthcheck
-
-```
-
-Or with specific tags:
-```
-python ./scripts/ansible_deploy_all_envs.py --tags some-tag,some-other-tag
-
-```
-
-Or excluding 2 specific environments:
-```
-python ./scripts/ansible_deploy_all_envs.py --exclude prod-region/some-env,prod-region/some-other-env
-
-```

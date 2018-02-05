@@ -6,7 +6,7 @@ stages:
 variables:
   ENV_NAME: gitlab-ci
   REGION: us-ashburn-1
-  EXTERNAL_DOMAIN: gitlabci.sauron.oracledx.com
+  EXTERNAL_DOMAIN: gitlabci.k8s.oracledx.com
   LOG_DIR: ${CI_PROJECT_DIR}/log
 
 .upload_artifacts: &upload_artifacts

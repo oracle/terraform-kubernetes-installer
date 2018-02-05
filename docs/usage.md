@@ -21,8 +21,26 @@
 ```
 * (macOS) Install "requests" Python Package (`sudo easy_install -U requests`)
   - if `sudo easy_install` couldn't access Internet, click [here][sudoers]
+  
+## Seeding Ansible Vault
 
-## Setting up a Unmanaged Sandbox Environment
+If you are forking this repo and want to use it to manage your own live environments, you'll need to:
+- Generate some password, to be kept secret and shared among your development team only.
+- Regenerate the `./scripts/ansible-vault-challenge.txt` file, which is used in this project's tooling before
+encrypting a new managed environment:
+
+```
+export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/vault-password
+echo $VAULT_PASSWORD > /tmp/vault-password
+echo "challenge accepted" > scripts/ansible-vault-challenge.txt
+ansible-vault encrypt scripts/ansible-vault-challenge.txt
+git add scripts/ansible-vault-challenge.txt
+``` 
+
+From this point on, the tooling will enforce that ANSIBLE_VAULT_PASSWORD_FILE is set and contains the correct
+password, when dealing with managed environments.
+
+## Setting up a Unmanaged Environment
 
 The following script will create an "unmanaged" environment (i.e. a personal environment just for you 
 that won't be checked into Git):
@@ -31,27 +49,22 @@ that won't be checked into Git):
 python ./scripts/create_env.py my-sandbox --unmanaged 
 ```
 
-A number of parameters must be provided to this script, such as OCI tenancy/compartment/user details, 
-and the admin Sauron credentials to be created for the new environment.  See the script `--help` for usage.
-If not specified on the command line, the script will prompt for all required parameters.  
+A number of parameters must be provided to this script, such as OCI tenancy/compartment/user details. 
+See the script `--help` for usage. If not specified on the command line, the script will prompt for all required parameters.  
 
-Additionally, a preferences file (default: `~/.sauron/config`) can be used to specify parameters.
+Additionally, a preferences file (default: `~/.k8s/config`) can be used to specify parameters.
 
 ```
-python ./scripts/create_env.py my-sandbox --unmanaged --prefs /tmp/.sauron/config
+python ./scripts/create_env.py my-sandbox --unmanaged --prefs /tmp/.k8s/config
 ```
 
 Here is a sample of the preferences file:
 
 ```
-[SAURON]
+[K8S]
 user_ocid=ocid1.user.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 fingerprint=aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa
 private_key_file=/tmp/odx-sre-api_key.pem
-admin_user=myadminuser
-admin_password=mystrongadminpassword
-external_domain=sandbox.oracledx.com
-self_signed_certs=True
 tenancy_ocid=ocid1.tenancy.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 compartment_ocid=ocid1.compartment.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 region=us-ashburn-1
@@ -60,14 +73,9 @@ logging_ad=1
 monitoring_ad=1
 ```
 
-Notes:
-* If you don't care about attaching your own official certs to the environment, use 
-`--self_signed_certs=True`.
-* Otherwise, provide a `--certs_dir` that contains your own official certs: a .key.pem and a .pem file.
-
 ## Setting up a Managed Environment
 
-* First, configure your ansible-vault environment. You must know the secret VAULT_PASSWORD to do this:
+* First, configure your ansible-vault environment. You'll need to know the secret VAULT_PASSWORD to do this:
 
 ```
 export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/vault-password
@@ -77,22 +85,17 @@ echo $VAULT_PASSWORD > /tmp/vault-password
 Use the `./scripts/create_env.py` script with the **--managed** option, like:
 
 ```
-python ./scripts/create_env.py prod-us-ashburn-1/oke --managed 
+python ./scripts/create_env.py prod --managed 
 ```
 
 Notes:
-* Managed environemnts must be of the form &#60;stage&#62;/&#60;team&#62;, and the script enforces this.
-* The tenancy, compartment, and node shape for managed environments is pre-set.  The script will fail
-if you try to specify these for managed environments.
-* The OCI user you supply here (via prompt, command line, or preferences file), must be authorized
-to deploy to the official Sauron prod or dev compartment.
 * After Ansible deployment is complete, the script will encrypt sensitive environment files, commit the
 environment's files, create a Git branch, and instruct you to create an MR with the changes.
 
 Upon completion of the script, you'll see a message like this:
 
 ```
-Environment files have been committed to the local branch dsimone/create-prod-oke-env. Proceed by pushing this branch and creating an MR.
+Environment files have been committed to the local branch dsimone/create-prod-env. Proceed by pushing this branch and creating an MR.
 ```
 
 At this point, push the branch and create and MR to commit the changes to master.
@@ -101,22 +104,17 @@ Alternatively, you can choose to skip branch creation by passing in `--skip_bran
 created for the new environment's files, but no branch will be created.  One such use for this option is
 when you are creating many managed environments in one sitting, and you want to handle branch creation yourself.
 
-## Rolling Out Ansible Changes to Live Environments
+## Rolling Out Ansible Changes to Managed Environments
 
-Choose the environment under ```envs``` you wish to deploy to via Ansible.  Some examples of valid
-environment names:
-* dev-us-ashburn-1/sre
-* prod-us-ashburn-1/sre
+Let's say we are rolling out a change to the `prod` environment:
 
-Let's say we are rolling out a change to an environment called "dev-region/some-env".
-
-* First, configure your ansible-vault environment.  You must know the secret VAULT_PASSWORD to do this:
+* First, configure your ansible-vault environment.  You'll need to know the secret VAULT_PASSWORD to do this:
  
 ```
 export ANSIBLE_VAULT_PASSWORD_FILE=/tmp/vault-password
 echo $VAULT_PASSWORD > /tmp/vault-password
 ``` 
- 
+
 #### Terraform Part
 
 **Note** - Use extreme care when running Terraform updates!!!
@@ -124,7 +122,7 @@ echo $VAULT_PASSWORD > /tmp/vault-password
 * Decrypt the certs for the environment:
 
 ```
-python scripts/decrypt_env.py dev-region/some-env
+python scripts/decrypt_env.py some-env
 ```
 
 * `cd envs/sandbox`
@@ -141,11 +139,11 @@ terragrunt apply -state=`pwd`/terraform.tfstate
 inventory and SSH private key, and deploying via Ansible:
 
 ```
-python ./scripts/ansible_deploy_env.py dev-region/some-env
+python ./scripts/ansible_deploy_env.py some-env
 ```
 
 Or, to run just a specific tag, for example:
 
 ```
-python ./scripts/ansible_deploy_env.py dev-region/some-env -tags elasticsearch
+python ./scripts/ansible_deploy_env.py some-env -tags foo
 ```
