@@ -244,25 +244,30 @@ def load_attributes_from_file(object, file, params, section, overwrite=True):
     for param in params:
         if config.has_option(section, param) and (overwrite or getattr(object, param) == None):
             if params[param]['type'] == str:
-                value = config.get(section, param)
+                    value = config.get(section, param)
+            elif params[param]['type'] == int:
+                value = config.getint(section, param)
             elif params[param]['type'] == bool:
                 value = config.getboolean(section, param)
             setattr(object, param, value)
 
-def get_terraform_output(env_name, output_name):
+def get_terraform_output(env_name, output_name, as_list=False):
     """
     Returns the Terraform output with the given name for the given environment.
     """
     env_dir = ENVS_DIR + '/' + env_name
     command = ('terraform output %s' % output_name)
-    (stdout, stderr, returncode) = run_command(command, cwd=env_dir, verbose=False, silent=True)
+    (stdout, stderr, returncode) = run_command(command, cwd=env_dir, verbose=True, silent=False)
+
 
     # in case of error we log the error and send back ''
     if returncode != 0:
-        logger.debug('Error getting Terraform output: %s' % stderr)
-        return ''
+        raise Exception('Error getting Terraform output: %s' % stderr)
     else:
-        return stdout.strip()
+        if as_list:
+            return [element.strip(', ') for element in stdout.splitlines()]
+        else:
+            return stdout.strip()
 
 def git_checkout(file):
     """
@@ -425,7 +430,7 @@ def reencrypt_env(env_name):
 def populate_health_config(kubeconfig, worker_address_list):
     """
     Constructs and returns a health configuration for the given Sauron instance, specified
-    in the k8s_config dictionary.
+    in the health_config dictionary.
     """
     health_config = {
         'k8s': {
@@ -459,24 +464,14 @@ def populate_env(env_name):
     # Extract details from Terragrunt
     log('[%s] Extracting outputs from Terraform into %s' % (env_name, env_dir), as_banner=True)
 
-    k8s_config = {}
-    terraform_variables = [
-        'ssh_private_key',
-        'monitoring_instance_public_ip',
-        'logging_instance_public_ip',
-        'region',
-    ]
-    for output_name in terraform_variables:
-        value = ''
-        try:
-            value = get_terraform_output(env_name=env_name, output_name=output_name)
-        except:
-            logger.warning('Cannot retrieve terraform variable: %s' % output_name)
-        k8s_config[output_name] = value
+    ssh_private_key = get_terraform_output(env_name=env_name, output_name='ssh_private_key')
+    master_public_ips = get_terraform_output(env_name=env_name, output_name='master_public_ips', as_list=True)
+    worker_public_ips = get_terraform_output(env_name=env_name, output_name='worker_public_ips', as_list=True)
+    region = get_terraform_output(env_name=env_name, output_name='region')
 
     # Some regions cannot be reached through the oracle proxy
     proxy_append = ''
-    if k8s_config['region'] in PROXY_REGIONS:
+    if region in PROXY_REGIONS:
         # Determine the local SSH version, which will determine which Ansible SSH proxy flags to specify
         log('Environment: %s needs a proxy to connect, see the hosts file for added instructions' % env_name)
         (stdout, stderr, returncode) = run_command('ssh -V', verbose=False, silent=True)
@@ -489,13 +484,13 @@ def populate_env(env_name):
         
     # Write hosts file
     log('[%s] Generating Ansible environment files' % env_name, as_banner=True)
-    worker_address_list = [k8s_config['monitoring_instance_public_ip']]
     hosts_file = '%s/%s/%s' % (ENVS_DIR, env_name, HOSTS_FILE_NAME)
     f = open(hosts_file, 'w')
     f.write('[k8s-master]\n')
-    f.write("%s%s\n" % (k8s_config['logging_instance_public_ip'], proxy_append))
+    for master_address in master_public_ips:
+        f.write("%s%s\n" % (master_address, proxy_append))
     f.write('[k8s-worker]\n')
-    for worker_address in worker_address_list:
+    for worker_address in worker_public_ips:
         f.write("%s%s\n" % (worker_address, proxy_append))
     f.close()
 
@@ -505,7 +500,7 @@ def populate_env(env_name):
         os.makedirs(files_dir)
     ssh_key_file = files_dir + '/' + ID_RSA_FILE
     f = open(ssh_key_file, 'w')
-    f.write(k8s_config['ssh_private_key'] + '\n')
+    f.write(ssh_private_key + '\n')
     f.close()
     os.chmod(ssh_key_file, 0o600)
 
@@ -525,7 +520,8 @@ def populate_env(env_name):
     kubeconfig_template = TEMPLATES_DIR + '/kubeconfig'
     shutil.copyfile(kubeconfig_template, kubeconfig)
     token_values = {}
-    token_values['MASTER_URL'] = 'https://%s:443' % k8s_config['logging_instance_public_ip']
+    # TODO - use an LB here instead of the first instance of a master
+    token_values['MASTER_URL'] = 'https://%s:443' % master_public_ips[0]
     token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
     token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
     for line in fileinput.FileInput(kubeconfig, inplace=1):
@@ -534,7 +530,7 @@ def populate_env(env_name):
         print line.strip('\n')
 
     # Populate health config
-    health_config = populate_health_config(kubeconfig, worker_address_list)
+    health_config = populate_health_config(kubeconfig, worker_public_ips)
 
     # Write health file
     health_config_file = files_dir + '/' + HEALTH_FILE_NAME

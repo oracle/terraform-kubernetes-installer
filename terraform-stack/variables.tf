@@ -1,18 +1,10 @@
-variable "disable_auto_retries" {
-  default = "true"
-}
-
 # BMCS Service
 variable "tenancy_ocid" {}
 
 variable "compartment_ocid" {}
 
 variable "domain_name" {
-  default = "k8s.oraclevcn.com"
-}
-
-variable "vcn_dns_name" {
-  default = "coreservices"
+  default = "k8sbmcs.oraclevcn.com"
 }
 
 variable "user_ocid" {}
@@ -23,38 +15,86 @@ variable "region" {
   default = "us-phoenix-1"
 }
 
-variable "os_image_ocid" {
+variable "vcn_dns_name" {
+  default = "k8sbmcs"
+}
+
+variable "disable_auto_retries" {
+  default = "false"
+}
+
+variable "private_key_password" {
   default = ""
 }
 
-variable "monitoringShape" {
-  default = "VM.DenseIO1.4"
-}
-
-variable "loggingShape" {
-  default = "VM.DenseIO1.4"
-}
-
-variable "loggingBlockVolumeSize" {
-  default = "262144"
-}
-
-variable "monitoringBlockVolumeSize" {
-  default = "262144"
-}
-
-variable "logging-instance-ad" {
-  default = "1"
-}
-
-variable "monitoring-instance-ad" {
-  default = "1"
-}
-
-variable "ssh_private_key" {
-  description = "SSH private key used for instances (generated if left blank)"
+variable "label_prefix" {
+  description = "To create unique identifier for multiple clusters in a compartment."
   type        = "string"
   default     = ""
+}
+
+variable "additional_etcd_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
+variable "additional_k8s_master_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
+variable "additional_k8s_worker_security_lists_ids" {
+  type    = "list"
+  default = []
+}
+
+# Instance shape, e.g. VM.Standard1.1, VM.Standard1.2, VM.Standard1.4, ..., BM.Standard1.36, ...
+variable "etcdShape" {
+  default = "VM.Standard1.1"
+}
+
+variable "k8sMasterShape" {
+  default = "VM.Standard1.1"
+}
+
+variable "k8sWorkerShape" {
+  default = "VM.Standard1.2"
+}
+
+variable "k8sWorkerAd1Count" {
+  default = 1
+}
+
+variable "k8sWorkerAd2Count" {
+  default = 0
+}
+
+variable "k8sWorkerAd3Count" {
+  default = 0
+}
+
+variable "k8sMasterAd1Count" {
+  default = 1
+}
+
+variable "k8sMasterAd2Count" {
+  default = 0
+}
+
+variable "k8sMasterAd3Count" {
+  default = 0
+}
+
+variable "etcdAd1Count" {
+  default = 1
+}
+
+variable "etcdAd2Count" {
+  default = 0
+}
+
+variable "etcdAd3Count" {
+  default = 0
 }
 
 variable "ssh_public_key_openssh" {
@@ -63,46 +103,81 @@ variable "ssh_public_key_openssh" {
   default     = ""
 }
 
-variable "ca_cert" {
-  description = "CA certificate (generated if left blank)"
+variable "flannel_network_cidr" {
+  description = "A CIDR notation IP range to use for the entire flannel network"
   type        = "string"
+  default     = "10.99.0.0/16"
+}
+
+variable "etcd_cluster_ingress" {
+  description = "A CIDR notation IP range that is allowed to access the etcd cluster"
+  default     = "10.0.0.0/16"
+}
+
+variable "etcd_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to etcd nodes"
+  default     = "10.0.0.0/16"
+}
+
+variable "master_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to master nodes"
+  default     = "10.0.0.0/16"
+}
+
+variable "master_https_ingress" {
+  description = "A CIDR notation IP range that is allowed to access the HTTPs port on the master nodes"
+  default     = "10.0.0.0/16"
+}
+
+variable "worker_ssh_ingress" {
+  description = "A CIDR notation IP range that is allowed to SSH to worker nodes"
+  default     = "10.0.0.0/16"
+}
+
+variable "worker_nodeport_ingress" {
+  description = "A CIDR notation IP range that is allowed to access the K8s service / NodePorts on the worker nodes"
+  default     = "10.0.0.0/16"
+}
+
+variable "ca_cert" {
+  description = "CA certificate in PEM format(generated if left blank)"
   default     = ""
 }
 
 variable "ca_key" {
-  description = "CA private key (generated if left blank)"
-  type        = "string"
+  description = "CA private key in PEM format (generated if left blank)"
   default     = ""
 }
 
-variable "label_prefix" {
-  description = "To create unique identifier for multiple deployments in a single compartment."
-  type        = "string"
+variable "api_server_private_key" {
+  description = "API Server private key in PEM format (generated if left blank)"
   default     = ""
 }
 
-variable "oracle_internal_network_cidrs" {
-  type = "map"
+variable "api_server_cert" {
+  description = "API Server cert in PEM format (generated if left blank)"
+  default     = ""
+}
 
-  default = {
-    ADC-CIDR             = "137.254.7.160/27"
-    WHQ-CIDR             = "148.87.23.0/27"
-    RMDC-CIDR            = "148.87.66.160/27"
-    OCNA-CIDR            = "160.34.0.0/16"
-    Seattle-CIDR         = "209.17.37.96/27"
-    ASH-CIDR             = "209.17.40.32/27"
-    UK-CIDR              = "141.143.0.0/16"
-    India-CIDR           = "196.15.23.0/27"
-    Brazil-CIDR          = "198.49.164.160/27"
-    Singapore-CIDR       = "198.17.70.0/27"
-    NEW-Singapore-CIDR   = "192.188.170.80/28"
-    Japan-CIDR           = "202.45.129.176/28"
-    Sydney-CIDR          = "202.92.67.176/29"
-    WWW-PROXY-CIDR       = "148.87.19.0/24"
-    LBAAS-PHOENIX-1-CIDR = "129.144.0.0/12"
-    LBAAS-ASHBURN-1-CIDR = "129.213.0.0/16"
-    BMC-CIDR             = "129.144.0.0/12"
-    VPN-CIDR             = "156.151.0.0/16"
-    VCN-CIDR             = "10.0.0.0/16"
-  }
+variable "ssh_private_key" {
+  description = "SSH private key for instances (generated if left blank)"
+  default     = ""
+}
+
+
+# Load Balancers
+variable "etcdLBShape" {
+  default = "100Mbps"
+}
+
+variable "k8sMasterLBShape" {
+  default = "100Mbps"
+}
+
+variable "instance_os" {
+  default = "Oracle Linux"
+}
+
+variable "instance_os_ver" {
+  default = "7.4"
 }

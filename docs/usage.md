@@ -69,8 +69,8 @@ tenancy_ocid=ocid1.tenancy.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 compartment_ocid=ocid1.compartment.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 region=us-ashburn-1
 shape=VM.Standard1.2
-logging_ad=1
-monitoring_ad=1
+k8s_master_ad=1
+k8s_worker_ad=1
 ```
 
 ## Setting up a Managed Environment

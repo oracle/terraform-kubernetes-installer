@@ -60,18 +60,23 @@ def parse_args():
     params['fingerprint'] = {'help':'OCI API Fingerprint', 'type': str}
     params['private_key_file'] = {'help':'OCI Private Key File', 'type': str}
     params['region'] = {'help':'OCI Region to use', 'type': str}
-    params['shape'] = {'help':'OCI Compute node shape to use', 'type': str}
-    params['logging_ad'] = {'help':'OCI Availability Domain to use for logging node', 'type': str}
-    params['monitoring_ad'] = {'help':'OCI Availability Domain to use for monitoring node', 'type': str}
+    params['k8s_master_shape'] = {'help':'OCI Compute node shape to use for K8S master nodes', 'type': str}
+    params['k8s_worker_shape'] = {'help':'OCI Compute node shape to use for K8S worker nodes', 'type': str}
+    params['k8s_master_ad1_count'] = {'help':'Number of K8S master nodes in AD1', 'type': int}
+    params['k8s_master_ad2_count'] = {'help':'Number of K8S master nodes in AD2', 'type': int}
+    params['k8s_master_ad3_count'] = {'help':'Number of K8S master nodes in AD3', 'type': int}
+    params['k8s_worker_ad1_count'] = {'help':'Number of K8S worker nodes in AD1', 'type': int}
+    params['k8s_worker_ad2_count'] = {'help':'Number of K8S worker nodes in AD2', 'type': int}
+    params['k8s_worker_ad3_count'] = {'help':'Number of K8S worker nodes in AD3', 'type': int}
     params['vars_file'] = {'help':'Ansible vars file to append to the generated environment\"s vars file', 'type': str}
     params['skip_branch'] = {'help': 'Whether to skip creation of a new branch with a managed environment\'s files', 'type': bool}
 
     for param in params:
-        if params[param]['type'] == str:
+        if params[param]['type'] == bool:
+            parser.add_argument('--' + param, help=params[param]['help'], action='store_const', const=True)
+        else:
             parser.add_argument('--' + param, help=params[param]['help'], type=params[param]['type'],
                                 required=False)
-        elif params[param]['type'] == bool:
-            parser.add_argument('--' + param, help=params[param]['help'], action='store_const', const=True)
     args = parser.parse_args()
 
     #
@@ -149,9 +154,14 @@ def parse_args():
 
     # Params with defaults
     param_defaults = collections.OrderedDict()
-    param_defaults['logging_ad'] = '1'
-    param_defaults['monitoring_ad'] = '1'
-    param_defaults['shape'] = 'VM.Standard1.2'
+    param_defaults['k8s_master_ad1_count'] = '1'
+    param_defaults['k8s_master_ad2_count'] = '0'
+    param_defaults['k8s_master_ad3_count'] = '0'
+    param_defaults['k8s_worker_ad1_count'] = '1'
+    param_defaults['k8s_worker_ad2_count'] = '0'
+    param_defaults['k8s_worker_ad3_count'] = '0'
+    param_defaults['k8s_master_shape'] = 'VM.Standard1.2'
+    param_defaults['k8s_worker_shape'] = 'VM.Standard1.2'
     param_defaults['region'] = 'us-ashburn-1'
 
     for param in param_defaults:
@@ -191,11 +201,16 @@ def stamp_out_env_dir(args):
     token_values = {}
     token_values['ENV_NAME'] = args.env_name
     token_values['REGION'] = args.region
-    token_values['LOGGING_AD'] = args.logging_ad
-    token_values['MONITORING_AD'] = args.monitoring_ad
+    token_values['K8S_MASTER_AD1_COUNT'] = args.k8s_master_ad1_count
+    token_values['K8S_MASTER_AD2_COUNT'] = args.k8s_master_ad2_count
+    token_values['K8S_MASTER_AD3_COUNT'] = args.k8s_master_ad3_count
+    token_values['K8S_WORKER_AD1_COUNT'] = args.k8s_worker_ad1_count
+    token_values['K8S_WORKER_AD2_COUNT'] = args.k8s_worker_ad2_count
+    token_values['K8S_WORKER_AD3_COUNT'] = args.k8s_worker_ad3_count
+    token_values['K8S_MASTER_SHAPE'] = args.k8s_master_shape
+    token_values['K8S_WORKER_SHAPE'] = args.k8s_worker_shape
     token_values['TENANCY_OCID'] = args.tenancy_ocid
     token_values['COMPARTMENT_OCID'] = args.compartment_ocid
-    token_values['SHAPE'] = args.shape
     token_values['PROJECT_ROOT_DIR'] = helpers.PROJECT_ROOT_DIR
     env_name_tokens = args.env_name.split('/')
     if not args.managed:
@@ -208,7 +223,7 @@ def stamp_out_env_dir(args):
     for file in (env_dir + '/terraform.tfvars', all_yml_file):
         for line in fileinput.FileInput(file, inplace=1):
             for token in token_values:
-                line = line.replace('<%s>' % token, token_values[token])
+                line = line.replace('<%s>' % str(token), str(token_values[token]))
             print line.strip('\n')
 
 def deploy_terraform(args):

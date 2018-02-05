@@ -16,8 +16,8 @@ terragrunt output -state `pwd`/terraform.tfstate ssh_private_key
 Instance IPs:
 
 ```
-terragrunt output -state `pwd`/terraform.tfstate logging_instance_public_ip
-terragrunt output -state `pwd`/terraform.tfstate monitoring_instance_public_ip
+terragrunt output -state `pwd`/terraform.tfstate k8s_master_instance_public_ip
+terragrunt output -state `pwd`/terraform.tfstate k8s_worker_instance_public_ip
 ```
 
 VCN ID:
