@@ -257,8 +257,7 @@ def get_terraform_output(env_name, output_name, as_list=False):
     """
     env_dir = ENVS_DIR + '/' + env_name
     command = ('terraform output %s' % output_name)
-    (stdout, stderr, returncode) = run_command(command, cwd=env_dir, verbose=True, silent=False)
-
+    (stdout, stderr, returncode) = run_command(command, cwd=env_dir, verbose=False, silent=True)
 
     # in case of error we log the error and send back ''
     if returncode != 0:
@@ -465,8 +464,8 @@ def populate_env(env_name):
     log('[%s] Extracting outputs from Terraform into %s' % (env_name, env_dir), as_banner=True)
 
     ssh_private_key = get_terraform_output(env_name=env_name, output_name='ssh_private_key')
-    master_public_ips = get_terraform_output(env_name=env_name, output_name='master_public_ips', as_list=True)
-    worker_public_ips = get_terraform_output(env_name=env_name, output_name='worker_public_ips', as_list=True)
+    k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_master_public_ips', as_list=True)
+    k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_worker_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
 
     # Some regions cannot be reached through the oracle proxy
@@ -487,10 +486,10 @@ def populate_env(env_name):
     hosts_file = '%s/%s/%s' % (ENVS_DIR, env_name, HOSTS_FILE_NAME)
     f = open(hosts_file, 'w')
     f.write('[k8s-master]\n')
-    for master_address in master_public_ips:
+    for master_address in k8s_master_public_ips:
         f.write("%s%s\n" % (master_address, proxy_append))
     f.write('[k8s-worker]\n')
-    for worker_address in worker_public_ips:
+    for worker_address in k8s_worker_public_ips:
         f.write("%s%s\n" % (worker_address, proxy_append))
     f.close()
 
@@ -521,7 +520,7 @@ def populate_env(env_name):
     shutil.copyfile(kubeconfig_template, kubeconfig)
     token_values = {}
     # TODO - use an LB here instead of the first instance of a master
-    token_values['MASTER_URL'] = 'https://%s:443' % master_public_ips[0]
+    token_values['MASTER_URL'] = 'https://%s:443' % k8s_master_public_ips[0]
     token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
     token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
     for line in fileinput.FileInput(kubeconfig, inplace=1):
@@ -530,7 +529,7 @@ def populate_env(env_name):
         print line.strip('\n')
 
     # Populate health config
-    health_config = populate_health_config(kubeconfig, worker_public_ips)
+    health_config = populate_health_config(kubeconfig, k8s_worker_public_ips)
 
     # Write health file
     health_config_file = files_dir + '/' + HEALTH_FILE_NAME

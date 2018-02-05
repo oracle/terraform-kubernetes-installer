@@ -68,9 +68,14 @@ private_key_file=/tmp/odx-sre-api_key.pem
 tenancy_ocid=ocid1.tenancy.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 compartment_ocid=ocid1.compartment.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 region=us-ashburn-1
-shape=VM.Standard1.2
-k8s_master_ad=1
-k8s_worker_ad=1
+k8s_master_shape=VM.Standard1.2
+k8s_worker_shape=VM.Standard1.2
+k8s_master_ad1_count=1
+k8s_master_ad2_count=0
+k8s_master_ad3_count=0
+k8s_worker_ad1_count=1
+k8s_worker_ad2_count=0
+k8s_worker_ad3_count=0
 ```
 
 ## Setting up a Managed Environment

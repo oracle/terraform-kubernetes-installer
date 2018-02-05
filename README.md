@@ -9,12 +9,15 @@ together Terraform and Ansible and help to manage long-lived environments.
 ## Project Status
 
 This project is currently a _starting point, but contains:
-- The initial project structure to stand up a working Kubernetes cluster.
-- Initial working integration tests.
-- Initial working Gitlab pipeline which stands up an environment and runs integration tests.
-- Initial working helper scripts for creating managed/unmanaged environments and managing them via Ansible. 
+- The initial project structure to stand up a working Kubernetes cluster.  Terraform code is based off of [terraform-kubernetes-installer](https://github.com/oracle/terraform-kubernetes-installer)
+from a few months ago (currently minus LBs).
+- Initial working integration tests deploy and verify a multi-service app.
+- Working Gitlab pipeline which stands up an environment and runs integration tests.
+- Working helper scripts for creating managed/unmanaged environments and managing them via Ansible. 
 
 The work that needs to be done to make this a robust project include the following:
+- Add back automatic cert generation from Joe Rosinksi's (k8s-ansible-terraform-installer branch)[https://gitlab-odx.oracle.com/sre/terraform-k8s-installer-baremetal/tree/k8s-ansible-terraform-installer]. 
+- Add in refactored Ansible roles structure from Joe Rosinksi's (k8s-ansible-terraform-installer branch)[https://gitlab-odx.oracle.com/sre/terraform-k8s-installer-baremetal/tree/k8s-ansible-terraform-installer].
 - Add some (whatever is needed) of the flexibility offerred by the [terraform-kubernetes-installer](https://github.com/oracle/terraform-kubernetes-installer)
 project, like:
   - Putting an LB in front of the k8s master.
@@ -30,8 +33,8 @@ project, like:
   - Forcing an upgrade to critical parts of the system, like etcd or the flannel network, while workloads are running.
   - Upgrading from the last SHA deployed in production to the current SHA, while workloads are running.
   - Using more realistic workloads in integration tests.
+- Get idempotency working (rerunning Ansible currently results in "changes"), and enable idempotency test in Gitlab CI.
 - Add a CD pipeline for deploying to live environments.
-- Support for passing in custom certs when creating an environment.
 
 ## Repository Structure
 
