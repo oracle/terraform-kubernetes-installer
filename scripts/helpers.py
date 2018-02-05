@@ -32,12 +32,8 @@ HEALTH_FILE_NAME = 'health.json'
 TF_STATE_FILE_NAME = 'terraform.tfstate'
 ID_RSA_FILE = 'id_rsa'
 DECRYPTED_BACKUP_EXT = ".decrypted"
-MANAGED_ENV_DIRS = [
-    'dev-us-ashburn-1', 'integ-us-ashburn-1', 'prod-us-ashburn-1',
-    'dev-eu-frankfurt-1', 'integ-eu-frankfurt-1', 'prod-eu-frankfurt-1',
-    'dev-us-phoenix-1', 'integ-us-phoenix-1', 'prod-us-phoenix-1',
-]
-PROXY_ENVS = ['dev-eu-frankfurt-1', 'integ-eu-frankfurt-1', 'prod-eu-frankfurt-1']
+MANAGED_ENVS = ['dev', 'integ', 'prod']
+PROXY_REGIONS = ['eu-frankfurt-1']
 
 class ConsoleFormatter(object):
     """
@@ -299,15 +295,6 @@ def yes_or_no(question):
     else:
         return yes_or_no("Please enter 'y' or 'n' only. " + question)
 
-def generate_password():
-    """
-    Generates and returns a random password.
-    """
-    length = 10
-    chars = string.ascii_letters + string.digits
-    random.seed = (os.urandom(1024))
-    return ''.join(random.choice(chars) for i in range(length))
-
 def prompt_for_value(name, default_value=None):
     """
     Prompts stdin with a yes/no question.
@@ -438,7 +425,7 @@ def reencrypt_env(env_name):
 def populate_health_config(kubeconfig, worker_address_list):
     """
     Constructs and returns a health configuration for the given Sauron instance, specified
-    in the sauron_config dictionary.
+    in the k8s_config dictionary.
     """
     health_config = {
         'k8s': {
@@ -453,7 +440,7 @@ def populate_env(env_name):
     """
     Populates Ansible dynamic files for the given environment.
     """
-    if env_name.split('/')[0] in MANAGED_ENV_DIRS:
+    if env_name in MANAGED_ENVS:
         log('[%s] Decrypting environment files' % env_name, as_banner=True)
         verify_ansible_vault_password_env()
         decrypt_env(env_name)
@@ -472,11 +459,12 @@ def populate_env(env_name):
     # Extract details from Terragrunt
     log('[%s] Extracting outputs from Terraform into %s' % (env_name, env_dir), as_banner=True)
 
-    sauron_config = {}
+    k8s_config = {}
     terraform_variables = [
         'ssh_private_key',
         'monitoring_instance_public_ip',
         'logging_instance_public_ip',
+        'region',
     ]
     for output_name in terraform_variables:
         value = ''
@@ -484,11 +472,11 @@ def populate_env(env_name):
             value = get_terraform_output(env_name=env_name, output_name=output_name)
         except:
             logger.warning('Cannot retrieve terraform variable: %s' % output_name)
-        sauron_config[output_name] = value
+        k8s_config[output_name] = value
 
     # Some regions cannot be reached through the oracle proxy
     proxy_append = ''
-    if env_name.split('/')[0] in PROXY_ENVS:
+    if k8s_config['region'] in PROXY_REGIONS:
         # Determine the local SSH version, which will determine which Ansible SSH proxy flags to specify
         log('Environment: %s needs a proxy to connect, see the hosts file for added instructions' % env_name)
         (stdout, stderr, returncode) = run_command('ssh -V', verbose=False, silent=True)
@@ -501,11 +489,11 @@ def populate_env(env_name):
         
     # Write hosts file
     log('[%s] Generating Ansible environment files' % env_name, as_banner=True)
-    worker_address_list = [sauron_config['monitoring_instance_public_ip']]
+    worker_address_list = [k8s_config['monitoring_instance_public_ip']]
     hosts_file = '%s/%s/%s' % (ENVS_DIR, env_name, HOSTS_FILE_NAME)
     f = open(hosts_file, 'w')
     f.write('[k8s-master]\n')
-    f.write("%s%s\n" % (sauron_config['logging_instance_public_ip'], proxy_append))
+    f.write("%s%s\n" % (k8s_config['logging_instance_public_ip'], proxy_append))
     f.write('[k8s-worker]\n')
     for worker_address in worker_address_list:
         f.write("%s%s\n" % (worker_address, proxy_append))
@@ -517,7 +505,7 @@ def populate_env(env_name):
         os.makedirs(files_dir)
     ssh_key_file = files_dir + '/' + ID_RSA_FILE
     f = open(ssh_key_file, 'w')
-    f.write(sauron_config['ssh_private_key'] + '\n')
+    f.write(k8s_config['ssh_private_key'] + '\n')
     f.close()
     os.chmod(ssh_key_file, 0o600)
 
@@ -537,7 +525,7 @@ def populate_env(env_name):
     kubeconfig_template = TEMPLATES_DIR + '/kubeconfig'
     shutil.copyfile(kubeconfig_template, kubeconfig)
     token_values = {}
-    token_values['MASTER_URL'] = 'https://%s:443' % sauron_config['logging_instance_public_ip']
+    token_values['MASTER_URL'] = 'https://%s:443' % k8s_config['logging_instance_public_ip']
     token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
     token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
     for line in fileinput.FileInput(kubeconfig, inplace=1):
@@ -572,6 +560,6 @@ def unpopulate_env(env_name):
         if os.path.exists(env_dir + '/' + file):
             shutil.rmtree(env_dir + '/' + file)
 
-    if env_name.split('/')[0] in MANAGED_ENV_DIRS:
+    if env_name in MANAGED_ENVS:
         log('[%s] Re-encrypting environment files' % env_name, as_banner=True)
         reencrypt_env(env_name)

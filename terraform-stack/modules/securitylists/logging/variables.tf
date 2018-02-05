@@ -46,7 +46,6 @@ variable "external_ingress" {
 
   default = {
     # Uptime Robot, https://uptimerobot.com/inc/files/ips/IPv4.txt
-    # TODO https://gitlab-odx.oracle.com/sre/sauron/issues/249
     uptime-robot-CIDR-1 = "69.162.124.224/28"
     uptime-robot-CIDR-2 = "63.143.42.240/28"
     uptime-robot-IP-1   = "216.144.250.150/32"

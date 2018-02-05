@@ -17,7 +17,7 @@ ExecStart={{ etcd_install_dir }}/etcd/etcd --name {{ ansible_hostname }} \
     --listen-peer-urls http://0.0.0.0:{{ etcd_advertise_port }} \
     --initial-advertise-peer-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_advertise_port }} \
     --initial-cluster {{ ansible_hostname }}=http://{{ ansible_default_ipv4.address }}:{{ etcd_advertise_port }} \
-    --initial-cluster-token odx-prime-k8smaster-cluster
+    --initial-cluster-token {{k8s_cluster_name}}
 
 [Install]
 WantedBy=multi-user.target

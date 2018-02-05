@@ -1,32 +1,6 @@
 ---
 # Define the admin group
-admin_group: odxadmin
-
-
-admin_users:
-  - name: "Grant Gavares"
-    username: ggavares
-    state: present
-    keys:
-      active: 
-        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJuXmdQjWi48DWgSPX4rEOxrIzMAzFBw8KTGDDiduT29niV/m9t+fkIoywjZonKylrbi0ZQ9qrJnEA9XGo+D6CLPI3vMPQIgEja3u25yotyzQW7faFagRgJ3U60VxFDVHpDdo+ysYXxzteNJ2SnbremPi51KqbWaAd47d2yQPq7HZmGsUjSDeelKRX4/z4/Eo5loapTERxGLVCwQKrzJXlImnwSnnqzNt+tprI3Rc345zIBawzezHYHBKK3Xh1w2tgRd3dvig+rNigcJY1DwL/OHpX5ZcB3GSXG7sKz/k4b5GkNNbH13l7FrYSZgfqQYcv44juR9YSjS11TOccdCzjazeYCwa964rUW7/DOSDpBOTWs7X9nuJrK5yRuVbEqi3pPFnBuSS1P1Uxk3pgM2wEH+gqUa0IF9pvKg7fWoCdAUHAVCRHSj/snRi0gHHtuwVzi7hqBYucVIgFOKK7kbzpPyFCwQz55w6LoGQATLOEUYKtndLeM+Qc0doT3bVCKdylWZRNdCjEMZULczKnSyv24ySQn0IiXhzUqtpHZYeB/pWqwRkR7G/YHOx8V1wgysev6OkT3hvuelAWaT9TpAlhiI5YlJsf3l1oTNybtViJFp61KsueJV30yMhmkJLmaHxHN4m77DhLZlbnG1igJLM7AqwTHNor1qbr1Iz1l/Gkyw== grant.gavares@oracle.com"
-      absent:
-
-  - name: "Warior MeowMix Smidt"
-    username: wsmidt
-    state: present
-    keys:
-      active:
-        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqkUJXNiXtAT+POHnOpB6Qy7OZ6cM9i8hhFAE9H9Jb2mGmaZQJ8DFsHXtRJQ9eANq+Smr9o0P4T8RAWkzzNOPoniajyFCKY2XDUFNl1XpNj4RiJ98Hek9d3byLMBxayyQhH9O5UzSwWWYnTmC9ene5NqBkFnovJtesDXgWULLo2v8etl6/y00Y3QFa67T97DNYwiRPkXIilKlyP0zGzromaChMjHWj9XmrzzrczlCgdWxKoh/bIPqmCpinnxH3rR0xnpljBLxp31A+Rury7Mdawy6RV5C/Cs3xjiLjYLe24h2elkjrdd6zpKX/Kw6MC3JGxHxxyO9/TsQkHWWhkWr7 warner.smidt@oracle.com"
-      absent:
-
-  - name: "Anurag Singh"
-    username: anuransi
-    state: present
-    keys:
-      active:
-        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUs4Mnh1kFkhdQkRba+QF3rTr7FoG+UbyHzJ1DxPpY8x2QfCbhq9bF9tH/avZcIHLol/7ROWMiERu26u8LeJ9qHA+4Z7qaW383bviWdNbxBLwcVBkjQ4GTFYtIPetrvWrjZ6SXAXJtv7hnjeDJdJ4g/WoNSok9EZ4iTlxbloWI7B1hzXBzxQ+w1C3c1Gyr9XYlOjRiXgGr2DvIpCtI8lZCfXroXiXh4OrmWz5Oy6pObC9c/bhe274TrTjHU3U5BdxH9cVFg3JPV9A2t0m4OeBu4xD65waThNOkx66qI2KUa+pm4nW6KC6RmHEf/GvOQu4DRm3bmTJtzdwY6Dmdry5j anuransi@ANURANSI-Mac"
-      absent:
+admin_group: k8sadmin
 
 # The user and group telegraf should run under (should be set to telegraf unless needed otherwise)
 telegraf_runas_user: telegraf

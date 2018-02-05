@@ -17,3 +17,7 @@ output "monitoring_instance_public_ip" {
 output "vcn_id" {
   value = "${module.vcn.id}"
 }
+
+output "region" {
+  value = "${var.region}"
+}

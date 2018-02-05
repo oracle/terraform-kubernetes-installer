@@ -11,3 +11,5 @@ etcd_install_dir: "/opt"
 etcd_client_port: 2379
 etcd_advertise_port: 2380
 etcd_data_dir: /var/lib/etcd
+
+k8s_cluster_name: "k8s-cluster"

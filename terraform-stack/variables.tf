@@ -8,7 +8,7 @@ variable "tenancy_ocid" {}
 variable "compartment_ocid" {}
 
 variable "domain_name" {
-  default = "coreservices.odxprime.oraclevcn.com"
+  default = "k8s.oraclevcn.com"
 }
 
 variable "vcn_dns_name" {

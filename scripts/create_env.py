@@ -11,8 +11,6 @@ import shutil
 import collections
 import getpass
 import fileinput
-import time
-import re
 
 SCRIPTS_DIR = helpers.PROJECT_ROOT_DIR + '/scripts'
 TEMPLATES_DIR = SCRIPTS_DIR + '/templates'
@@ -24,28 +22,6 @@ DESTROY_FILE_NAME = 'destroy.sh'
 PREFS_FILE_DEFAULT = os.path.expanduser('~') + '/.k8s/config'
 
 helpers.logger = helpers.setup_logging('create_env.log')
-
-def parse_managed_env_name(env_name):
-    """
-    Parse a full managed environment name, and return the following for the environment: 
-    1) stage (dev|integ|prod) 2) region (us-ashburn-1|us-phoenix-1|eu-frankfurt-1|etc) 3) team name (oke|sre|etc)
-    Note - an environment without an explicit region specified in the stage *directory* is assumed 
-    to be in the "default region".
-    """
-    match = re.search('(?P<stage_dir_name>.*?)/(?P<team_name>.*)', env_name)
-    if len(match.groups()) != 2:
-        raise Exception('Managed environment name must be in the form: stage(-region)/team')
-    (stage_dir_name, team_name) = match.groups()
-    if stage_dir_name not in helpers.MANAGED_ENV_DIRS:
-        raise Exception('%s is not a valid stage dir for a managed environment. '
-                        'Valid stages are: %s' % (stage_dir_name, helpers.MANAGED_ENV_DIRS))
-
-    stage_dir_name_match = re.search('(?P<stage_name>.*?)-(?P<stage_region>.*)', stage_dir_name)
-    if(len(stage_dir_name_match.groups()) != 2):
-        raise Exception('%s is not a valid stage dir for a managed environment. '
-                        'Valid stages are: %s' % (stage_dir_name, helpers.MANAGED_ENV_DIRS))
-    (stage_name, stage_region) = stage_dir_name_match.groups()
-    return (stage_name, stage_region, team_name)
 
 def get_git_branch_name(env_name):
     (stage_name, team_name) = env_name.split('/')
@@ -87,10 +63,7 @@ def parse_args():
     params['shape'] = {'help':'OCI Compute node shape to use', 'type': str}
     params['logging_ad'] = {'help':'OCI Availability Domain to use for logging node', 'type': str}
     params['monitoring_ad'] = {'help':'OCI Availability Domain to use for monitoring node', 'type': str}
-    params['admin_user'] = {'help':'Admin user to create for this environment', 'type': str}
-    params['admin_password'] = {'help':'Admin password to create for this environment', 'type': str}
-    params['external_domain'] = {'help':'External domain name for this environment', 'type': str}
-    params['certs_dir'] = {'help':'Certs directory for this environment', 'type': str}
+    params['vars_file'] = {'help':'Ansible vars file to append to the generated environment\"s vars file', 'type': str}
     params['skip_branch'] = {'help': 'Whether to skip creation of a new branch with a managed environment\'s files', 'type': bool}
 
     for param in params:
@@ -134,8 +107,6 @@ def parse_args():
     if not args.managed and not args.unmanaged:
         args.managed = helpers.yes_or_no('Create "managed" environment')
     if args.managed:
-        (stage_name, region, team_name) = parse_managed_env_name(args.env_name)
-
         # Ensure ansible-vault password set
         if not 'ANSIBLE_VAULT_PASSWORD_FILE' in os.environ:
             raise Exception('ANSIBLE_VAULT_PASSWORD_FILE must be set as an environment variable '
@@ -154,10 +125,9 @@ def parse_args():
         if stdout.strip() != '':
             raise Exception('Can\'t create a managed environment with existing staged Git files')
     else:
-        env_name_tokens = args.env_name.split('/')
-        if env_name_tokens[0] in helpers.MANAGED_ENV_DIRS:
-            raise Exception('Can\'t create an unmanaged environment in one of the directories reserved for '
-                            ' managed environments: %s' % helpers.MANAGED_ENV_DIRS)
+        if args.env_name in helpers.MANAGED_ENVS:
+            raise Exception('Can\'t create an unmanaged environment using one of the names reserved for '
+                            ' managed environments: %s' % helpers.MANAGED_ENVS)
     if os.path.isdir(env_dir):
        raise Exception('Directory %s for the specified environment already exists' % env_dir)
 
@@ -181,41 +151,13 @@ def parse_args():
     param_defaults = collections.OrderedDict()
     param_defaults['logging_ad'] = '1'
     param_defaults['monitoring_ad'] = '1'
+    param_defaults['shape'] = 'VM.Standard1.2'
+    param_defaults['region'] = 'us-ashburn-1'
 
-    if args.managed:
-        if args.shape != None:
-            raise Exception('Shape is pre-set for managed environments')
-        param_defaults['region'] = region
-        param_defaults['admin_user'] = team_name
-        param_defaults['admin_password'] = helpers.generate_password()
-        param_defaults['external_domain'] = '%s.%s.k8s.%s.oracledx.com' % (stage_name, team_name, region)
-    else:
-        param_defaults['shape'] = 'VM.Standard1.2'
-        local_user = getpass.getuser()
-        param_defaults['region'] = 'us-ashburn-1'
-        param_defaults['admin_user'] = local_user
-        param_defaults['admin_password'] = helpers.generate_password()
-        param_defaults['external_domain'] = '%s.sandbox.k8s.%s.oracledx.com' % (local_user, params['region'])
     for param in param_defaults:
         if getattr(args, param) is None:
             setattr(args, param, helpers.prompt_for_value(params[param]['help'], param_defaults[param]))
 
-    # Certs dir - a special case
-    if args.managed:
-        if args.certs_dir is None:
-            args.certs_dir = helpers.prompt_for_value(params['certs_dir']['help'])
-    else:
-        if args.certs_dir is None and not args.self_signed_certs and helpers.yes_or_no('Attach real certs'):
-            args.certs_dir = helpers.prompt_for_value(params['certs_dir']['help'])
-    if not args.certs_dir == None:
-        # Check certs dir
-        if not os.path.isdir(args.certs_dir):
-            raise Exception('Local certs directory %s doesn\'t exist' % args.certs_dir)
-
-        key_files = helpers.glob(args.certs_dir + '/*.key')
-        crt_files = helpers.glob(args.certs_dir + '/*.crt')
-        if len(key_files) != 1 or len(crt_files) != 1:
-            raise Exception('Exactly one .crt and one .key file not found under %s' % args.certs_dir)
     return args
 
 def stamp_out_env_dir(args):
@@ -227,64 +169,43 @@ def stamp_out_env_dir(args):
     helpers.log('Creating directory structure at %s ' % env_dir, as_banner=True, bold=True)
     os.makedirs(env_dir)
 
-    # Use a different template tfvars file for managed environments
-    if args.managed:
-        (stage_name, _, _) = parse_managed_env_name(args.env_name)
-        tfvars_file = '%s/terraform-%s.tfvars' % (TEMPLATES_DIR, stage_name)
-    else:
-        tfvars_file = TEMPLATES_DIR + '/terraform-unmanaged.tfvars'
+    tfvars_file = '%s/terraform.tfvars' % TEMPLATES_DIR
     shutil.copyfile(tfvars_file, env_dir + '/terraform.tfvars')
     os.makedirs(env_dir + '/group_vars/all')
-    shutil.copyfile(TEMPLATES_DIR + '/all.yml', env_dir + '/group_vars/all/all.yml')
+    all_yml_file = env_dir + '/group_vars/all/all.yml'
+    shutil.copyfile(TEMPLATES_DIR + '/all.yml', all_yml_file)
 
-    if args.managed:
-        # Sym link common vars for the stage
-        os.symlink('../../../common_vars/vars.yml', env_dir + '/group_vars/all/stage_common.yml')
+    if args.vars_file:
+        # Append custom vars file to generated all.yml
+        with open(all_yml_file, 'a') as fo:
+            fo.write(open(args.vars_file, 'r').read())
 
     # Copy in certs
     os.mkdir(env_dir + '/certs')
-    if args.certs_dir is None:
-        # Allow self-signed certs to be used for unmanaged environments
-        self_signed_certs_dir = SCRIPTS_DIR + '/certs'
-        cert_key_file = self_signed_certs_dir + '/selfsigned.ca-key.pem'
-        cert_pem_file = self_signed_certs_dir + '/selfsigned.ca.pem'
-    else:
-        cert_key_file = helpers.glob(args.certs_dir + '/*.key')[0]
-        cert_pem_file = helpers.glob(args.certs_dir + '/*.crt')[0]
+    self_signed_certs_dir = SCRIPTS_DIR + '/certs'
+    cert_key_file = self_signed_certs_dir + '/selfsigned.ca-key.pem'
+    cert_pem_file = self_signed_certs_dir + '/selfsigned.ca.pem'
     shutil.copyfile(cert_pem_file, '%s/certs/ca.pem' % env_dir)
     shutil.copyfile(cert_key_file, '%s/certs/ca-key.pem' % env_dir)
 
-    # Fill in tokenized values in environment files
-    if args.managed:
-        # Encrypt password
-        cmd = 'ansible-vault encrypt_string "%s"' % args.admin_password
-        (stdout, stderr, returncode) = helpers.run_command(cmd=cmd, verbose=False)
-        if returncode != 0:
-            raise Exception('Failed to encrypt password - error: %s' % stderr)
-        args.admin_password = stdout
     token_values = {}
     token_values['ENV_NAME'] = args.env_name
     token_values['REGION'] = args.region
     token_values['LOGGING_AD'] = args.logging_ad
     token_values['MONITORING_AD'] = args.monitoring_ad
-    token_values['EXTERNAL_DOMAIN_NAME'] = args.external_domain
-    token_values['API_USER'] = args.admin_user
-    token_values['API_PASSWORD'] = args.admin_password
-    token_values['PAGERDUTY_KEY'] = 'TBD'
-
+    token_values['TENANCY_OCID'] = args.tenancy_ocid
+    token_values['COMPARTMENT_OCID'] = args.compartment_ocid
+    token_values['SHAPE'] = args.shape
+    token_values['PROJECT_ROOT_DIR'] = helpers.PROJECT_ROOT_DIR
     env_name_tokens = args.env_name.split('/')
     if not args.managed:
-        token_values['TENANCY_OCID'] = args.tenancy_ocid
-        token_values['COMPARTMENT_OCID'] = args.compartment_ocid
-        token_values['SHAPE'] = args.shape
-        token_values['PROJECT_ROOT_DIR'] = helpers.PROJECT_ROOT_DIR
         # Terraform prefix for objects will start with the local user name
         token_values['ENV_PREFIX'] = '-'.join([getpass.getuser()] + list(reversed(env_name_tokens)))
     else:
         # Terraform prefix for objects will be in the form <team>-<stage_dir_name>
         token_values['ENV_PREFIX'] = '-'.join(list(reversed(env_name_tokens)))
 
-    for file in (env_dir + '/terraform.tfvars', env_dir + '/group_vars/all/all.yml'):
+    for file in (env_dir + '/terraform.tfvars', all_yml_file):
         for line in fileinput.FileInput(file, inplace=1):
             for token in token_values:
                 line = line.replace('<%s>' % token, token_values[token])

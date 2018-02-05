@@ -3,13 +3,6 @@
   hostname:
     name: "{{ ansible_fqdn }}"
 
-- name: expand search domain in resolv dot conf
-  lineinfile:
-    path: /etc/resolv.conf
-    state: present
-    regexp: '^search'
-    line: 'search odxprime.oraclevcn.com k8sad1.odxprime.oraclevcn.com k8sad2.odxprime.oraclevcn.com k8sad3.odxprime.oraclevcn.com'
-
 - name: Configure ntp file
   template:
     src: ntp.conf.j2
@@ -20,10 +13,3 @@
     name: ntpd
     state: started
     enabled: yes
-
-- name: expand search domain in resolv dot conf
-  lineinfile:
-    path: /etc/resolv.conf
-    state: present
-    regexp: '^search'
-    line: 'search odxprime.oraclevcn.com k8sad1.odxprime.oraclevcn.com k8sad2.odxprime.oraclevcn.com k8sad3.odxprime.oraclevcn.com'
