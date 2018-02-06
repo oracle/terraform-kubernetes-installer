@@ -117,7 +117,7 @@ EOF
 ## Install Flex Volume Driver for OCI
 #####################################
 mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
-curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.2.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.4.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
 
@@ -188,8 +188,8 @@ done
 
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-cloud-controller-manager/master/manifests/oci-cloud-controller-manager.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/0.2.0/oci-cloud-controller-manager-rbac.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/0.2.0/oci-cloud-controller-manager.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml
