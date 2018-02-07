@@ -197,9 +197,6 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         numWorkers = len(outputJSON["value"])
         workerPublicAddressList = _utf_encode_list(outputJSON["value"])
 
-        outputJSON = json.loads(_terraform("output -json control_plane_subnet_access"))
-        controlPlaneSubnetAccess = outputJSON["value"]
-
         _log("K8s Master Public LB Address: " + masterPublicLBAddress)
         _log("K8s Worker Public Addresses: " + str(workerPublicAddressList))
 
@@ -228,32 +225,29 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         _log("Sleeping 30 seconds to let pods initialize", as_banner=True)
         time.sleep(30)
 
-        helloServicePort = _kubectl("get svc/hello -o jsonpath={.spec.ports[0].nodePort}", exit_on_error=True)
-        _log("Hello service port: " + str(helloServicePort))
+        _kubectl("apply -f " + TEST_ROOT_DIR + "/resources/hello-service.yml", exit_on_error=True)
+        _kubectl("apply -f " + TEST_ROOT_DIR + "/resources/frontend-service.yml", exit_on_error=True)
 
-        frontendServicePort = _kubectl("get svc/frontend -o jsonpath={.spec.ports[0].nodePort}", exit_on_error=True)
-        _log("Frontend service port: " + str(frontendServicePort))
+        _log("Waiting for the LoadBalancer to initialize", as_banner=True)
+        externalIPReady = lambda: _kubectl("get svc/frontend -o jsonpath={.status.loadBalancer.ingress[0].ip}", exit_on_error=True) != ""
+        _wait_until(externalIPReady, 300)
+        externalIP = _kubectl("get svc/frontend -o jsonpath={.status.loadBalancer.ingress[0].ip}", exit_on_error=True)
+        _log("Frontend service IP (OCI Load Balancer): " + str(externalIP))
 
-        if controlPlaneSubnetAccess == "public":
-            # Ping deployment
-            _log("Pinging hello and frontend deployments for each K8s worker", as_banner=True)
-            for workerPublicAddress in workerPublicAddressList:
-                serviceAddressList = ["http://" + workerPublicAddress + ":" + str(helloServicePort),
-                                      "http://" + workerPublicAddress + ":" + str(frontendServicePort)]
-                for serviceAddress in serviceAddressList:
-                    _log("Checking " + serviceAddress)
-                    deploymentReady = lambda: requests.get(serviceAddress).status_code == 200
-                    _wait_until(deploymentReady, 180)
+        _log("Checking " + "http://" + externalIP)
+        applicationAvailable = lambda: requests.get("http://" + externalIP).status_code == 200
+        _wait_until(applicationAvailable, 60)
 
     except Exception, e:
         _log("Unexpected error:", str(e))
         traceback.print_exc()
         success = False
     finally:
-        if masterPublicLBAddress != None:
-            _log("Undeploying the hello service", as_banner=True)
-            _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/hello-service.yml", exit_on_error=False)
-            _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/frontend-service.yml", exit_on_error=False)
+        _log("Undeploying the hello service", as_banner=True)
+        _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/hello-service.yml", exit_on_error=False)
+        _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/frontend-service.yml", exit_on_error=False)
+        # Wait a minute for OCI Load Balancer to be deleted before starting terraform destroy
+        time.sleep(120)
 
     if not no_destroy:
         _log("Destroying the K8s cluster from " + str(os.path.basename(tfvars_file)), as_banner=True)
