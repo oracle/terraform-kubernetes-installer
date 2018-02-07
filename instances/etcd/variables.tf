@@ -42,7 +42,7 @@ variable "docker_ver" {
 }
 
 variable "oracle_linux_image_name" {
-  default = "Oracle-Linux-7.4-2018.01.10-0"
+  default = "Oracle-Linux-7.4-2018.01.20-0"
 }
 
 variable "etcd_ver" {
@@ -57,6 +57,11 @@ variable "etcd_discovery_url" {}
 
 variable "count" {
   default = "1"
+}
+
+variable "control_plane_subnet_access" {
+  description = "Whether instances in the control plane are launched in a public or private subnets"
+  default     = "public"
 }
 
 variable "etcd_docker_max_log_size" {

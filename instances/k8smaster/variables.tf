@@ -26,7 +26,7 @@ variable "docker_ver" {
 }
 
 variable "oracle_linux_image_name" {
-  default = "Oracle-Linux-7.4-2018.01.10-0"
+  default = "Oracle-Linux-7.4-2018.01.20-0"
 }
 
 variable "etcd_ver" {
@@ -34,14 +34,14 @@ variable "etcd_ver" {
 }
 
 variable "flannel_ver" {
-  default = "v0.7.1"
+  default = "v0.10.0"
 }
 
 variable "ssh_private_key" {}
 
 # Kubernetes
 variable "k8s_ver" {
-  default = "1.7.9"
+  default = "1.8.5"
 }
 
 variable "k8s_dashboard_ver" {
