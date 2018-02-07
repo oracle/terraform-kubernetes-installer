@@ -199,7 +199,7 @@ kubectl create -f /root/services/kubernetes-dashboard.yaml
 
 ## Install Volume Provisioner of OCI
 kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
-kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner-rbac.yaml
 kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner.yaml
 kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class.yaml
 kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class-ext3.yaml
