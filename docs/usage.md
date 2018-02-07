@@ -9,9 +9,9 @@
 
 ## Prerequisites
 
-* Download and install [Ansible][ansible tips] **2.3** or higher (`brew install ansible`)
-* Download and install [Terraform][terraform] **0.10.4** or higher (`brew install terraform`)
-* Download and install [Terragrunt][terragrunt]  (`brew install terragrunt`)
+* Download and install [Ansible][ansible tips] **2.4** or higher (`brew install ansible`)
+* Download and install [Terraform][terraform] **0.10.4 exactly** (`brew install terraform`)
+* Download and install [Terragrunt][terragrunt] **0.13.2** or higher (`brew install terragrunt`)
 * Download and install [BareMetal Terraform Provider][bmcs provider] version **1.0.18**
 * Create a Terraform configuration file at  `~/.terraformrc` that specifies the path to the baremetal provider:
 ```

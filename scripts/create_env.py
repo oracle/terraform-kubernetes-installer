@@ -154,10 +154,10 @@ def parse_args():
 
     # Params with defaults
     param_defaults = collections.OrderedDict()
-    param_defaults['k8s_master_ad1_count'] = '1'
+    param_defaults['k8s_master_ad1_count'] = '0'
     param_defaults['k8s_master_ad2_count'] = '0'
     param_defaults['k8s_master_ad3_count'] = '0'
-    param_defaults['k8s_worker_ad1_count'] = '1'
+    param_defaults['k8s_worker_ad1_count'] = '0'
     param_defaults['k8s_worker_ad2_count'] = '0'
     param_defaults['k8s_worker_ad3_count'] = '0'
     param_defaults['k8s_master_shape'] = 'VM.Standard1.2'
@@ -247,7 +247,7 @@ def deploy_terraform(args):
     if not args.managed:
         generate_destroy_env_script(args)
 
-    cmd = 'terragrunt apply -state=%s/terraform.tfstate' % env_dir
+    cmd = 'terragrunt apply --terragrunt-non-interactive --state=%s/terraform.tfstate' % env_dir
     (stdout, stderr, returncode) = helpers.run_command(cmd=cmd, env=env, cwd=env_dir, verbose=True)
     if returncode != 0:
         raise Exception('Terraform deployment failed')

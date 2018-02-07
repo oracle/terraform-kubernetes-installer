@@ -28,6 +28,7 @@ project, like:
    - Updating to latest flannel version.
    - Support for OCI flex volumes.
    - Support for OCI ingress controller.
+   - Integration tests.
 - Add tests in the CI pipeline for
   - More permutations of k8s cluster configuration.
   - Forcing an upgrade to critical parts of the system, like etcd or the flannel network, while workloads are running.
@@ -35,6 +36,8 @@ project, like:
   - Using more realistic workloads in integration tests.
 - Get idempotency working (rerunning Ansible currently results in "changes"), and enable idempotency test in Gitlab CI.
 - Add a CD pipeline for deploying to live environments.
+- Enforce specific versions of Terraform and Terragrunt.
+- Convert pipelines to Wercker.
 
 ## Repository Structure
 
