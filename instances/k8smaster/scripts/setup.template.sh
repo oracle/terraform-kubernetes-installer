@@ -117,7 +117,7 @@ EOF
 ## Install Flex Volume Driver for OCI
 #####################################
 mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
-curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.4.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.5.0/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
 
@@ -199,10 +199,10 @@ kubectl create -f /root/services/kubernetes-dashboard.yaml
 
 ## Install Volume Provisioner of OCI
 kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/oci-volume-provisioner.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class.yaml
-kubectl apply -f https://raw.githubusercontent.com/oracle/oci-volume-provisioner/master/manifests/storage-class-ext3.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class-ext3.yaml
 
 ## Mark OCI StorageClass as the default
 kubectl patch storageclass oci -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
