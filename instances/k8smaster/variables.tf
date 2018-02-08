@@ -72,8 +72,15 @@ variable "master_docker_max_log_files" {
   default = "5"
 }
 
+variable "cloud_controller_version" {}
 variable "cloud_controller_secret" {}
 
+variable "flexvolume_driver_version" {}
 variable "flexvolume_driver_secret" {}
 
+variable "volume_provisioner_version" {}
 variable "volume_provisioner_secret" {}
+
+
+
+

@@ -206,8 +206,11 @@ module "instances-k8smaster-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_version   = "${var.cloud_controller_version}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_version = "${var.volume_provisioner_version}"
   volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -247,8 +250,11 @@ module "instances-k8smaster-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_version   = "${var.cloud_controller_version}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_version = "${var.volume_provisioner_version}"
   volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -288,8 +294,11 @@ module "instances-k8smaster-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8smaster_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  cloud_controller_version   = "${var.cloud_controller_version}"
   cloud_controller_secret    = "${module.oci-cloud-controller.cloud-provider-json}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"
   flexvolume_driver_secret   = "${module.oci-flexvolume-driver.flex-volume-driver-yaml}"
+  volume_provisioner_version = "${var.volume_provisioner_version}"
   volume_provisioner_secret  = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
@@ -328,6 +337,7 @@ module "instances-k8sworker-ad1" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8worker_subnet_ad1_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"  
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
@@ -368,6 +378,7 @@ module "instances-k8sworker-ad2" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8worker_subnet_ad2_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"  
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):
@@ -408,6 +419,7 @@ module "instances-k8sworker-ad3" {
   ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.vcn.k8worker_subnet_ad3_id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+  flexvolume_driver_version  = "${var.flexvolume_driver_version}"  
   etcd_endpoints             = "${var.etcd_lb_enabled=="true" ?
                                     join(",",formatlist("http://%s:2379",
                                                               module.etcd-lb.ip_addresses)):

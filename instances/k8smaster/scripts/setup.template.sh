@@ -117,7 +117,7 @@ EOF
 ## Install Flex Volume Driver for OCI
 #####################################
 mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
-curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/0.5.1/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
+curl -L --retry 3 https://github.com/oracle/oci-flexvolume-driver/releases/download/${flexvolume_driver_version}/oci -o/usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 chmod a+x /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/oci
 mv /root/flexvolume-driver-secret.yaml /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/config.yaml
 
@@ -188,8 +188,8 @@ done
 
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/0.2.0/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/0.2.0/oci-cloud-controller-manager.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager-rbac.yaml
+kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml
@@ -199,10 +199,10 @@ kubectl create -f /root/services/kubernetes-dashboard.yaml
 
 ## Install Volume Provisioner of OCI
 kubectl create secret generic oci-volume-provisioner -n kube-system --from-file=config.yaml=/root/volume-provisioner-secret.yaml
-kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner-rbac.yaml
-kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/oci-volume-provisioner.yaml
-kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class.yaml
-kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/0.4.0/storage-class-ext3.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/${volume_provisioner_version}/oci-volume-provisioner-rbac.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/${volume_provisioner_version}/oci-volume-provisioner.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/${volume_provisioner_version}/storage-class.yaml
+kubectl apply -f https://github.com/oracle/oci-volume-provisioner/releases/download/${volume_provisioner_version}/storage-class-ext3.yaml
 
 ## Mark OCI StorageClass as the default
 kubectl patch storageclass oci -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
