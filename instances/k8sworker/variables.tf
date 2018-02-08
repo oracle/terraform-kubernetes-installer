@@ -81,3 +81,5 @@ variable "worker_iscsi_volume_mount" {
   description = "Mount point of iscsi volume"
   default = "/var/lib/docker"
 }
+
+variable "flexvolume_driver_version" {}

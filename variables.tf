@@ -396,6 +396,9 @@ variable "flannel_backend" {
 }
 
 # Cloud controller 
+variable "cloud_controller_version" {
+  default = "0.2.0"
+}
 variable "cloud_controller_user_ocid" {
   default = ""
 }
@@ -411,6 +414,9 @@ variable "cloud_controller_user_private_key_password" {
 
 
 # Flexvolume driver
+variable "flexvolume_driver_version" {
+  default = "0.5.1"
+}
 variable "flexvolume_driver_user_ocid" {
   default = ""
 }
@@ -425,7 +431,10 @@ variable "flexvolume_driver_user_private_key_password" {
 }
 
 
-# Flexvolume driver
+# Volume provisioner
+variable "volume_provisioner_version" {
+  default = "0.4.1"
+}
 variable "volume_provisioner_user_ocid" {
   default = ""
 }
