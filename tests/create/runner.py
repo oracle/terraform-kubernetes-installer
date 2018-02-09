@@ -98,9 +98,9 @@ def _wait_until(predicate, timeoutSeconds, delaySeconds=0.25, *args, **kwargs):
         except Exception:
             pass
         time.sleep(delaySeconds)
-
-    raise Exception("Condition not met within " + str(timeoutSeconds))
-
+        
+    print("Condition not met within " + str(timeoutSeconds))
+    raise
 
 def _utf_encode_list(list):
     return [s.encode("UTF8") for s in list]
@@ -230,7 +230,7 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
 
         _log("Waiting for the LoadBalancer to initialize", as_banner=True)
         externalIPReady = lambda: _kubectl("get svc/frontend -o jsonpath={.status.loadBalancer.ingress[0].ip}", exit_on_error=True) != ""
-        _wait_until(externalIPReady, 300)
+        _wait_until(externalIPReady, 600)
         externalIP = _kubectl("get svc/frontend -o jsonpath={.status.loadBalancer.ingress[0].ip}", exit_on_error=True)
         _log("Frontend service IP (OCI Load Balancer): " + str(externalIP))
 
