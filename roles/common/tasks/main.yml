@@ -1,17 +1,9 @@
+---
 - name: Set common executed fact
   set_fact: common_executed=False
 
-- include: set_host_facts.yml
-  tags: ['common_host_facts']
-
 - include: install-packages.yml
   tags: ['common_packages']
-
-- include: install-bmcs-cli.yml
-  tags: ['common_bmcs_cli']
-
-- include: allow-sudo.yml
-  tags: ['common_users']
 
 - include: configure-host.yml
   tags: ['common_host']

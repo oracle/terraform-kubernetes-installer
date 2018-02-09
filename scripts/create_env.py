@@ -195,8 +195,12 @@ def stamp_out_env_dir(args):
     self_signed_certs_dir = SCRIPTS_DIR + '/certs'
     cert_key_file = self_signed_certs_dir + '/selfsigned.ca-key.pem'
     cert_pem_file = self_signed_certs_dir + '/selfsigned.ca.pem'
+    apiserver_key_file = self_signed_certs_dir + '/selfsigned.apiserver-key.pem'
+    apiserver_pem_file = self_signed_certs_dir + '/selfsigned.apiserver.pem'
     shutil.copyfile(cert_pem_file, '%s/certs/ca.pem' % env_dir)
     shutil.copyfile(cert_key_file, '%s/certs/ca-key.pem' % env_dir)
+    shutil.copyfile(apiserver_key_file, '%s/certs/apiserver-key.pem' % env_dir)
+    shutil.copyfile(apiserver_pem_file, '%s/certs/apiserver.pem' % env_dir)
 
     token_values = {}
     token_values['ENV_NAME'] = args.env_name

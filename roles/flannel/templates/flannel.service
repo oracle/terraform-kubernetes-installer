@@ -1,0 +1,19 @@
+[Unit]
+Description=flannel is an etcd backed network fabric for containers
+Documentation=https://github.com/coreos/flannel
+
+[Service]
+Type=notify
+ExecStart={{ flannel_install_dir }}/flanneld  \
+  -ip-masq=true \
+  -iface {{ ansible_default_ipv4.address }}\
+  -etcd-endpoints {% for host in groups['k8s-master']  %}
+http://{{ hostvars[host]['ansible_default_ipv4']['address']}}:{{ etcd_client_port }}
+{%- if loop.first %},{% endif %}
+{% endfor %} \
+  -etcd-prefix /flannel/network
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

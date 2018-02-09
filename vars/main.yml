@@ -1,32 +1,12 @@
 ---
-common_executed: False
-stage: "{{ lookup('env', 'CI_ENVIRONMENT_NAME') | default('ci', true) }}"
 package_download_dir: "/opt/packages"
-jre_install_path: "/opt/jre"
-# where backups go
-data_root_dir: "/data"
-backup_dir: "{{data_root_dir}}/backup"
 log_root_dir: "/var/log"
+etcd_client_port: 2379
+pillar_dns_domain: "cluster.local"
 
-# how backups are named - more in the logging.yml and monitoring.yml files
-# the pattern must select all backups that will ever be cleaned up by housekeeping.
-# the retention is interpreted by find(1) so e.g. +10 means "10 days or more".
-backup_file_extension: "tgz"
-backup_file_pattern: "*sre-backup*.{{backup_file_extension}}"
-backup_file_retention: "+1"
-
-#The UDP address on which to receive statsd metric lines
-statsd_exporter_receiver_port: 9125
-statsd_exporter_metrics_port: 9102
-
-flannel_version: 0.7.1-1
-flannel_rpm: "flannel-{{ flannel_version }}.el7.x86_64.rpm"
-docker_version: 1.12.6
 k8s_rel: 0
 k8s_ver: 1.7.4
 k8s_full_ver: "{{ k8s_rel }}-{{ k8s_release }}"
 
-
-casper_public_bucket: "odx-registry-ansible-public"
-casper_artifact_bucket: "registry-build-artifacts"
-
+service_yaml_dir: "/home/opc/services"
+k8s_manifests_dir: "/etc/kubernetes/manifests"

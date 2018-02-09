@@ -1,5 +1,187 @@
-- include: install-k8sworker.yml
-  tags: 'k8sworker_install'
+---
 
-#- include: debug.yml
-#  tags: 'k8sworker_debug'
+# Use the first master in the list here - it should be mostly safe to assume this is available by this point.
+# We may want to consider looping through available masters
+- name: Determine the Master internal IP
+  set_fact:
+    master_ip: "{{ hostvars[groups['k8s-master'][0]]['ansible_default_ipv4']['address']}}"
+
+# TODO - consolildate the following bits into a common place to apply to both workers and masters
+- name: Add Kubernetes repo
+  yum_repository:
+    name: yum.kubernetes.io_repos_kubernetes-el7-x86_64
+    description: Kubernetes repo
+    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+
+- name: Import Google cloud YUM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+
+- name: Import Google cloud RPM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubelet
+    - kubectl
+    - kubernetes-cni
+
+# Getting K8S pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewalld
+  service:
+      name: firewalld
+      state: stopped
+      enabled:  no
+
+# JOES
+
+- name: Remove unnecessary flannel config
+  command: "{{ item }}"
+  with_items:
+      - rm -rf /usr/lib/systemd/system/docker.service.d
+      - rm -f /run/flannel/docker
+      - rm -rf /etc/systemd/system/docker.service.d
+  tags:
+  - skip_ansible_lint
+
+- name: Install docker unit file
+  template:
+    src: templates/docker.service
+    dest: /usr/lib/systemd/system/docker.service
+    owner: root
+    group: root
+    mode: 0644
+  register: docker_service
+
+
+# MINE
+#- name: Remove unnecessary Flannel Docker config
+#  command: "rm -rf {{ item }}"
+#  with_items:
+#      - /usr/lib/systemd/system/docker.service.d
+#      - /run/flannel/docker
+#      - /etc/systemd/system/docker.service.d
+#  changed_when: False
+
+#- name: Install Docker service file
+#  template:
+#    src: templates/docker.service
+#    dest: /usr/lib/systemd/system/docker.service
+#    owner: root
+#    group: root
+#    mode: 0644
+#  register: docker_service
+
+- name: Start Docker Service
+  service:
+     name: docker
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: docker_service.changed
+
+- name: Create SSL dirs
+  file:
+    state: directory
+    path: /etc/kubernetes/ssl
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install certs
+  template:
+    src: "{{ env_path }}/certs/{{ item }}"
+    dest: /etc/kubernetes/ssl
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - apiserver.pem
+    - apiserver-key.pem
+    - ca.pem
+    - ca-key.pem
+
+- name: Create service dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+# TODO - check if we can remove this
+- name: Environment config commands before starting kubelet
+  command: "{{ item }}"
+  with_items:
+    - iptables -F
+    - setenforce 0
+  changed_when: False
+
+- name: Create service yaml dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Install K8S proxy yaml file
+  template:
+    src: templates/kube-proxy.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-proxy.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S kubeconfig
+  template:
+    src: templates/worker-kubeconfig.yaml
+    dest: "{{ k8s_manifests_dir }}/worker-kubeconfig.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install Kubelet service file
+  template:
+    src: templates/kubelet.service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+    mode: 0644
+  register: kubelet_service
+
+- name: Restart Kubelet Service
+  service:
+     name: kubelet
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: kubelet_service.changed
+
+- name: Wait until worker becomes Ready according to the master
+  health_check:
+     url: "http://{{ master_ip }}:8080/api/v1/nodes/{{ ansible_fqdn }}"
+     expected_status: 200
+     expected_regexp: '.*"Ready".*'
+     initial_delay: 0
+     delay_between_tries: 2
+     max_retries: 90
+
+#
+# Wait until key services that depend on the workers are actually up and running
+#
+- name: Wait until K8S DNS is fully running
+  health_check:
+     url: "http://{{ master_ip }}:8080/apis/extensions/v1beta1/namespaces/kube-system/deployments/kube-dns"
+     expected_status: 200
+     expected_regexp: '.*MinimumReplicasAvailable*'
+     initial_delay: 0
+     delay_between_tries: 2
+     max_retries: 90
+

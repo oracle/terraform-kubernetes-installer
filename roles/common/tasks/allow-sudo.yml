@@ -1,6 +1,0 @@
-- name: Add admin group to sudoers
-  lineinfile: dest=/etc/sudoers regexp="^%{{ admin_group }}" line="%{{ admin_group }} ALL=(ALL) NOPASSWD:ALL"
-
-- name: Disable Requiretty from sudoers
-  lineinfile: dest=/etc/sudoers regexp="Defaults    requiretty" line="#Defaults    requiretty"
-

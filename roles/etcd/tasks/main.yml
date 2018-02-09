@@ -1,0 +1,74 @@
+---
+# Getting k8s pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewall
+  service:
+     name: firewalld
+     state: stopped
+     enabled: yes
+
+- name: Create Etcd User Group
+  group:
+    name: etcd
+    state: present
+    system: yes
+
+- name: Create Etcd System User
+  user:
+    name: etcd
+    group: etcd
+    state: present
+    system: yes
+
+- name: Create Etcd Dirs
+  file:
+    state: directory
+    path: "{{ etcd_data_dir }}"
+    owner: etcd
+    group: etcd
+    mode: 0755
+  register: create_dirs
+
+- name: Check if Etcd is already downloaded
+  stat:
+    path: "{{ package_download_dir }}/{{ etcd_download_artifact }}"
+    get_md5: False
+    get_checksum: False
+  register: etcd_downloaded
+
+- name: Download Etcd Tarball
+  get_url:
+    url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: "{{ package_download_dir }}"
+    owner: etcd
+  when: not etcd_downloaded.stat.exists
+
+- name: Untar Etcd tarball
+  unarchive:
+    src: "{{ package_download_dir }}/{{ etcd_download_artifact }}"
+    dest: "{{ etcd_install_dir }}"
+    copy: no
+  register: etcd_install
+  when: not etcd_downloaded.stat.exists
+
+- name: Symlink etcd dir
+  file:
+    src: "{{ etcd_install_dir }}/etcd-v{{ etcd_version }}-linux-amd64"
+    dest: "{{ etcd_install_dir }}/etcd"
+    state: link
+
+- name: Install Etcd Service
+  template:
+    src: templates/etcd.service
+    dest: /usr/lib/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: 0644
+  register: etcd_service
+
+- name: Start Etcd Service
+  service:
+     daemon_reload: yes
+     name: etcd
+     state: restarted
+     enabled: yes
+  when: etcd_install.changed or etcd_service.changed

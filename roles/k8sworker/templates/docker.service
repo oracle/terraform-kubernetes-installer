@@ -1,8 +1,6 @@
 [Unit]
 Description=Docker Application Container Engine
 Documentation=https://docs.docker.com
-After=network.target cni-bridge.service
-Requires=cni-bridge.service
 
 [Service]
 Type=notify

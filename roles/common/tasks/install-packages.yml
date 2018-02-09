@@ -13,7 +13,6 @@
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
 
-
 - name: Install yum apps
   yum:
     name: "{{ item }}"
@@ -22,11 +21,10 @@
   with_items:
     - vim
     - python
-    - 'python-pip'
+    - python-pip
     - htop
     - telnet
     - nc
     - curl
     - docker-engine
     - ntp
-  ignore_errors: "{{ ansible_check_mode }}"

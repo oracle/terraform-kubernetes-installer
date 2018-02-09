@@ -1,8 +1,0 @@
-{
-  "Network": "10.99.0.0/16",
-  "Subnetlen": 24,
-  "Backend": {
-    "Type": "VXLAN",
-    "VNI" : 1
-  }
-}

@@ -1,8 +1,214 @@
-- include: install-etcd.yml
-  tags: 'etcd_install'
+---
+- name: Add Kubernetes repo
+  yum_repository:
+    name: yum.kubernetes.io_repos_kubernetes-el7-x86_64
+    description: Kubernetes repo
+    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
 
-- include: install-k8smaster.yml
-  tags: 'k8smaster_install'
+- name: Import Google cloud YUM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
-#- include: debug.yml
-#  tags: 'k8smaster_debug'
+- name: Import Google cloud RPM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubelet
+    - kubectl
+    - kubernetes-cni
+
+# Getting K8S pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewalld
+  service:
+      name: firewalld
+      state: stopped
+      enabled:  no
+
+# JOES
+
+- name: Remove unnecessary flannel config
+  command: "{{ item }}"
+  with_items:
+      - rm -rf /usr/lib/systemd/system/docker.service.d
+      - rm -f /run/flannel/docker
+      - rm -rf /etc/systemd/system/docker.service.d
+  tags:
+  - skip_ansible_lint
+
+- name: Install docker unit file
+  template:
+    src: templates/docker.service
+    dest: /usr/lib/systemd/system/docker.service
+    owner: root
+    group: root
+    mode: 0644
+  register: docker_service
+
+# MINE
+#- name: Remove unnecessary Flannel Docker config
+#  command: "rm -rf {{ item }}"
+#  with_items:
+#      - /usr/lib/systemd/system/docker.service.d
+#      - /run/flannel/docker
+#      - /etc/systemd/system/docker.service.d
+#  changed_when: False
+
+#- name: Install Docker service file
+#  template:
+#    src: templates/docker.service
+#    dest: /usr/lib/systemd/system/docker.service
+#    owner: root
+#    group: root
+#    mode: 0644
+#  register: docker_service
+
+- name: Start Docker Service
+  service:
+     name: docker
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: docker_service.changed
+
+- name: Create SSL dirs
+  file:
+    state: directory
+    path: /etc/kubernetes/ssl
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install certs
+  template:
+    src: "{{ env_path }}/certs/{{ item }}"
+    dest: /etc/kubernetes/ssl
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - apiserver.pem
+    - apiserver-key.pem
+    - ca.pem
+    - ca-key.pem
+
+- name: Create manifests dirs
+  file:
+    state: directory
+    path: "{{ k8s_manifests_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S API server yaml file
+  template:
+    src: templates/kube-apiserver.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-apiserver.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S controller yaml file
+  template:
+    src: templates/kube-controller-manager.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-controller-manager.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S proxy yaml file
+  template:
+    src: templates/kube-proxy.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-proxy.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S scheduler yaml file
+  template:
+    src: templates/kube-scheduler.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-scheduler.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S RBAC yaml file
+  template:
+    src: templates/kube-rbac-role-binding.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-rbac-role-binding.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+# TODO - check if we can remove this
+- name: Environment config commands before starting kubelet
+  command: "{{ item }}"
+  with_items:
+    - iptables -F
+    - setenforce 0
+  changed_when: False
+
+- name: Install Kubelet service file
+  template:
+    src: templates/kubelet.service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+    mode: 0644
+  register: kubelet_service
+
+- name: Restart Kubelet Service
+  service:
+     name: kubelet
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: kubelet_service.changed
+
+- name: Ensure K8s API server comes up
+  health_check:
+     url: http://localhost:8080/healthz
+     expected_status: 200
+     initial_delay: 0
+     delay_between_tries: 2
+     max_retries: 90
+
+- name: Create service yaml dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Prepare K8S DNS yaml file
+  template:
+    src: templates/kube-dns.yaml
+    dest: "{{ service_yaml_dir }}/kube-dns.yaml"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Prepare K8S dashboard yaml file
+  template:
+    src: templates/kubernetes-dashboard.yaml
+    dest: "{{ service_yaml_dir }}/kubernetes-dashboard.yaml"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Install K8S DNS
+  command: "kubectl apply -f {{ service_yaml_dir }}/kube-dns.yaml"
+  when: inventory_hostname == groups['k8s-master'][0]
+  changed_when: False
+
+- name: Install K8S dashboard
+  command: "kubectl apply -f {{ service_yaml_dir }}/kubernetes-dashboard.yaml"
+  when: inventory_hostname == groups['k8s-master'][0]
+  changed_when: False

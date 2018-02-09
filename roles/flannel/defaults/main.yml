@@ -1,0 +1,15 @@
+flannel_version: "0.7.1"
+flannel_artifact: "flannel-v{{ flannel_version }}-linux-amd64.tar.gz"
+flannel_cidr: "10.237.0.0/16"
+
+flannel_install_dir: "/opt"
+flannel_download_dir: "{{ package_download_dir }}/flannel"
+
+flannel_network_json: {
+  "Network": "10.99.0.0/16",
+  "Subnetlen": 24,
+  "Backend": {
+    "Type": "VXLAN",
+    "VNI" : 1
+  }
+}
