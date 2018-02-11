@@ -30,4 +30,12 @@ def get_k8s_pods(kubeconfig, regex=None, phase=None):
             podNameList.append(podName)
     return podNameList
 
+def get_k8s_nodes(kubeconfig):
+    stdout = kubectl('get nodes -o json', kubeconfig=kubeconfig, verbose=False, silent=True)
+    nodesJSON = json.loads(stdout)
+    nodeNameList = []
+    for podJSON in nodesJSON["items"]:
+        nodeNameList.append(podJSON['metadata']['name'].encode('UTF8'))
+    return nodeNameList
+
 

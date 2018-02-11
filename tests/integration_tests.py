@@ -42,6 +42,11 @@ def verify_num_pods(num, kubeconfig, regex='.*', phase='Running'):
     if len(pods_list) != num:
         raise Exception('Expected %s pods in %s phase, found %s' % (num, phase, len(pods_list)))
 
+def verify_num_nodes(num, kubeconfig):
+    nodes_list = testhelpers.get_k8s_nodes(kubeconfig)
+    if len(nodes_list) != num:
+        raise Exception('Expected %s node in %s state, found %s' % (num, state, len(nodes_list)))
+
 #
 # Component-specific integration tests
 #
@@ -52,6 +57,8 @@ def k8s_tests(health_config, phase, runid):
     # Health check
     logger.info('Verifying health...')
     health.test_k8s(kubeconfig)
+
+    verify_num_nodes(len(worker_public_address_list), kubeconfig=kubeconfig)
 
     # Before phase: deploy 2 services that talk to each other internally and are exposed externally
     if execute_before_phase(phase):
@@ -66,10 +73,10 @@ def k8s_tests(health_config, phase, runid):
         frontend_pods_ready = lambda: verify_num_pods(num=3, kubeconfig=kubeconfig, regex='^frontend')
         helpers.wait_until(frontend_pods_ready, 180)
 
-        hello_service_port = testhelpers.kubectl('get svc/hello -o jsonpath={.spec.ports[0].nodePort}', kubeconfig=kubeconfig)
-        logger.info('Hello service port: %s' % str(hello_service_port))
-        frontend_service_port = testhelpers.kubectl('get svc/frontend -o jsonpath={.spec.ports[0].nodePort}', kubeconfig=kubeconfig)
-        logger.info('Frontend service port: %s' % str(frontend_service_port))
+    hello_service_port = testhelpers.kubectl('get svc/hello -o jsonpath={.spec.ports[0].nodePort}', kubeconfig=kubeconfig)
+    logger.info('Hello service port: %s' % str(hello_service_port))
+    frontend_service_port = testhelpers.kubectl('get svc/frontend -o jsonpath={.spec.ports[0].nodePort}', kubeconfig=kubeconfig)
+    logger.info('Frontend service port: %s' % str(frontend_service_port))
 
     # After phase: verify services are pingable
     if execute_after_phase(phase):
