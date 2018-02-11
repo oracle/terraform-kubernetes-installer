@@ -4,3 +4,7 @@
 - include: install-k8s-packages.yml
   tags: ['k8s-packages']
 
+- include: install-k8s-certs.yml
+  tags: ['k8s-certs']
+
+

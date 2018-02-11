@@ -1,25 +1,4 @@
 ---
-- name: Create SSL dirs
-  file:
-    state: directory
-    path: /etc/kubernetes/ssl
-    owner: root
-    group: root
-    mode: 0755
-
-- name: Install certs
-  template:
-    src: "{{ env_path }}/certs/{{ item }}"
-    dest: /etc/kubernetes/ssl
-    owner: root
-    group: root
-    mode: 0600
-  with_items:
-    - apiserver.pem
-    - apiserver-key.pem
-    - ca.pem
-    - ca-key.pem
-
 - name: Create manifests dirs
   file:
     state: directory

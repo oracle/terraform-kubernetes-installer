@@ -1,9 +1,18 @@
 ### TLS
 
-module "k8s-tls" {
+module "tls" {
   source                 = "tls/"
   ssh_private_key        = "${var.ssh_private_key}"
   ssh_public_key_openssh = "${var.ssh_public_key_openssh}"
+}
+
+module "k8s-tls" {
+  source                 = "k8s-tls/"
+  api_server_private_key = "${var.api_server_private_key}"
+  api_server_cert        = "${var.api_server_cert}"
+  ca_cert                = "${var.ca_cert}"
+  ca_key                 = "${var.ca_key}"
+  master_ips             = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips )}"
 }
 
 ### VCN
@@ -192,8 +201,8 @@ module "instances-etcd-ad1" {
   instance_os_ver           = "${var.instance_os_ver}"
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
-  ssh_private_key           = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key           = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh    = "${module.tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad1.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
 }
@@ -209,8 +218,8 @@ module "instances-etcd-ad2" {
   instance_os_ver           = "${var.instance_os_ver}"
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
-  ssh_private_key           = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key           = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh    = "${module.tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad2.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
 }
@@ -226,8 +235,8 @@ module "instances-etcd-ad3" {
   instance_os_ver           = "${var.instance_os_ver}"
   label_prefix              = "${var.label_prefix}"
   shape                     = "${var.etcdShape}"
-  ssh_private_key           = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh    = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key           = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh    = "${module.tls.ssh_public_key_openssh}"
   subnet_id                 = "${module.subnet-etcd-ad3.id}"
   tenancy_ocid              = "${var.compartment_ocid}"
 }
@@ -243,8 +252,8 @@ module "instances-k8smaster-ad1" {
   instance_os_ver            = "${var.instance_os_ver}"
   label_prefix               = "${var.label_prefix}"
   shape                      = "${var.k8sMasterShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }
@@ -260,8 +269,8 @@ module "instances-k8smaster-ad2" {
   instance_os_ver            = "${var.instance_os_ver}"
   label_prefix               = "${var.label_prefix}"
   shape                      = "${var.k8sMasterShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }
@@ -277,8 +286,8 @@ module "instances-k8smaster-ad3" {
   instance_os_ver            = "${var.instance_os_ver}"
   label_prefix               = "${var.label_prefix}"
   shape                      = "${var.k8sMasterShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sMasterSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }
@@ -295,8 +304,8 @@ module "instances-k8sworker-ad1" {
   label_prefix               = "${var.label_prefix}"
   region                     = "${var.region}"
   shape                      = "${var.k8sWorkerShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd1.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }
@@ -313,8 +322,8 @@ module "instances-k8sworker-ad2" {
   label_prefix               = "${var.label_prefix}"
   region                     = "${var.region}"
   shape                      = "${var.k8sWorkerShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd2.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }
@@ -331,8 +340,8 @@ module "instances-k8sworker-ad3" {
   label_prefix               = "${var.label_prefix}"
   region                     = "${var.region}"
   shape                      = "${var.k8sWorkerShape}"
-  ssh_private_key            = "${module.k8s-tls.ssh_private_key}"
-  ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
+  ssh_private_key            = "${module.tls.ssh_private_key}"
+  ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
 }

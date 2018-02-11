@@ -1,5 +1,4 @@
 # Instance SSH Key Pairs
-
 resource "tls_private_key" "ssh" {
   lifecycle {
     create_before_destroy = true

@@ -1,2 +1,0 @@
-This directory contains self-signed certs for make CI environments easy to set up.
-These certs are purposely *not* encrypted, so that any use of the project can use them.

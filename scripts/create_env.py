@@ -53,7 +53,6 @@ def parse_args():
     params['unmanaged'] = {'help': 'Whether to create an unmanaged environment', 'type': bool}
     params['resume'] = {'help': 'Whether to resume execution of a failed previous run', 'type': bool}
     params['prefs'] = {'help': 'File containing user preferences', 'type': str}
-    params['self_signed_certs'] = {'help': 'Whether to use self-signed certs', 'type': bool}
     params['tenancy_ocid'] = {'help': 'OCI Tenancy OCID', 'type': str}
     params['compartment_ocid'] = {'help':'OCI Compartment OCID', 'type': str}
     params['user_ocid'] = {'help':'OCI User OCID', 'type': str}
@@ -190,18 +189,6 @@ def stamp_out_env_dir(args):
         with open(all_yml_file, 'a') as fo:
             fo.write(open(args.vars_file, 'r').read())
 
-    # Copy in certs
-    os.mkdir(env_dir + '/certs')
-    self_signed_certs_dir = SCRIPTS_DIR + '/certs'
-    cert_key_file = self_signed_certs_dir + '/selfsigned.ca-key.pem'
-    cert_pem_file = self_signed_certs_dir + '/selfsigned.ca.pem'
-    apiserver_key_file = self_signed_certs_dir + '/selfsigned.apiserver-key.pem'
-    apiserver_pem_file = self_signed_certs_dir + '/selfsigned.apiserver.pem'
-    shutil.copyfile(cert_pem_file, '%s/certs/ca.pem' % env_dir)
-    shutil.copyfile(cert_key_file, '%s/certs/ca-key.pem' % env_dir)
-    shutil.copyfile(apiserver_key_file, '%s/certs/apiserver-key.pem' % env_dir)
-    shutil.copyfile(apiserver_pem_file, '%s/certs/apiserver.pem' % env_dir)
-
     token_values = {}
     token_values['ENV_NAME'] = args.env_name
     token_values['REGION'] = args.region
@@ -287,10 +274,6 @@ def commit_changes(args):
     (_, _, returncode) = helpers.run_command(cmd=cmd, verbose=True)
     if returncode != 0:
         raise Exception('Failed to encrypt Terraform state')
-    cmd = 'ansible-vault encrypt %s/certs/*' % env_dir
-    (_, _, returncode) = helpers.run_command(cmd=cmd, verbose=True)
-    if returncode != 0:
-        raise Exception('Failed to encrypt certs')
 
     if not args.skip_branch:
         helpers.log('Creating branch', as_banner=True)

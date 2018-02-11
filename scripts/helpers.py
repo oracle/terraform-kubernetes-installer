@@ -31,6 +31,10 @@ FILES_DIR_NAME = 'files'
 HEALTH_FILE_NAME = 'health.json'
 TF_STATE_FILE_NAME = 'terraform.tfstate'
 ID_RSA_FILE = 'id_rsa'
+CA_CERT_FILE = 'ca.pem'
+CA_KEY_FILE = 'ca-key.pem'
+API_SERVER_CERT_FILE = 'apiserver.pem'
+API_SERVER_KEY_FILE = 'apiserver-key.pem'
 DECRYPTED_BACKUP_EXT = ".decrypted"
 MANAGED_ENVS = ['dev', 'integ', 'prod']
 PROXY_REGIONS = ['eu-frankfurt-1']
@@ -113,6 +117,12 @@ def log(string, as_banner=False, bold=False):
 def verify_file_exists(file):
     if not os.path.exists(file):
         raise Exception('File %s doesn\'t exist' % file)
+
+def write_cert_file(file_contents, file):
+    f = open(file, 'w')
+    f.write(file_contents + '\n')
+    f.close()
+    os.chmod(file, 0o600)
 
 def process_stream(stream, read_fds, global_buf, line_buf, verbose=True, logger=logger):
     char = stream.read(1)
@@ -455,15 +465,15 @@ def populate_env(env_name):
         raise Exception('Directory %s for this environment doesn\'t exist' % env_dir)
     if not os.path.exists(env_dir + '/' + TF_STATE_FILE_NAME):
         raise Exception('Terraform state doesn\'t exist in %s' % env_dir)
-    ca_file = env_dir + '/certs/ca.pem'
-    ca_key_file = env_dir + '/certs/ca-key.pem'
-    verify_file_exists(ca_file)
-    verify_file_exists(ca_key_file)
 
     # Extract details from Terragrunt
     log('[%s] Extracting outputs from Terraform into %s' % (env_name, env_dir), as_banner=True)
 
     ssh_private_key = get_terraform_output(env_name=env_name, output_name='ssh_private_key')
+    ca_cert = get_terraform_output(env_name=env_name, output_name='root_ca_pem')
+    ca_key = get_terraform_output(env_name=env_name, output_name='root_ca_key')
+    api_server_cert = get_terraform_output(env_name=env_name, output_name='api_server_cert_pem')
+    api_server_key = get_terraform_output(env_name=env_name, output_name='api_server_private_key_pem')
     k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_master_public_ips', as_list=True)
     k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_worker_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
@@ -493,28 +503,31 @@ def populate_env(env_name):
         f.write("%s%s\n" % (worker_address, proxy_append))
     f.close()
 
-    # Write SSH key file
+    # Generate keys and certs
     files_dir = '%s/%s/%s' % (ENVS_DIR, env_name, FILES_DIR_NAME)
     if not os.path.exists(files_dir):
         os.makedirs(files_dir)
-    ssh_key_file = files_dir + '/' + ID_RSA_FILE
-    f = open(ssh_key_file, 'w')
-    f.write(ssh_private_key + '\n')
-    f.close()
-    os.chmod(ssh_key_file, 0o600)
 
-    # Generate kubeconfig, including local client certs
+    write_cert_file(ssh_private_key, files_dir + '/' + ID_RSA_FILE)
+    write_cert_file(ca_cert, files_dir + '/' + CA_CERT_FILE)
+    write_cert_file(ca_key, files_dir + '/' + CA_KEY_FILE)
+    write_cert_file(api_server_cert, files_dir + '/' + API_SERVER_CERT_FILE)
+    write_cert_file(api_server_key, files_dir + '/' + API_SERVER_KEY_FILE)
+
+    # Generate kubeconfig
     kubeconfig = files_dir + '/kubeconfig'
     log('[%s] Generating kubeconfig: %s' % (env_name, kubeconfig), as_banner=True)
     client_key_file = files_dir + '/k8s-client-key.pem'
     client_file = files_dir + '/k8s-client.pem'
     client_csr_file = files_dir + '/k8s-client.csr'
 
+    # Generate local client certs
     run_command("openssl genrsa -out %s 2048" % client_key_file, verbose=False, silent=True, verify_return_code=True)
     run_command('openssl req -new -key %s -out %s -subj "/CN=k8s-client"' %
                 (client_key_file, client_csr_file), verbose=False, silent=True, verify_return_code=True)
     run_command('openssl x509 -req -in %s -CA %s -CAkey %s -CAcreateserial -out %s -days 1000 -extensions v3_req' %
-                (client_csr_file, ca_file, ca_key_file, client_file), verbose=False, silent=True, verify_return_code=True)
+                (client_csr_file, files_dir + '/' + CA_CERT_FILE, files_dir + '/' + CA_KEY_FILE, client_file),
+                verbose=False, silent=True, verify_return_code=True)
 
     kubeconfig_template = TEMPLATES_DIR + '/kubeconfig'
     shutil.copyfile(kubeconfig_template, kubeconfig)
