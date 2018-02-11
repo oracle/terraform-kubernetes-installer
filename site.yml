@@ -25,7 +25,7 @@
   remote_user: opc
   become: yes
   roles:
-    - { role: flannel, tags: ['flannel']  }
+    - { role: k8sbase, tags: ['k8sbase']  }
   vars_files:
     - vars/main.yml
 

@@ -99,3 +99,10 @@
 
 - name: Set flannel executed fact
   set_fact: flannel_executed=True
+
+# Getting K8S pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewalld
+  service:
+      name: firewalld
+      state: stopped
+      enabled:  no

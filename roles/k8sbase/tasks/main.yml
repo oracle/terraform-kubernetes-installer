@@ -1,0 +1,6 @@
+- include: install-flannel.yml
+  tags: ['flannel']
+
+- include: install-k8s-packages.yml
+  tags: ['k8s-packages']
+
