@@ -13,3 +13,6 @@ k8s_full_ver: "{{ k8s_rel }}-{{ k8s_release }}"
 
 service_yaml_dir: "/home/opc/services"
 k8s_manifests_dir: "/etc/kubernetes/manifests"
+
+# Publicly documented OCI endpoint from which to retrieve metadata about the instance calling it
+oci_metadata_service: "http://169.254.169.254/opc/v1/instance"
