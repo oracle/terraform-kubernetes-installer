@@ -222,6 +222,11 @@ variable "k8sMasterLBShape" {
   default = "100Mbps"
 }
 
+variable "master_lb_enabled" {
+  description = "enable/disable the k8s master load balancer. true: use the k8s master load balancer ip. false: use a nginx reverse proxy for k8s masters."
+  default     = true
+}
+
 # Docker log file config
 variable "etcd_docker_max_log_size" {
   description = "Maximum size of the etcd docker container logs"
@@ -332,6 +337,10 @@ variable "control_plane_subnet_access" {
 variable "k8s_master_lb_access" {
   description = "Whether k8s master load balancer is launched in a public or private subnet"
   default     = "public"
+}
+
+variable "master_maintain_private_ip" {
+  default = "false"
 }
 
 variable "etcd_lb_access" {

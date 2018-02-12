@@ -75,6 +75,7 @@ write_files:
     content: |
       ${api-server-key-content}
 
+${nginx_config-content}
 
 runcmd:
  - echo "Running k8s init..."

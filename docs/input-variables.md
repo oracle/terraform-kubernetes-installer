@@ -21,6 +21,7 @@ name                                | default                 | description
 etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
 k8sMasterShape                      | VM.Standard1.1          | OCI shape for k8s master(s)
 k8sWorkerShape                      | VM.Standard1.2          | OCI shape for k8s worker(s)
+master_enabled                      | true                    | enable/disable the k8s master load balancer. true: use the k8s master load balancer ip. false: use a nginx reverse proxy for k8s masters.
 k8sMasterAd1Count                   | 1                       | number of k8s masters to create in Availability Domain 1
 k8sMasterAd2Count                   | 0                       | number of k8s masters to create in Availability Domain 2
 k8sMasterAd3Count                   | 0                       | number of k8s masters to create in Availability Domain 3

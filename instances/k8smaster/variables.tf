@@ -9,7 +9,16 @@ variable "count" {
   default = "1"
 }
 
+variable "control_plane_subnet_access" {
+  description = "Whether instances in the control plane are launched in a public or private subnets"
+  default     = "public"
+}
+
+variable "network_cidrs" {
+  type = "map"
+}
 variable "subnet_id" {}
+variable "subnet_name" {}
 variable "domain_name" {}
 variable "shape" {}
 variable "tenancy_ocid" {}
@@ -81,6 +90,7 @@ variable "flexvolume_driver_secret" {}
 variable "volume_provisioner_version" {}
 variable "volume_provisioner_secret" {}
 
-
-
-
+variable "assign_private_ip" {
+  description = "Assign a static private ip based on CIDR block for that AD"
+  default = false
+}
