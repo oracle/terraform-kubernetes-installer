@@ -4,6 +4,9 @@
 - include: install-k8s-packages.yml
   tags: ['k8s-packages']
 
+- include: configure-docker.yml
+  tags: ['docker']
+
 - include: install-k8s-certs.yml
   tags: ['k8s-certs']
 

@@ -18,7 +18,7 @@ ExecStart={{ etcd_install_dir }}/etcd/etcd --name {{ ansible_hostname }} \
     --advertise-client-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
     --listen-peer-urls http://0.0.0.0:{{ etcd_advertise_port }}  \
     --initial-advertise-peer-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_advertise_port }} \
-    --initial-cluster {% for host in groups['k8s-master']  %}
+    --initial-cluster {% for host in groups['etcd']  %}
 {{ hostvars[host]['ansible_hostname'] }}=http://{{ hostvars[host]['ansible_default_ipv4']['address']}}:{{ etcd_advertise_port }}
 {%- if loop.first %},{% endif %}
 {% endfor %} \

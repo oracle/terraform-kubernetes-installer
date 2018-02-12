@@ -36,7 +36,7 @@
 # We may want to consider looping through available Etcds
 - name: Determine the Etcd internal IP
   set_fact:
-    etcd_ip: "{{ hostvars[groups['k8s-master'][0]]['ansible_default_ipv4']['address']}}"
+    etcd_ip: "{{ hostvars[groups['etcd'][0]]['ansible_default_ipv4']['address']}}"
 
 - name: Check for existing Etcd Flannel config key
   uri:

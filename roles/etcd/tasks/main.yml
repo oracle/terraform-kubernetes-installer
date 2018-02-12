@@ -4,7 +4,7 @@
   service:
      name: firewalld
      state: stopped
-     enabled: yes
+     enabled: no
 
 - name: Create Etcd User Group
   group:

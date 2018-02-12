@@ -12,7 +12,7 @@ spec:
     - /hyperkube
     - apiserver
     - --apiserver-count={{ groups['k8s-master'] | length }}
-    - --etcd-servers={% for host in groups['k8s-master']  %}
+    - --etcd-servers={% for host in groups['etcd']  %}
 http://{{ hostvars[host]['ansible_default_ipv4']['address']}}:{{ etcd_client_port }}
 {%- if loop.first %},{% endif %}
 {% endfor %}

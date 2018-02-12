@@ -35,3 +35,17 @@ resource "null_resource" "remote-exec-etcd" {
     }
   }
 }
+
+resource "null_resource" "remote-exec-k8s-etcd" {
+  count = "${var.count}"
+
+  provisioner "remote-exec" {
+    connection {
+      agent       = false
+      timeout     = "600s"
+      host        = "${element(baremetal_core_instance.TFInstanceEtcd.*.public_ip, count.index)}"
+      user        = "opc"
+      private_key = "${var.ssh_private_key}"
+    }
+  }
+}

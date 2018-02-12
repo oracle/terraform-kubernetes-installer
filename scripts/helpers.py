@@ -476,6 +476,7 @@ def populate_env(env_name):
     api_server_key = get_terraform_output(env_name=env_name, output_name='api_server_private_key_pem')
     k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_master_public_ips', as_list=True)
     k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_worker_public_ips', as_list=True)
+    etcd_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_etcd_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
 
     # Some regions cannot be reached through the oracle proxy
@@ -501,6 +502,11 @@ def populate_env(env_name):
     f.write('[k8s-worker]\n')
     for worker_address in k8s_worker_public_ips:
         f.write("%s%s\n" % (worker_address, proxy_append))
+
+    # If not explicit Etcd nodes found, we'll use the k8smasters as the Etcds
+    f.write('[etcd]\n')
+    for etcd_address in (etcd_public_ips if len(etcd_public_ips) > 0 else k8s_master_public_ips):
+        f.write("%s%s\n" % (etcd_address, proxy_append))
     f.close()
 
     # Generate keys and certs
