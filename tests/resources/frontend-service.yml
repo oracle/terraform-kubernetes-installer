@@ -1,5 +1,5 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
   name: frontend
 spec:
@@ -7,10 +7,10 @@ spec:
     app: hello
     tier: frontend
   ports:
-  - protocol: "TCP"
-    port: 80
-    targetPort: 80
-  type: LoadBalancer
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+  type: NodePort
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -26,9 +26,9 @@ spec:
         track: stable
     spec:
       containers:
-      - name: nginx
-        image: "gcr.io/google-samples/hello-frontend:1.0"
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/usr/sbin/nginx","-s","quit"]
+        - name: nginx
+          image: "gcr.io/google-samples/hello-frontend:1.0"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx","-s","quit"]

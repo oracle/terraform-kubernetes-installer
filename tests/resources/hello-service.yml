@@ -7,9 +7,10 @@ spec:
     app: hello
     tier: backend
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: http
+    - protocol: TCP
+      port: 80
+      targetPort: http
+  type: NodePort
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
