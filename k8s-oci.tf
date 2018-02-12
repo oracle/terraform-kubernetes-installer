@@ -1,11 +1,11 @@
 ### CA and Cluster Certificates
 
 locals {
-  master_ip      = "${var.master_lb_enabled == "true" ? element(concat(flatten(module.k8smaster-public-lb.ip_addresses), list("")), 0) : "127.0.0.1"}"
+  master_ip      = "${var.master_lb_enabled ? element(concat(flatten(module.k8smaster-public-lb.ip_addresses), list("")), 0) : "127.0.0.1"}"
   master_address = "${format("https://%s:%s", local.master_ip, var.master_lb_enabled ? "443" : "6443")}"
 
-  nginx_clount_init = "${var.master_lb_enabled == "true" ? "" : module.nginx-lb.clount_init}"
-  nginx_setup       = "${var.master_lb_enabled == "true" ? "" : module.nginx-lb.setup}"
+  nginx_clount_init = "${var.master_lb_enabled ? "" : module.nginx-lb.clount_init}"
+  nginx_setup       = "${var.master_lb_enabled ? "" : module.nginx-lb.setup}"
 
   etcd_endpoints = "${var.etcd_lb_enabled == "true" ? 
     join(",",formatlist("http://%s:2379", module.etcd-lb.ip_addresses)) :
@@ -56,55 +56,54 @@ module "vcn" {
   nat_instance_ssh_public_key_openssh     = "${module.k8s-tls.ssh_public_key_openssh}"
   worker_ssh_ingress                      = "${var.worker_ssh_ingress}"
   worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
-  external_icmp_ingress		  	  = "${var.external_icmp_ingress}"
-  internal_icmp_ingress		  	  = "${var.internal_icmp_ingress}"
+  external_icmp_ingress                   = "${var.external_icmp_ingress}"
+  internal_icmp_ingress                   = "${var.internal_icmp_ingress}"
 }
 
 module "oci-cloud-controller" {
-  source                                     = "./kubernetes/oci-cloud-controller"
-  label_prefix                               = "${var.label_prefix}"
-  compartment_ocid                           = "${var.compartment_ocid}"
-  tenancy                                    = "${var.tenancy_ocid}"
-  region                                     = "${var.region}"
-  cloud_controller_user_ocid                 = "${var.cloud_controller_user_ocid == "" ? var.user_ocid : var.cloud_controller_user_ocid}"
-  cloud_controller_user_fingerprint          = "${var.cloud_controller_user_fingerprint == "" ? var.fingerprint : var.cloud_controller_user_fingerprint}"
-  cloud_controller_user_private_key_path     = "${var.cloud_controller_user_private_key_path == "" ? var.private_key_path : var.cloud_controller_user_private_key_path}"
+  source                                 = "./kubernetes/oci-cloud-controller"
+  label_prefix                           = "${var.label_prefix}"
+  compartment_ocid                       = "${var.compartment_ocid}"
+  tenancy                                = "${var.tenancy_ocid}"
+  region                                 = "${var.region}"
+  cloud_controller_user_ocid             = "${var.cloud_controller_user_ocid == "" ? var.user_ocid : var.cloud_controller_user_ocid}"
+  cloud_controller_user_fingerprint      = "${var.cloud_controller_user_fingerprint == "" ? var.fingerprint : var.cloud_controller_user_fingerprint}"
+  cloud_controller_user_private_key_path = "${var.cloud_controller_user_private_key_path == "" ? var.private_key_path : var.cloud_controller_user_private_key_path}"
+
   // So we are using the private_key_path to see if it is set as we don't want to fall back to the var.private_key_password if the
   // var.cloud_controller_user_private_key_path has been provided but has an empty password
   cloud_controller_user_private_key_password = "${var.cloud_controller_user_private_key_path == "" ? var.private_key_password : var.cloud_controller_user_private_key_password}"
 
-  subnet1  = "${element(module.vcn.ccmlb_subnet_ad1_id,0)}"
-  subnet2  = "${element(module.vcn.ccmlb_subnet_ad2_id,0)}"
+  subnet1 = "${element(module.vcn.ccmlb_subnet_ad1_id,0)}"
+  subnet2 = "${element(module.vcn.ccmlb_subnet_ad2_id,0)}"
 }
 
-
 module "oci-flexvolume-driver" {
-  source                                      = "./kubernetes/oci-flexvolume-driver"
-  tenancy                                     = "${var.tenancy_ocid}"
-  vcn                                         = "${module.vcn.id}"
+  source  = "./kubernetes/oci-flexvolume-driver"
+  tenancy = "${var.tenancy_ocid}"
+  vcn     = "${module.vcn.id}"
 
-  flexvolume_driver_user_ocid                 = "${var.flexvolume_driver_user_ocid == "" ? var.user_ocid : var.flexvolume_driver_user_ocid}"
-  flexvolume_driver_user_fingerprint          = "${var.flexvolume_driver_user_fingerprint == "" ? var.fingerprint : var.flexvolume_driver_user_fingerprint}"
-  flexvolume_driver_user_private_key_path     = "${var.flexvolume_driver_user_private_key_path == "" ? var.private_key_path : var.flexvolume_driver_user_private_key_path}"
+  flexvolume_driver_user_ocid             = "${var.flexvolume_driver_user_ocid == "" ? var.user_ocid : var.flexvolume_driver_user_ocid}"
+  flexvolume_driver_user_fingerprint      = "${var.flexvolume_driver_user_fingerprint == "" ? var.fingerprint : var.flexvolume_driver_user_fingerprint}"
+  flexvolume_driver_user_private_key_path = "${var.flexvolume_driver_user_private_key_path == "" ? var.private_key_path : var.flexvolume_driver_user_private_key_path}"
+
   // See comment for oci-cloud-controller
   flexvolume_driver_user_private_key_password = "${var.flexvolume_driver_user_private_key_path == "" ? var.private_key_password : var.flexvolume_driver_user_private_key_password}"
 }
 
-
 module "oci-volume-provisioner" {
-  source                                       = "./kubernetes/oci-volume-provisioner"
-  tenancy                                      = "${var.tenancy_ocid}"
-  region                                       = "${var.region}"
-  
-  compartment                                  = "${var.compartment_ocid}"
-  volume_provisioner_user_ocid                 = "${var.volume_provisioner_user_ocid == "" ? var.user_ocid : var.volume_provisioner_user_ocid}"
-  volume_provisioner_user_fingerprint          = "${var.volume_provisioner_user_fingerprint == "" ? var.fingerprint : var.volume_provisioner_user_fingerprint}"
-  volume_provisioner_user_private_key_path     = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_path : var.volume_provisioner_user_private_key_path}"
+  source  = "./kubernetes/oci-volume-provisioner"
+  tenancy = "${var.tenancy_ocid}"
+  region  = "${var.region}"
+
+  compartment                              = "${var.compartment_ocid}"
+  volume_provisioner_user_ocid             = "${var.volume_provisioner_user_ocid == "" ? var.user_ocid : var.volume_provisioner_user_ocid}"
+  volume_provisioner_user_fingerprint      = "${var.volume_provisioner_user_fingerprint == "" ? var.fingerprint : var.volume_provisioner_user_fingerprint}"
+  volume_provisioner_user_private_key_path = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_path : var.volume_provisioner_user_private_key_path}"
+
   // See comment for oci-cloud-controller  
   volume_provisioner_user_private_key_password = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_password : var.volume_provisioner_user_private_key_password}"
 }
-
-
 
 ### Compute Instance(s)
 
