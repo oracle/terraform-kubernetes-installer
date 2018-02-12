@@ -30,5 +30,6 @@ resource "oci_identity_policy" "volume_provisioner_policy" {
   description = "${var.label_prefix}volume_provisioner_group policy"
   statements = [
     "Allow group id ${oci_identity_group.volume_provisioner_group.id} to manage volumes in compartment id ${var.compartment_ocid}",
+    "Allow group id ${oci_identity_group.volume_provisioner_group.id} to manage file-systems in compartment id ${var.compartment_ocid}",
   ]
 }
