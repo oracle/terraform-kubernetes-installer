@@ -83,3 +83,7 @@ variable "worker_iscsi_volume_mount" {
 }
 
 variable "flexvolume_driver_version" {}
+
+variable "reverse_proxy_setup" {}
+
+variable "reverse_proxy_clount_init" {}

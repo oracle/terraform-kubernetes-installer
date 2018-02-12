@@ -216,20 +216,6 @@ function check_system_services() {
 
 }
 
-function check_k8s_healthz_through_lb() {
-	log_msg "  Checking status of /healthz endpoint at the LB..."
-	check_tf_output "master_lb_ip"
-	output=$(curl --insecure --max-time 30 https://$(terraform output master_lb_ip):443/healthz 2>/dev/null)
-	if [[ $output != "ok" ]]; then
-		log_msg "  [FAILED] Master node /healthz is not available through the LB"
-		log_msg "  Only IPs in $(terraform output master_https_ingress_cidr) are allowed to access HTTPs"
-		log_msg "  If it is not correct, set master_https_ingress_cidr in terraform.tfvars to a CIDR that includes the IP \
-        of this host and run terraform plan and apply"
-		exit 1
-	fi
-
-}
-
 function check_get_nodes() {
 	log_msg "  Running 'kubectl get nodes' a number of times through the master LB..."
 	expected_nodes=$(expr $(terraform output worker_public_ips | tr -cd , | wc -c) + 1)
@@ -323,7 +309,6 @@ check_ssh_connectivity
 check_cloud_init_finished
 check_etcdctl_flannel
 check_system_services
-check_k8s_healthz_through_lb
 check_get_nodes
 check_kube-dns
 check_nginx_deployment

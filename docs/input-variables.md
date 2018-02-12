@@ -21,6 +21,10 @@ name                                | default                 | description
 etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
 k8sMasterShape                      | VM.Standard1.1          | OCI shape for k8s master(s)
 k8sWorkerShape                      | VM.Standard1.2          | OCI shape for k8s worker(s)
+master_oci_lb_enabled               | "true"                  | enable/disable the k8s master oci load balancer. "true": use oci load balancer for k8s master . "false": use a reverse proxy as a software load balancer for k8s masters.
+etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
+etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
+k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
 k8sMasterAd1Count                   | 1                       | number of k8s masters to create in Availability Domain 1
 k8sMasterAd2Count                   | 0                       | number of k8s masters to create in Availability Domain 2
 k8sMasterAd3Count                   | 0                       | number of k8s masters to create in Availability Domain 3
@@ -33,11 +37,8 @@ etcdAd3Count                        | 0                       | number of etcd n
 worker_iscsi_volume_create          | "false"                 | boolean flag indicating whether or not to attach an iSCSI volume to attach to each worker node
 worker_iscsi_volume_size            | unset                   | optional size of an iSCSI volume to attach to each worker
 worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
-etcd_iscsi_volume_create            | "false"                 | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
+etcd_iscsi_volume_create            | false                   | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
 etcd_iscsi_volume_size              | 50                      | size in GBs of volume when etcd_iscsi_volume_create is set
-etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
-etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
-k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
 
 ### TLS Certificates & SSH key pair
 name                                | default                 | description

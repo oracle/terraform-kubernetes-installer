@@ -48,12 +48,11 @@ resource "tls_cert_request" "api-server" {
       "kubernetes.default.svc",
       "kubernetes.default.svc.cluster.local"
     ))}"
-
-  ip_addresses = [
-    "${var.master_lb_public_ip}",
-    "${var.k8s-serviceip}",
-    "127.0.0.1",
-  ]
+  ip_addresses = ["${distinct(list(
+      "${var.master_lb_public_ip}",
+      "${var.k8s-serviceip}",
+      "127.0.0.1"
+  ))}"]
 
   # system:masters group
   subject {
