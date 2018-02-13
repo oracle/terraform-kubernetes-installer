@@ -13,15 +13,18 @@ data "template_file" "setup-template" {
   template = "${file("${path.module}/scripts/setup.template.sh")}"
 
   vars = {
-    domain_name        = "${var.domain_name}"
-    docker_ver         = "${var.docker_ver}"
-    etcd_ver           = "${var.etcd_ver}"
-    flannel_ver        = "${var.flannel_ver}"
-    k8s_ver            = "${var.k8s_ver}"
-    docker_max_log_size = "${var.master_docker_max_log_size}"
-    docker_max_log_files = "${var.master_docker_max_log_files}"
-    etcd_discovery_url = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
-    etcd_endpoints     = "${var.etcd_endpoints}"
+    domain_name                = "${var.domain_name}"
+    docker_ver                 = "${var.docker_ver}"
+    etcd_ver                   = "${var.etcd_ver}"
+    flannel_ver                = "${var.flannel_ver}"
+    k8s_ver                    = "${var.k8s_ver}"
+    docker_max_log_size        = "${var.master_docker_max_log_size}"
+    docker_max_log_files       = "${var.master_docker_max_log_files}"
+    etcd_discovery_url         = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
+    etcd_endpoints             = "${var.etcd_endpoints}"
+    cloud_controller_version   = "${var.cloud_controller_version}"
+    flexvolume_driver_version  = "${var.flexvolume_driver_version}"
+    volume_provisioner_version = "${var.volume_provisioner_version}"
   }
 }
 

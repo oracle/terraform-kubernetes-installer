@@ -19,7 +19,6 @@ resource "tls_self_signed_cert" "root-ca" {
   allowed_uses = [
     "key_encipherment",
     "cert_signing",
-    "digital_signature",
     "server_auth",
     "client_auth",
   ]
@@ -75,6 +74,7 @@ resource "tls_locally_signed_cert" "api-server" {
     "key_encipherment",
     "server_auth",
     "client_auth",
+    "digital_signature",
   ]
 }
 

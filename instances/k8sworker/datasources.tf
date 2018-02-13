@@ -13,17 +13,18 @@ data "template_file" "setup-template" {
   template = "${file("${path.module}/scripts/setup.template.sh")}"
 
   vars = {
-    master_lb          = "${var.master_lb}"
-    domain_name        = "${var.domain_name}"
-    docker_ver         = "${var.docker_ver}"
-    etcd_ver           = "${var.etcd_ver}"
-    flannel_ver        = "${var.flannel_ver}"
-    k8s_ver            = "${var.k8s_ver}"
-    docker_max_log_size  = "${var.worker_docker_max_log_size}"
-    docker_max_log_files = "${var.worker_docker_max_log_files}"
-    etcd_discovery_url = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
-    etcd_endpoints     = "${var.etcd_endpoints}"
-    worker_iscsi_volume_mount = "${var.worker_iscsi_volume_mount}"
+    master_lb                  = "${var.master_lb}"
+    domain_name                = "${var.domain_name}"
+    docker_ver                 = "${var.docker_ver}"
+    etcd_ver                   = "${var.etcd_ver}"
+    flannel_ver                = "${var.flannel_ver}"
+    k8s_ver                    = "${var.k8s_ver}"
+    docker_max_log_size        = "${var.worker_docker_max_log_size}"
+    docker_max_log_files       = "${var.worker_docker_max_log_files}"
+    etcd_discovery_url         = "${file("${path.root}/generated/discovery${var.etcd_discovery_url}")}"
+    etcd_endpoints             = "${var.etcd_endpoints}"
+    worker_iscsi_volume_mount  = "${var.worker_iscsi_volume_mount}"
+    flexvolume_driver_version  = "${var.flexvolume_driver_version}"
   }
 }
 

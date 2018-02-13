@@ -396,19 +396,27 @@ variable "flannel_backend" {
 }
 
 # Cloud controller 
+variable "cloud_controller_version" {
+  default = "0.2.0"
+}
 variable "cloud_controller_user_ocid" {
   default = ""
 }
-
 variable "cloud_controller_user_fingerprint" {
   default = ""
 }
-
 variable "cloud_controller_user_private_key_path" {
   default = ""
 }
+variable "cloud_controller_user_private_key_password" {
+  default = ""
+}
+
 
 # Flexvolume driver
+variable "flexvolume_driver_version" {
+  default = "0.5.1"
+}
 variable "flexvolume_driver_user_ocid" {
   default = ""
 }
@@ -418,8 +426,15 @@ variable "flexvolume_driver_user_fingerprint" {
 variable "flexvolume_driver_user_private_key_path" {
   default = ""
 }
+variable "flexvolume_driver_user_private_key_password" {
+  default = ""
+}
 
-# Flexvolume driver
+
+# Volume provisioner
+variable "volume_provisioner_version" {
+  default = "0.4.1"
+}
 variable "volume_provisioner_user_ocid" {
   default = ""
 }
@@ -429,6 +444,10 @@ variable "volume_provisioner_user_fingerprint" {
 variable "volume_provisioner_user_private_key_path" {
   default = ""
 }
+variable "volume_provisioner_user_private_key_password" {
+  default = ""
+}
+
 
 
 

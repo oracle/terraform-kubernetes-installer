@@ -19,3 +19,4 @@ variable "label_prefix" {
 variable "cloud_controller_user_ocid" {}
 variable "cloud_controller_user_fingerprint" {}
 variable "cloud_controller_user_private_key_path" {}
+variable "cloud_controller_user_private_key_password" {}
