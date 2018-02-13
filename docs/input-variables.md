@@ -30,9 +30,10 @@ k8sWorkerAd3Count                   | 0                       | number of k8s wo
 etcdAd1Count                        | 1                       | number of etcd nodes to create in Availability Domain 1
 etcdAd2Count                        | 0                       | number of etcd nodes to create in Availability Domain 2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
+worker_iscsi_volume_create          | "false"                 | boolean flag indicating whether or not to attach an iSCSI volume to attach to each worker node
 worker_iscsi_volume_size            | unset                   | optional size of an iSCSI volume to attach to each worker
 worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
-etcd_iscsi_volume_create            | false                   | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
+etcd_iscsi_volume_create            | "false"                 | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
 etcd_iscsi_volume_size              | 50                      | size in GBs of volume when etcd_iscsi_volume_create is set
 etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
 etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
