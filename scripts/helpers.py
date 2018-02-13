@@ -545,6 +545,7 @@ def populate_env(env_name):
     token_values['MASTER_URL'] = 'https://%s:443' % k8s_master_public_ips[0]
     token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
     token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
+    token_values['CA_DATA'] = base64.b64encode(ca_cert)
     for line in fileinput.FileInput(kubeconfig, inplace=1):
         for token in token_values:
             line = line.replace('<%s>' % token, token_values[token])
