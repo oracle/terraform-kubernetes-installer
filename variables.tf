@@ -5,6 +5,7 @@ variable "compartment_ocid" {}
 
 variable "network_cidrs" {
   type = "map"
+
   default = {
     VCN-CIDR          = "10.0.0.0/16"
     PublicSubnetAD1   = "10.0.10.0/24"
@@ -131,7 +132,7 @@ variable "etcdAd3Count" {
 }
 
 variable "etcd_endpoints" {
-  type="string"
+  type    = "string"
   default = " "
 }
 
@@ -215,47 +216,51 @@ variable "etcdLBShape" {
 
 variable "etcd_lb_enabled" {
   description = "enable/disable the etcd load balancer. true: use the etcd load balancer ip. false:use a list of etcd instance ips."
-  default = "true"
+  default     = true
 }
 
 variable "k8sMasterLBShape" {
   default = "100Mbps"
 }
 
-variable "master_lb_enabled" {
+variable "master_oci_lb_enabled" {
   description = "enable/disable the k8s master load balancer. true: use the k8s master load balancer ip. false: use a nginx reverse proxy for k8s masters."
   default     = true
+}
+
+variable "nginx_version" {
+  default = "1.13.1"
 }
 
 # Docker log file config
 variable "etcd_docker_max_log_size" {
   description = "Maximum size of the etcd docker container logs"
-  default = "50m"
+  default     = "50m"
 }
 
 variable "etcd_docker_max_log_files" {
   description = "Maximum number of etcd docker container logs to rotate"
-  default = "5"
+  default     = "5"
 }
 
 variable "master_docker_max_log_size" {
   description = "Maximum size of the etcd docker container logs"
-  default = "50m"
+  default     = "50m"
 }
 
 variable "master_docker_max_log_files" {
   description = "Maximum number of etcd docker container logs to rotate"
-  default = "5"
+  default     = "5"
 }
 
 variable "worker_docker_max_log_size" {
   description = "Maximum size of the etcd docker container logs"
-  default = "50m"
+  default     = "50m"
 }
 
 variable "worker_docker_max_log_files" {
   description = "Maximum number of etcd docker json logs to rotate"
-  default = "5"
+  default     = "5"
 }
 
 # Kubernetes
@@ -376,87 +381,93 @@ variable nat_instance_ad3_enabled {
 # iSCSI
 variable "worker_iscsi_volume_create" {
   description = "Bool if an iscsi volume should be attached and mounted at /var/lib/docker"
-  default = false
+  default     = false
 }
 
 variable "worker_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
-  default = 50
+  default     = 50
 }
 
 variable "worker_iscsi_volume_mount" {
   description = "Mount point of iscsi volume"
-  default = "/var/lib/docker"
+  default     = "/var/lib/docker"
 }
 
 variable "etcd_iscsi_volume_create" {
   description = "Bool if an iscsi volume should be attached and mounted at the etcd volume mount point /etcd"
-  default = false
+  default     = false
 }
 
 variable "etcd_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
-  default = 50
+  default     = 50
 }
 
 variable "flannel_backend" {
   description = "Flannel backend - possible choices are vxlan, udp, and host-gw"
-  default = "VXLAN"
+  default     = "VXLAN"
 }
 
 # Cloud controller 
 variable "cloud_controller_version" {
   default = "0.2.0"
 }
+
 variable "cloud_controller_user_ocid" {
   default = ""
 }
+
 variable "cloud_controller_user_fingerprint" {
   default = ""
 }
+
 variable "cloud_controller_user_private_key_path" {
   default = ""
 }
+
 variable "cloud_controller_user_private_key_password" {
   default = ""
 }
-
 
 # Flexvolume driver
 variable "flexvolume_driver_version" {
   default = "0.5.1"
 }
+
 variable "flexvolume_driver_user_ocid" {
   default = ""
 }
+
 variable "flexvolume_driver_user_fingerprint" {
   default = ""
 }
+
 variable "flexvolume_driver_user_private_key_path" {
   default = ""
 }
+
 variable "flexvolume_driver_user_private_key_password" {
   default = ""
 }
-
 
 # Volume provisioner
 variable "volume_provisioner_version" {
   default = "0.4.1"
 }
+
 variable "volume_provisioner_user_ocid" {
   default = ""
 }
+
 variable "volume_provisioner_user_fingerprint" {
   default = ""
 }
+
 variable "volume_provisioner_user_private_key_path" {
   default = ""
 }
+
 variable "volume_provisioner_user_private_key_password" {
   default = ""
 }
-
-
-
-

@@ -1,13 +1,13 @@
 ### CA and Cluster Certificates
 
 locals {
-  master_ip      = "${var.master_lb_enabled ? element(concat(flatten(module.k8smaster-public-lb.ip_addresses), list("")), 0) : "127.0.0.1"}"
-  master_address = "${format("https://%s:%s", local.master_ip, var.master_lb_enabled ? "443" : "6443")}"
+  master_lb_ip      = "${var.master_oci_lb_enabled ? element(concat(flatten(module.k8smaster-public-lb.ip_addresses), list("")), 0) : "127.0.0.1"}"
+  master_lb_address = "${format("https://%s:%s", local.master_lb_ip, var.master_oci_lb_enabled ? "443" : "6443")}"
 
-  nginx_clount_init = "${var.master_lb_enabled ? "" : module.nginx-lb.clount_init}"
-  nginx_setup       = "${var.master_lb_enabled ? "" : module.nginx-lb.setup}"
+  nginx_clount_init = "${var.master_oci_lb_enabled ? "" : module.nginx-lb.clount_init}"
+  nginx_setup       = "${var.master_oci_lb_enabled ? "" : module.nginx-lb.setup}"
 
-  etcd_endpoints = "${var.etcd_lb_enabled == "true" ? 
+  etcd_endpoints = "${var.etcd_lb_enabled ? 
     join(",",formatlist("http://%s:2379", module.etcd-lb.ip_addresses)) :
     join(",",formatlist("http://%s:2379", compact(concat(
       module.instances-etcd-ad1.private_ips, 
@@ -22,7 +22,7 @@ module "k8s-tls" {
   ca_cert                = "${var.ca_cert}"
   ca_key                 = "${var.ca_key}"
   api_server_admin_token = "${var.api_server_admin_token}"
-  master_lb_public_ip    = "${local.master_ip}"
+  master_lb_public_ip    = "${local.master_lb_ip}"
   ssh_private_key        = "${var.ssh_private_key}"
   ssh_public_key_openssh = "${var.ssh_public_key_openssh}"
 }
@@ -338,7 +338,7 @@ module "instances-k8sworker-ad1" {
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
   label_prefix                = "${var.label_prefix}"
-  master_lb                   = "${local.master_address}"
+  master_lb                   = "${local.master_lb_address}"
   nginx_clount_init           = "${local.nginx_clount_init}"
   nginx_setup                 = "${local.nginx_setup}"
   region                      = "${var.region}"
@@ -375,7 +375,7 @@ module "instances-k8sworker-ad2" {
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
   label_prefix                = "${var.label_prefix}"
-  master_lb                   = "${local.master_address}"
+  master_lb                   = "${local.master_lb_address}"
   nginx_clount_init           = "${local.nginx_clount_init}"
   nginx_setup                 = "${local.nginx_setup}"
   region                      = "${var.region}"
@@ -412,7 +412,7 @@ module "instances-k8sworker-ad3" {
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
   label_prefix                = "${var.label_prefix}"
-  master_lb                   = "${local.master_address}"
+  master_lb                   = "${local.master_lb_address}"
   nginx_clount_init           = "${local.nginx_clount_init}"
   nginx_setup                 = "${local.nginx_setup}"
   region                      = "${var.region}"
@@ -434,7 +434,6 @@ module "instances-k8sworker-ad3" {
 
 module "etcd-lb" {
   source           = "./network/loadbalancers/etcd"
-  count            = "${var.etcd_lb_enabled=="true"? 1 : 0 }"
   etcd_lb_enabled  = "${var.etcd_lb_enabled}"
   compartment_ocid = "${var.compartment_ocid}"
   is_private       = "${var.etcd_lb_access == "private" ? "true": "false"}"
@@ -453,10 +452,10 @@ module "etcd-lb" {
 }
 
 module "k8smaster-public-lb" {
-  source            = "./network/loadbalancers/k8smaster"
-  master_lb_enabled = "${var.master_lb_enabled}"
-  compartment_ocid  = "${var.compartment_ocid}"
-  is_private        = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
+  source                = "./network/loadbalancers/k8smaster"
+  master_oci_lb_enabled = "${var.master_oci_lb_enabled}"
+  compartment_ocid      = "${var.compartment_ocid}"
+  is_private            = "${var.k8s_master_lb_access == "private" ? "true": "false"}"
 
   # Handle case where var.k8s_master_lb_access=public, but var.control_plane_subnet_access=private
   k8smaster_subnet_0_id     = "${var.k8s_master_lb_access == "private" ? module.vcn.k8smaster_subnet_ad1_id: coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.k8smaster_subnet_ad1_id)))}"
@@ -472,13 +471,14 @@ module "k8smaster-public-lb" {
 }
 
 module "nginx-lb" {
-  source = "./network/loadbalancers/nginx"
-  hosts  = "${concat(module.instances-k8smaster-ad1.private_ips,module.instances-k8smaster-ad2.private_ips, module.instances-k8smaster-ad3.private_ips)}"
+  source        = "./network/loadbalancers/nginx"
+  hosts         = "${concat(module.instances-k8smaster-ad1.private_ips,module.instances-k8smaster-ad2.private_ips, module.instances-k8smaster-ad3.private_ips)}"
+  nginx_version = "${var.nginx_version}"
 }
 
 module "kubeconfig" {
   source                     = "./kubernetes/kubeconfig"
   api_server_private_key_pem = "${module.k8s-tls.api_server_private_key_pem}"
   api_server_cert_pem        = "${module.k8s-tls.api_server_cert_pem}"
-  k8s_master                 = "{local.master_address}"
+  k8s_master                 = "{local.master_lb_address}"
 }

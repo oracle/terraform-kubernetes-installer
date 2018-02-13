@@ -1,8 +1,6 @@
-variable "version" {
-  default = "1.13.1"
-}
+variable "nginx_version" {}
 
-variable "listen_port" {
+variable "nginx_listen_port" {
   default = "6443"
 }
 
