@@ -34,7 +34,7 @@ variable "etcd_ver" {
 }
 
 variable "flannel_ver" {
-  default = "v0.10.0"
+  default = "v0.9.1"
 }
 
 variable "ssh_private_key" {}
