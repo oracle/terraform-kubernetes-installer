@@ -6,9 +6,6 @@ variable "etcd_subnet_1_id" {}
 variable "label_prefix" {
   default = ""
 }
-variable "count" {
-  default = 1
-}
 
 variable "etcdAd1Count" {}
 

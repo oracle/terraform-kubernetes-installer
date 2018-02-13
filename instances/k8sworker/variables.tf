@@ -83,3 +83,7 @@ variable "worker_iscsi_volume_mount" {
 }
 
 variable "flexvolume_driver_version" {}
+
+variable "nginx_setup" {}
+
+variable "nginx_clount_init" {}

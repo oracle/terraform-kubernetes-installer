@@ -6,6 +6,8 @@ variable "label_prefix" {
   default = ""
 }
 
+variable "master_oci_lb_enabled" {}
+
 variable "k8sMasterAd1Count" {}
 
 variable "k8sMasterAd2Count" {}
