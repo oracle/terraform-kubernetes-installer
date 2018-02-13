@@ -13,6 +13,7 @@ module "k8s-tls" {
   ca_cert                = "${var.ca_cert}"
   ca_key                 = "${var.ca_key}"
   master_ips             = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips )}"
+  master_lb_public_ip    = "${module.k8smaster-public-lb.ip_address}"
 }
 
 ### VCN
@@ -344,4 +345,20 @@ module "instances-k8sworker-ad3" {
   ssh_public_key_openssh     = "${module.tls.ssh_public_key_openssh}"
   subnet_id                  = "${module.subnet-k8sWorkerSubnetAd3.id}"
   tenancy_ocid               = "${var.compartment_ocid}"
+}
+
+module "k8smaster-public-lb" {
+  source                    = "loadbalancers/k8smaster"
+  enable                    = "${var.enable_k8s_master_lb}"
+  compartment_ocid          = "${var.compartment_ocid}"
+  k8smaster_subnet_0_id     = "${module.subnet-k8sMasterSubnetAd1.id}"
+  k8smaster_subnet_1_id     = "${module.subnet-k8sMasterSubnetAd2.id}"
+  k8smaster_ad1_private_ips = "${module.instances-k8smaster-ad1.private_ips}"
+  k8smaster_ad2_private_ips = "${module.instances-k8smaster-ad2.private_ips}"
+  k8smaster_ad3_private_ips = "${module.instances-k8smaster-ad3.private_ips}"
+  k8sMasterAd1Count         = "${var.k8sMasterAd1Count}"
+  k8sMasterAd2Count         = "${var.k8sMasterAd2Count}"
+  k8sMasterAd3Count         = "${var.k8sMasterAd3Count}"
+  label_prefix              = "${var.label_prefix}"
+  shape                     = "${var.k8sMasterLBShape}"
 }

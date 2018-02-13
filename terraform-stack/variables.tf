@@ -164,14 +164,13 @@ variable "ssh_private_key" {
   default     = ""
 }
 
-
 # Load Balancers
-variable "etcdLBShape" {
-  default = "100Mbps"
+variable "enable_k8s_master_lb" {
+  default = "false"
 }
 
 variable "k8sMasterLBShape" {
-  default = "100Mbps"
+  default = "400Mbps"
 }
 
 variable "instance_os" {

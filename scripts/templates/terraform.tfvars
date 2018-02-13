@@ -31,3 +31,5 @@ k8sMasterAd3Count = "<K8S_MASTER_AD3_COUNT>"
 etcdAd1Count = "<ETCD_AD1_COUNT>"
 etcdAd2Count = "<ETCD_AD2_COUNT>"
 etcdAd3Count = "<ETCD_AD3_COUNT>"
+
+enable_k8s_master_lb = "false"

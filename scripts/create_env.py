@@ -20,6 +20,8 @@ RESUME_SECTION = 'RESUME'
 K8S_SECTION = 'K8S'
 DESTROY_FILE_NAME = 'destroy.sh'
 PREFS_FILE_DEFAULT = os.path.expanduser('~') + '/.k8s/config'
+NUM_ADS = 3
+DEFAULT_SHAPE = 'VM.Standard1.2'
 
 helpers.logger = helpers.setup_logging('create_env.log')
 
@@ -38,6 +40,12 @@ def generate_destroy_env_script(args):
             args.private_key_file, args.user_ocid))
     f.close()
     os.chmod(destroy_file, 0o775)
+
+def get_num_per_ad_list(string):
+    num_per_ad_list = map(int, string.split(','))
+    if len(num_per_ad_list) != NUM_ADS:
+        raise Exception('Expected %d entries, corresponding to number of ADs, got %d' % (NUM_ADS, len(num_per_ad_list)))
+    return num_per_ad_list
 
 def parse_args():
     """
@@ -62,15 +70,9 @@ def parse_args():
     params['k8s_master_shape'] = {'help':'OCI Compute node shape to use for K8S master nodes', 'type': str}
     params['k8s_worker_shape'] = {'help':'OCI Compute node shape to use for K8S worker nodes', 'type': str}
     params['etcd_shape'] = {'help':'OCI Compute node shape to use for Etcd nodes', 'type': str}
-    params['k8s_master_ad1_count'] = {'help':'Number of K8S master nodes in AD1', 'type': int}
-    params['k8s_master_ad2_count'] = {'help':'Number of K8S master nodes in AD2', 'type': int}
-    params['k8s_master_ad3_count'] = {'help':'Number of K8S master nodes in AD3', 'type': int}
-    params['k8s_worker_ad1_count'] = {'help':'Number of K8S worker nodes in AD1', 'type': int}
-    params['k8s_worker_ad2_count'] = {'help':'Number of K8S worker nodes in AD2', 'type': int}
-    params['k8s_worker_ad3_count'] = {'help':'Number of K8S worker nodes in AD3', 'type': int}
-    params['etcd_ad1_count'] = {'help':'Number of Etcd nodes in AD1', 'type': int}
-    params['etcd_ad2_count'] = {'help':'Number of Etcd nodes in AD2', 'type': int}
-    params['etcd_ad3_count'] = {'help':'Number of Etcd nodes in AD3', 'type': int}
+    params['k8s_masters'] = {'help':'Number of K8S master nodes for respective ADs', 'type': str}
+    params['k8s_workers'] = {'help':'Number of K8S worker nodes for respective ADs', 'type': str}
+    params['etcds'] = {'help':'Number of dedicated Etcd nodes for respective ADs (specifying 0 will colocate Etcd with K8S masters)', 'type': str}
     params['vars_file'] = {'help':'Ansible vars file to append to the generated environment\"s vars file', 'type': str}
     params['skip_branch'] = {'help': 'Whether to skip creation of a new branch with a managed environment\'s files', 'type': bool}
 
@@ -144,36 +146,35 @@ def parse_args():
     #
 
     # Params with no defaults
-    if args.managed:
-        if args.tenancy_ocid != None or args.compartment_ocid != None:
-            raise Exception('Compartment and Tenancy are pre-set for managed environments')
-    else:
-       for param in ('tenancy_ocid', 'compartment_ocid'):
-           if getattr(args, param) is None:
-               setattr(args, param, helpers.prompt_for_value(params[param]['help']))
-    for param in ('user_ocid', 'fingerprint', 'private_key_file'):
-        if getattr(args, param) is None:
-            setattr(args, param, helpers.prompt_for_value(params[param]['help']))
+    for param in ('tenancy_ocid', 'compartment_ocid', 'user_ocid', 'fingerprint', 'private_key_file'):
+       if getattr(args, param) is None:
+           setattr(args, param, helpers.prompt_for_value(params[param]['help']))
 
     # Params with defaults
-    param_defaults = collections.OrderedDict()
-    param_defaults['k8s_master_ad1_count'] = '0'
-    param_defaults['k8s_master_ad2_count'] = '0'
-    param_defaults['k8s_master_ad3_count'] = '0'
-    param_defaults['k8s_worker_ad1_count'] = '0'
-    param_defaults['k8s_worker_ad2_count'] = '0'
-    param_defaults['k8s_worker_ad3_count'] = '0'
-    param_defaults['etcd_ad1_count'] = '0'
-    param_defaults['etcd_ad2_count'] = '0'
-    param_defaults['etcd_ad3_count'] = '0'
-    param_defaults['k8s_master_shape'] = 'VM.Standard1.2'
-    param_defaults['k8s_worker_shape'] = 'VM.Standard1.2'
-    param_defaults['etcd_shape'] = 'VM.Standard1.2'
-    param_defaults['region'] = 'us-ashburn-1'
 
-    for param in param_defaults:
-        if getattr(args, param) is None:
-            setattr(args, param, helpers.prompt_for_value(params[param]['help'], param_defaults[param]))
+    # K8S master details
+    if args.k8s_masters is None:
+        args.k8s_masters = helpers.prompt_for_value(params['k8s_masters']['help'], '1,0,0')
+    if sum(get_num_per_ad_list(args.k8s_masters)) <= 0:
+        raise Exception('At least one K8S master must be specified')
+    if args.k8s_master_shape is None:
+        args.k8s_master_shape = helpers.prompt_for_value(params['k8s_master_shape']['help'], DEFAULT_SHAPE)
+
+    # K8S worker details
+    if args.k8s_workers is None:
+        args.k8s_workers = helpers.prompt_for_value(params['k8s_workers']['help'], '1,0,0')
+    if args.k8s_worker_shape is None:
+        args.k8s_worker_shape = helpers.prompt_for_value(params['k8s_worker_shape']['help'], DEFAULT_SHAPE)
+
+    # Etcd details
+    if args.etcds is None:
+        args.etcds = helpers.prompt_for_value(params['etcds']['help'], '0,0,0')
+    if sum(get_num_per_ad_list(args.etcds)) > 0:
+        if args.etcd_shape is None:
+            args.etcd_shape = helpers.prompt_for_value(params['etcd_shape']['help'], DEFAULT_SHAPE)
+
+    if args.region is None:
+        args.region = helpers.prompt_for_value(params['region']['help'], 'us-ashburn-1')
 
     return args
 
@@ -200,15 +201,13 @@ def stamp_out_env_dir(args):
     token_values = {}
     token_values['ENV_NAME'] = args.env_name
     token_values['REGION'] = args.region
-    token_values['K8S_MASTER_AD1_COUNT'] = args.k8s_master_ad1_count
-    token_values['K8S_MASTER_AD2_COUNT'] = args.k8s_master_ad2_count
-    token_values['K8S_MASTER_AD3_COUNT'] = args.k8s_master_ad3_count
-    token_values['K8S_WORKER_AD1_COUNT'] = args.k8s_worker_ad1_count
-    token_values['K8S_WORKER_AD2_COUNT'] = args.k8s_worker_ad2_count
-    token_values['K8S_WORKER_AD3_COUNT'] = args.k8s_worker_ad3_count
-    token_values['ETCD_AD1_COUNT'] = args.etcd_ad1_count
-    token_values['ETCD_AD2_COUNT'] = args.etcd_ad2_count
-    token_values['ETCD_AD3_COUNT'] = args.etcd_ad3_count
+    num_masters_per_ad = get_num_per_ad_list(args.k8s_masters)
+    num_workers_per_ad = get_num_per_ad_list(args.k8s_workers)
+    num_etcds_per_ad = get_num_per_ad_list(args.etcds)
+    for i in range(0, NUM_ADS):
+        token_values['K8S_MASTER_AD%s_COUNT' % (i + 1)] = num_masters_per_ad[i]
+        token_values['K8S_WORKER_AD%d_COUNT' % (i + 1)] = num_workers_per_ad[i]
+        token_values['ETCD_AD%d_COUNT' % (i + 1)] = num_etcds_per_ad[i]
     token_values['K8S_MASTER_SHAPE'] = args.k8s_master_shape
     token_values['K8S_WORKER_SHAPE'] = args.k8s_worker_shape
     token_values['ETCD_SHAPE'] = args.etcd_shape

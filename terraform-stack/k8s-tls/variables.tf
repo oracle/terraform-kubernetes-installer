@@ -31,6 +31,8 @@ variable "master_ips" {
   default = []
 }
 
+variable "master_lb_public_ip" {}
+
 variable "k8s-serviceip" {
   default = "10.21.0.1"
 }

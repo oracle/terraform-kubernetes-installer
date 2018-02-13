@@ -261,7 +261,7 @@ def load_attributes_from_file(object, file, params, section, overwrite=True):
                 value = config.getboolean(section, param)
             setattr(object, param, value)
 
-def get_terraform_output(env_name, output_name, as_list=False):
+def get_terraform_output(env_name, output_name, as_list=False, error_on_missing=True):
     """
     Returns the Terraform output with the given name for the given environment.
     """
@@ -269,9 +269,13 @@ def get_terraform_output(env_name, output_name, as_list=False):
     command = ('terraform output %s' % output_name)
     (stdout, stderr, returncode) = run_command(command, cwd=env_dir, verbose=False, silent=True)
 
-    # in case of error we log the error and send back ''
+    # Specified output is missing - either error out or return None
     if returncode != 0:
-        raise Exception('Error getting Terraform output: %s' % stderr)
+        if error_on_missing:
+            raise Exception('Error getting Terraform output: %s' % stderr)
+        else:
+            return None
+
     if as_list:
         if stdout.strip() == "":
             return []
@@ -479,6 +483,7 @@ def populate_env(env_name):
     api_server_key = get_terraform_output(env_name=env_name, output_name='api_server_private_key_pem')
     k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_master_public_ips', as_list=True)
     k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_worker_public_ips', as_list=True)
+    k8s_master_lb_ip = get_terraform_output(env_name=env_name, output_name='k8s_master_lb_ip', error_on_missing=False)
     etcd_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_etcd_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
 
@@ -541,8 +546,9 @@ def populate_env(env_name):
     kubeconfig_template = TEMPLATES_DIR + '/kubeconfig'
     shutil.copyfile(kubeconfig_template, kubeconfig)
     token_values = {}
-    # TODO - use an LB here instead of the first instance of a master
-    token_values['MASTER_URL'] = 'https://%s:443' % k8s_master_public_ips[0]
+
+    # Use public LB in kubeconfig if available
+    token_values['MASTER_URL'] = 'https://%s:443' % (k8s_master_lb_ip if k8s_master_lb_ip != None else k8s_master_public_ips[0])
     token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
     token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
     token_values['CA_DATA'] = base64.b64encode(ca_cert)

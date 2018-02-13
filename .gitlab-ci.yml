@@ -5,7 +5,7 @@ stages:
 
 variables:
   ENV_NAME: gitlab-ci
-  REGION: us-ashburn-1
+  REGION: us-phoenix-1
   EXTERNAL_DOMAIN: gitlabci.k8s.oracledx.com
   LOG_DIR: ${CI_PROJECT_DIR}/log
 
@@ -39,7 +39,7 @@ deploy_from_scratch:
     - echo "$TF_VAR_private_key" > $TF_VAR_private_key_path
     - echo 'providers { baremetal = "/linux_amd64/terraform-provider-baremetal" }' > ~/.terraformrc
     # TODO - Generate the following command line such that ADs are randomly chosen by CI pipeline
-    - python scripts/create_env.py ${ENV_NAME} --unmanaged --k8s_master_ad1_count 0 --k8s_master_ad2_count 1 --k8s_master_ad3_count 0 --k8s_worker_ad1_count 0 --k8s_worker_ad2_count 1 --k8s_worker_ad3_count 1 --etcd_ad1_count 0 --etcd_ad2_count 1 --etcd_ad3_count 0 --k8s_master_shape ${MASTER_SHAPE} --k8s_worker_shape ${WORKER_SHAPE} --etcd_shape ${ETCD_SHAPE} --region ${REGION} --tenancy_ocid $TF_VAR_tenancy_ocid --compartment_ocid $TF_VAR_compartment_ocid --user_ocid $TF_VAR_user_ocid --fingerprint $TF_VAR_fingerprint --private_key_file $TF_VAR_private_key_path
+    - python scripts/create_env.py ${ENV_NAME} --unmanaged --k8s_masters 0,1,0 --k8s_workers 0,1,1 --etcds 0,0,0 --k8s_master_shape ${MASTER_SHAPE} --k8s_worker_shape ${WORKER_SHAPE} --region ${REGION} --tenancy_ocid $TF_VAR_tenancy_ocid --compartment_ocid $TF_VAR_compartment_ocid --user_ocid $TF_VAR_user_ocid --fingerprint $TF_VAR_fingerprint --private_key_file $TF_VAR_private_key_path
     - echo "### * Successfully created ${ENV_NAME} environment!"
     # Populate environment for consumption by tests
     - python ./scripts/populate_env.py ${ENV_NAME}
