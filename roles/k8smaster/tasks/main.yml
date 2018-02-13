@@ -55,6 +55,28 @@
     - setenforce 0
   changed_when: False
 
+- name: Install K8S kubeconfig
+  template:
+    src: templates/master-kubeconfig.yaml
+    dest: "{{ k8s_manifests_dir }}/master-kubeconfig.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Query OCI metadata about the worker
+  uri:
+    url: "{{ oci_metadata_service }}"
+    method: GET
+    status_code: 200
+  register: oci_metadata
+
+- name: Parse OCI metadata
+  set_fact:
+    region: "{{ oci_metadata.json.region }}"
+    availability_domain: "{{ oci_metadata.json.availabilityDomain | regex_replace(':', '-') }}"
+    zone: "{{ oci_metadata.json.availabilityDomain | lower | regex_replace(':', '-') }}"
+    shape: "{{ oci_metadata.json.shape }}"
+
 - name: Install Kubelet service file
   template:
     src: templates/kubelet.service

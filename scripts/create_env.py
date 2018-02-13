@@ -346,6 +346,8 @@ commit_changes(args)
 
 helpers.log('Success!', as_banner=True, bold=True)
 helpers.logger.info('See %s/%s/files/health.json for details about connecting to this environment.' % (helpers.ENVS_DIR, args.env_name))
+helpers.logger.info('You can set kubectl client to this environment by running:\n  export KUBECONFIG=%s/%s/files/kubeconfig'
+                    % (helpers.ENVS_DIR, args.env_name))
 if args.managed:
     if args.skip_branch:
         helpers.logger.info('Environment files have been committed to the current branch. '

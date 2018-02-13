@@ -272,11 +272,13 @@ def get_terraform_output(env_name, output_name, as_list=False):
     # in case of error we log the error and send back ''
     if returncode != 0:
         raise Exception('Error getting Terraform output: %s' % stderr)
-    else:
-        if as_list:
-            return [element.strip(', ') for element in stdout.splitlines()]
+    if as_list:
+        if stdout.strip() == "":
+            return []
         else:
-            return stdout.strip()
+            return [element.strip(', ') for element in stdout.splitlines()]
+    else:
+        return stdout.strip()
 
 def git_checkout(file):
     """
@@ -436,7 +438,7 @@ def reencrypt_env(env_name):
             if os.path.exists(file + DECRYPTED_BACKUP_EXT):
                 os.remove(file + DECRYPTED_BACKUP_EXT)
 
-def populate_health_config(kubeconfig, worker_address_list):
+def populate_health_config(kubeconfig, master_address_list, worker_address_list):
     """
     Constructs and returns a health configuration for the given Sauron instance, specified
     in the health_config dictionary.
@@ -444,7 +446,8 @@ def populate_health_config(kubeconfig, worker_address_list):
     health_config = {
         'k8s': {
             'kubeconfig': kubeconfig,
-            'worker-address-list': worker_address_list
+            'worker-address-list': worker_address_list,
+            'master-address-list': master_address_list
         }
         # Details of other installed components here...
     }
@@ -548,7 +551,7 @@ def populate_env(env_name):
         print line.strip('\n')
 
     # Populate health config
-    health_config = populate_health_config(kubeconfig, k8s_worker_public_ips)
+    health_config = populate_health_config(kubeconfig, k8s_master_public_ips, k8s_worker_public_ips)
 
     # Write health file
     health_config_file = files_dir + '/' + HEALTH_FILE_NAME

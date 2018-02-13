@@ -45,7 +45,6 @@
     group: root
     mode: 0755
 
-
 - name: Query OCI metadata about the worker
   uri:
     url: "{{ oci_metadata_service }}"
@@ -97,4 +96,3 @@
      initial_delay: 0
      delay_between_tries: 5
      max_retries: 100
-

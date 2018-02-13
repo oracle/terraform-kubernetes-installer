@@ -45,7 +45,7 @@ def verify_num_pods(num, kubeconfig, regex='.*', phase='Running'):
 def verify_num_nodes(num, kubeconfig):
     nodes_list = testhelpers.get_k8s_nodes(kubeconfig)
     if len(nodes_list) != num:
-        raise Exception('Expected %s node in %s state, found %s' % (num, state, len(nodes_list)))
+        raise Exception('Expected %s node, found %s' % (num, len(nodes_list)))
 
 #
 # Component-specific integration tests
@@ -53,12 +53,13 @@ def verify_num_nodes(num, kubeconfig):
 def k8s_tests(health_config, phase, runid):
     kubeconfig = health_config['k8s']['kubeconfig']
     worker_public_address_list = health_config['k8s']['worker-address-list']
+    master_public_address_list = health_config['k8s']['master-address-list']
 
     # Health check
     logger.info('Verifying health...')
     health.test_k8s(kubeconfig)
 
-    verify_num_nodes(len(worker_public_address_list), kubeconfig=kubeconfig)
+    verify_num_nodes(len(worker_public_address_list + master_public_address_list), kubeconfig=kubeconfig)
 
     # Before phase: deploy 2 services that talk to each other internally and are exposed externally
     if execute_before_phase(phase):
