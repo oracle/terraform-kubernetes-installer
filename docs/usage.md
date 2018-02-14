@@ -70,12 +70,46 @@ compartment_ocid=ocid1.compartment.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 region=us-ashburn-1
 k8s_master_shape=VM.Standard1.2
 k8s_worker_shape=VM.Standard1.2
-k8s_master_ad1_count=1
-k8s_master_ad2_count=0
-k8s_master_ad3_count=0
-k8s_worker_ad1_count=1
-k8s_worker_ad2_count=0
-k8s_worker_ad3_count=0
+etcd_shape=VM.Standard1.2
+k8s_masters=1,0,0
+k8s_workers=0,1,0
+etcds=1,1,1
+```
+
+### Options To Create_Env
+
+Create_env requires a comma-separated list of the number of K8s master nodes to start in each AD.  A value > 0
+must be specified for at least one AD.  For example, specifying 2 masters in AD2 and 1 in AD3:
+
+```
+python ./scripts/create_env.py my-sandbox ... --k8s_masters 0,2,1 ...
+```
+
+Similarly for K8s worker nodes:
+
+```
+python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2
+```
+
+A similar comma-separated list is used to specify dedicated Etcd nodes as well:  
+
+```
+python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 1,1,1
+```
+
+Specifying no dedicated Etcd nodes will result in Etcds getting colocated with the K8s master nodes:
+
+```
+python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 0,0,0
+```
+
+It's possible to create a cluster consisting of only a master node, and to then make the master schedulable
+by Kubernetes:
+
+```
+python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 0,0,0 --etcds 0,0,0
+export KUBECONFIG=`pwd`/envs/my-sandbox/files/kubeconfig
+kubectl taint nodes --all node-role.kubernetes.io/master-
 ```
 
 ## Setting up a Managed Environment
