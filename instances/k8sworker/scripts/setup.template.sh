@@ -260,5 +260,7 @@ systemctl start kubelet
 
 systemctl restart flannel
 
+yum install -y nfs-utils
+
 ######################################
 echo "Finished running setup.sh"

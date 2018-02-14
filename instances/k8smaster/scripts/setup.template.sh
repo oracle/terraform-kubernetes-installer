@@ -209,4 +209,6 @@ kubectl patch storageclass oci -p '{"metadata": {"annotations":{"storageclass.ku
 
 rm -f /root/volume-provisioner-secret.yaml
 
+yum install -y nfs-utils
+
 echo "Finished running setup.sh"
