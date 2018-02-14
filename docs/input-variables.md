@@ -139,9 +139,9 @@ public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation 
 public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
 public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
 natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
-nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
-nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
-nat_instance_ad3_enabled            | false                   | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
+nat_instance_ad1_enabled            | "true"                  | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
+nat_instance_ad2_enabled            | "false"                 | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
+nat_instance_ad3_enabled            | "false"                 | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
 
 *Note*
 
