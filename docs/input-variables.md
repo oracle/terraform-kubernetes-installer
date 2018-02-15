@@ -135,6 +135,7 @@ The following input variables are used to configure the inbound security rules f
 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
+dedicated_nat_subnets               | "true"                  | whether to provision dedicated subnets in each AD that are only used by NAT instance(s) (separate subnets = separate control)
 public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)
 public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
 public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
