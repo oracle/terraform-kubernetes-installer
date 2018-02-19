@@ -1,4 +1,36 @@
+- name:
+  debug:
+    msg: "OKOK {{ hostvars[groups['k8s-master'][0]]['ansible_default_ipv4']['address']}}"
 
+
+- name: Check if download dir exists on worker
+  stat:
+    path: "{{ package_download_dir }}"
+    get_md5: False
+    get_checksum: False
+  register: dir_exists
+
+- name: Create package Download Dir
+  file:
+    path: "{{ package_download_dir }}"
+    state: directory
+  when: not dir_exists.stat.exists
+
+- name: Check if rpm is downloaded to worker
+  stat:
+    path: "{{ package_download_dir }}/{{ flannel_rpm }}"
+    get_md5: False
+    get_checksum: False
+  register: flannel_downloaded
+
+#- debug: var=flannel_downloaded.stat
+#  when: ansible.debug
+
+- name: Download Flannel rpm to worker
+  get_url:
+    url: 'https://objectstorage.us-phoenix-1.oraclecloud.com/n/bmcskeppare/b/{{ casper_public_bucket }}/o/{{ flannel_rpm }}'
+    dest: "{{ package_download_dir }}"
+  when: not flannel_downloaded.stat.exists
 
 - name: Add kubernetes repo
   yum_repository:
@@ -22,6 +54,8 @@
     state: present
   with_items:
     - jq
+    - "{{ package_download_dir }}/{{ flannel_rpm }}"
+    - containernetworking-cni
     - kubelet
     - kubectl
     - kubernetes-cni
@@ -35,12 +69,70 @@
      enabled:  no
 
 
-- name: Remove unnecessary flannel docker config
+- name: Set flannel options
+  lineinfile:
+    path: /etc/sysconfig/flanneld
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^FLANNEL_OPTIONS=', line: "FLANNEL_OPTIONS='-iface={{ ansible_default_ipv4.address }}'"}
+    - { regexp: '^FLANNEL_ETCD_ENDPOINTS=', line: "FLANNEL_ETCD_ENDPOINTS=http://{{ hostvars[groups['k8s-master'][0]]['ansible_default_ipv4']['address'] }}:2379"}
+    - { regexp: '^FLANNEL_ETCD_PREFIX=', line: 'FLANNEL_ETCD_PREFIX=/flannel/network'}
+
+- name: Start flannel Service
+  service:
+     name: flanneld
+     state: started
+     enabled: yes
+
+- name: Create CNI Config Dir
+  file:
+    path: /etc/cni/net.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Install CNI Flannel config file
+  template:
+    src: templates/10-flannel.conf
+    dest: /etc/cni/net.d/10-flannel.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI-Bridge service
+  template:
+    src: templates/cni-bridge.service
+    dest: /etc/systemd/system/cni-bridge.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI Bridge Startup Script
+  template:
+    src: templates/cni-bridge.sh
+    dest: /usr/local/bin/cni-bridge.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Start CNI Bridge Service
+  service:
+     name: cni-bridge
+     state: started
+     enabled: yes
+
+- name: Remove unnecessary flannel config
   command: "{{ item }}"
   with_items:
       - rm -rf /usr/lib/systemd/system/docker.service.d
       - rm -f /run/flannel/docker
       - rm -rf /etc/systemd/system/docker.service.d
+  tags:
+  - skip_ansible_lint
+
 
 
 - name: Install docker unit file
@@ -59,8 +151,7 @@
     name: docker
     state: stopped
     enabled: yes
-
-  when: docker_svc_updated
+#  when: docker_svc_updated
 
 - name: Start Docker Service
   service:
@@ -68,9 +159,7 @@
      state: started
      enabled: yes
      daemon-reload: yes
-  when: docker_svc_updated
-
-
+#  when: docker_svc_updated
 
 # Kube manifests
 - name: Install k8s proxy yaml file
@@ -89,6 +178,7 @@
     group: root
     mode: 0755
 
+# TODO - don't use checked-in certs
 - name: Create ssl dirs
   file:
     state: directory
@@ -97,38 +187,35 @@
     group: root
     mode: 0755
 
-- name: Install apiserver certs created by terraform
+- name: Extract certs
+  unarchive:
+    src: files/k8s-certs.zip
+    dest: /etc/kubernetes/ssl
+    remote_src: false
+
+- name: Copy worker cnf to ssl dir
   template:
-    src: envs/dev/apiserver.pem
-    dest: /etc/kubernetes/ssl/apiserver.pem
+    src: templates/worker-openssl.cnf
+    dest: /etc/kubernetes/ssl/worker-openssl.cnf
     owner: root
     group: root
     mode: 0600
 
-- name: Install apiserver private created by terraform
-  template:
-    src: envs/dev/apiserver-key.pem
-    dest: /etc/kubernetes/ssl/apiserver-key.pem
-    owner: root
-    group: root
-    mode: 0600
-
-- name: Install ca certs created by terraform
-  template:
-    src: envs/dev/ca.pem
-    dest: /etc/kubernetes/ssl/ca.pem
-    owner: root
-    group: root
-    mode: 0600
-
-- name: Install ca key created by terraform
-  template:
-    src: envs/dev/ca-key.pem
-    dest: /etc/kubernetes/ssl/ca-key.pem
-    owner: root
-    group: root
-    mode: 0600
-
+- name: Generate worker certs
+  command: "{{ item }}"
+  environment:
+    HOSTNAME: "{{ ansible_fqdn }}"
+    WORKER_IP: "{{ ansible_default_ipv4.address }}"
+  args:
+    chdir: /etc/kubernetes/ssl
+  with_items:
+    - echo $WORKER_IP
+    - echo $HOSTNAME
+    - openssl genrsa -out worker-key.pem 2048
+    - openssl req -new -key worker-key.pem -out worker.csr -subj "/CN=$HOSTNAME" -config worker-openssl.cnf
+    - openssl x509 -req -in worker.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out worker.pem -days 365 -extensions v3_req -extfile worker-openssl.cnf
+  tags:
+  - skip_ansible_lint
 
 - name: Create service dir
   file:
@@ -142,7 +229,8 @@
   command: "{{ item }}"
   with_items:
     - iptables -F
-
+  tags:
+  - skip_ansible_lint
 
 - name: Install kubelet service template file
   template:
@@ -159,6 +247,7 @@
 
 - name: Restart Kubelet Service
   service:
+    daemon-reload: yes
     name: kubelet
     state: restarted
     enabled: yes

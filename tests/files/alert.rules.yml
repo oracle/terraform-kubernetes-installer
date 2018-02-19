@@ -1,0 +1,11 @@
+groups:
+- name: <RULE_NAME>
+  rules:
+  - record: job:request_duration_seconds:histogram_quantile99
+    expr: histogram_quantile(0.99, sum(rate(request_duration_seconds_bucket[1m]))
+      BY (le, job))
+  - alert: FrontendRequestLatency
+    expr: job:request_duration_seconds:histogram_quantile99{job="frontend"} > 0.1
+    for: 5m
+    annotations:
+      summary: High frontend request latency

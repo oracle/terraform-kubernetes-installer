@@ -1,0 +1,26 @@
+[Unit]
+Description=etcd
+Documentation=https://github.com/coreos/etcd
+Conflicts=etcd.service
+
+[Service]
+Type=notify
+Restart=always
+RestartSec=5s
+LimitNOFILE=40000
+TimeoutStartSec=0
+
+ExecStart={{ etcd_install_dir }}/etcd/etcd --name {{ ansible_hostname }} \
+    --data-dir {{ etcd_data_dir }} \
+    --listen-client-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }},http://127.0.0.1:{{ etcd_client_port }} \
+    --advertise-client-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
+    --listen-peer-urls http://0.0.0.0:{{ etcd_advertise_port }} \
+    --initial-advertise-peer-urls http://{{ ansible_default_ipv4.address }}:{{ etcd_advertise_port }} \
+    --initial-cluster {{ ansible_hostname }}=http://{{ ansible_default_ipv4.address }}:{{ etcd_advertise_port }} \
+    --initial-cluster-token odx-prime-k8smaster-cluster
+
+[Install]
+WantedBy=multi-user.target
+# --initial-cluster new/existing
+# https://github.com/coreos/etcd/blob/master/Documentation/docker_guide.md I created a 3 node cluster. Initially it was working fine. However, upon restarting one of the nodes I..
+

@@ -1,16 +1,29 @@
-.tfstate
+**/*.sw?
+**/*.retry
+.idea/
+**/.DS_Store
 
-# intellij
+# Ignore envs other than prod, integ, and dev
+envs/*
+!envs/prod*/
+!envs/integ*/
+!envs/dev*/
+
+# For all envs, ignore generatead files
+envs/**/id_rsa
+envs/**/hosts
+envs/**/health.json
+envs/**/.terraform*
+envs/**/resumeable.txt
+envs/**/destroy.sh
+envs/**/*.decrypted
+
+# IDE stuff
 *.iml
-*.ipr
-*.iws
-.idea
 
+# Terraform dynamic stuff
 **/.terraform
-**/.wercker
-**/terraform.tfstate
-**/terraform.tfstate.backup
-terraform.tfvars
-**/*~
-generated/**
-source.sh
+
+# Python generated stuff
+**/*.pyc
+**/health.json

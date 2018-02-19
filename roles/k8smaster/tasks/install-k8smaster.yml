@@ -1,3 +1,15 @@
+- name: Check if Flannel rpm is downloaded
+  stat:
+    path: "{{ package_download_dir }}/{{ flannel_rpm }}"
+    get_md5: False
+    get_checksum: False
+  register: flannel_downloaded
+
+- name: Download Flannel rpm
+  get_url:
+    url: 'https://objectstorage.us-phoenix-1.oraclecloud.com/n/bmcskeppare/b/{{ casper_public_bucket }}/o/{{ flannel_rpm }}'
+    dest: "{{ package_download_dir }}"
+  when: not flannel_downloaded.stat.exists
 
 - name: Add kubernetes repo
   yum_repository:
@@ -20,25 +32,90 @@
     name: "{{ item }}"
     state: present
   with_items:
+    - "{{ package_download_dir }}/{{ flannel_rpm }}"
+    - containernetworking-cni
     - kubelet
     - kubectl
     - kubernetes-cni
 
-# Getting k8s pod networking working with firewalld is tricky, turn it off for now
-- name: Disable Firewalld
+- name: Install flannel json config file
+  template:
+    src: templates/flannel-network.json
+    dest: /tmp/flannel-network.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install etcd flannel config key
+  command: "curl -sf -L http://{{ ansible_default_ipv4.address }}:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json"
+  tags:
+  - skip_ansible_lint
+
+- name: Set flannel options
+  lineinfile:
+    path: /etc/sysconfig/flanneld
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^FLANNEL_OPTIONS=', line: "FLANNEL_OPTIONS='-iface={{ ansible_default_ipv4.address }}'"}
+    - { regexp: '^FLANNEL_ETCD_ENDPOINTS=', line: 'FLANNEL_ETCD_ENDPOINTS=http://{{ ansible_default_ipv4.address }}:2379'}
+    - { regexp: '^FLANNEL_ETCD_PREFIX=', line: 'FLANNEL_ETCD_PREFIX=/flannel/network'}
+
+- name: Start flannel Service
   service:
-      name: firewalld
-      state: stopped
-      enabled:  no
+     name: flanneld
+     state: started
+     enabled: yes
+
+- name: Create CNI Config Dir
+  file:
+    path: /etc/cni/net.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Install CNI Flannel config file
+  template:
+    src: templates/10-flannel.conf
+    dest: /etc/cni/net.d/10-flannel.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI-Bridge service
+  template:
+    src: templates/cni-bridge.service
+    dest: /etc/systemd/system/cni-bridge.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI Bridge Startup Script
+  template:
+    src: templates/cni-bridge.sh
+    dest: /usr/local/bin/cni-bridge.sh
+    owner: root
+    group: root
+    mode: 0755
 
 
-- name: Remove unnecessary flannel docker config
+- name: Start CNI Bridge Service
+  service:
+    daemon-reload: yes
+    name: cni-bridge
+    state: started
+    enabled: yes
+
+- name: Remove unnecessary flannel config
   command: "{{ item }}"
   with_items:
       - rm -rf /usr/lib/systemd/system/docker.service.d
       - rm -f /run/flannel/docker
       - rm -rf /etc/systemd/system/docker.service.d
-
+  tags:
+  - skip_ansible_lint
 
 - name: Install docker unit file
   template:
@@ -49,7 +126,7 @@
     mode: 0644
   register: docker_svc_updated
 
-
+# TODO - don't
 - name: Start Docker Service
   service:
      daemon-reload: yes
@@ -59,13 +136,7 @@
 
   when: docker_svc_updated
 
-- name: Create manifests dirs
-  file:
-    state: directory
-    path: /etc/kubernetes/manifests
-    owner: root
-    group: root
-    mode: 0755
+
 
 - name: Install k8s apiserver yaml file
   template:
@@ -99,14 +170,6 @@
     group: root
     mode: 0755
 
-- name: Install k8s RBAC yaml file
-  template:
-    src: templates/kube-rbac-role-binding.yaml
-    dest: /etc/kubernetes/manifests/kube-rbac-role-binding.yaml
-    owner: root
-    group: root
-    mode: 0755
-
 - name: Create service yaml dirs
   file:
     state: directory
@@ -131,6 +194,7 @@
     group: opc
     mode: 0755
 
+# TODO - don't use checked-in certs
 - name: Create ssl dirs
   file:
     state: directory
@@ -139,46 +203,19 @@
     group: root
     mode: 0755
 
-- name: Install apiserver certs created by terraform
-  template:
-    src: envs/dev/apiserver.pem
-    dest: /etc/kubernetes/ssl/apiserver.pem
-    owner: root
-    group: root
-    mode: 0600
-
-- name: Install apiserver private created by terraform
-  template:
-    src: envs/dev/apiserver-key.pem
-    dest: /etc/kubernetes/ssl/apiserver-key.pem
-    owner: root
-    group: root
-    mode: 0600
-
-- name: Install ca certs created by terraform
-  template:
-    src: envs/dev/ca.pem
-    dest: /etc/kubernetes/ssl/ca.pem
-    owner: root
-    group: root
-    mode: 0600
-
-- name: Install ca key created by terraform
-  template:
-    src: envs/dev/ca-key.pem
-    dest: /etc/kubernetes/ssl/ca-key.pem
-    owner: root
-    group: root
-    mode: 0600
-
-
+- name: Extract certs
+  unarchive:
+    src: files/k8s-certs.zip
+    dest: /etc/kubernetes/ssl
+    remote_src: false
 
 - name: Environment config commands before starting kubelet
   command: "{{ item }}"
   with_items:
     - iptables -F
     - setenforce 0
-
+  tags:
+  - skip_ansible_lint
 
 - name: Install kubelet unit file
   template:
@@ -191,6 +228,7 @@
 
 - name: Restart Kubelet Service
   service:
+     daemon-reload: yes
      name: kubelet
      state: restarted
      enabled: yes
@@ -207,10 +245,12 @@
 - name: Install kubernetes DNS
   command: "kubectl create -f /home/opc/services/kube-dns.yaml"
   ignore_errors: yes # this will get launched from each master, but only needs to succeed on one
-
+  tags:
+  - skip_ansible_lint
 
 - name: Install kubernetes dashboard
   command: "kubectl create -f /home/opc/services/kubernetes-dashboard.yaml"
   ignore_errors: yes # this will get launched from each master, but only needs to succeed on one
-
+  tags:
+  - skip_ansible_lint
 

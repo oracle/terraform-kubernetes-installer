@@ -1,2 +1,13 @@
 api_server_count: 3
 pillar_dns_domain: cluster.local
+
+# TODO - discover these dynamically in Ansible template instead
+etcd_servers: "http://{{ ansible_default_ipv4.address }}:2379"
+
+etcd_download_dir: "{{ package_download_dir }}"
+etcd_version: 3.2.6
+etcd_download_artifact: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+etcd_install_dir: "/opt"
+etcd_client_port: 2379
+etcd_advertise_port: 2380
+etcd_data_dir: /var/lib/etcd

@@ -12,7 +12,8 @@ spec:
     - /hyperkube
     - apiserver
     - --apiserver-count={{ api_server_count }}
-    - --etcd-servers=http://{{ etcd_lb_ip }}:{{ etcd_client_port }}
+    - --bind-address=0.0.0.0
+    - --etcd-servers={{ etcd_servers }}
     - --allow-privileged=true
     - --service-cluster-ip-range=10.21.0.0/16
     - --secure-port=443
@@ -21,17 +22,13 @@ spec:
     - --audit-log-maxage=30
     - --audit-log-maxsize=100
     - --audit-log-path=/var/log/apiserver/audit.log
-    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,Initializers
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
     - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
     - --client-ca-file=/etc/kubernetes/ssl/ca.pem
     - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
-    - --runtime-config=batch/v2alpha1,extensions/v1beta1=true,extensions/v1beta1/networkpolicies=true,admissionregistration.k8s.io/v1alpha1=true
-    - --anonymous-auth=true
-    - --authorization-mode=RBAC
-    - --etcd-quorum-read=true
-    - --kubelet-client-certificate=/etc/kubernetes/ssl/apiserver.pem
-    - --kubelet-client-key=/etc/kubernetes/ssl/apiserver-key.pem
+    - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/networkpolicies=true
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,LegacyHostIP,Hostname
     ports:
     - containerPort: 443
       hostPort: 443

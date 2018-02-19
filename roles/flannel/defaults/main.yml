@@ -1,9 +1,0 @@
-api_server_count: 3
-pillar_dns_domain: cluster.local
-
-flannel_version: 0.7.1
-flannel_artifact: "flannel-v{{ flannel_version }}-linux-amd64.tar.gz"
-flannel_cidr: "10.237.0.0/16"
-
-flannel_install_dir: "/opt"
-flannel_download_dir: "{{ package_download_dir }}/flannel"

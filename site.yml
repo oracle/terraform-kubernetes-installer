@@ -1,8 +1,6 @@
 ---
 # file: site.yml
 - include: common.yml
-- include: etcd.yml
-- include: flannel.yml
 - include: k8smaster.yml
 - include: k8sworker.yml
 

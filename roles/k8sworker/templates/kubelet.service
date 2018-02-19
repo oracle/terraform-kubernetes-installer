@@ -2,6 +2,7 @@
 Requires=docker.service
 After=docker.service
 [Service]
+Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"
 ExecStart=/usr/bin/kubelet \
   --allow-privileged=true \
   --cluster_dns=10.21.21.21 \
@@ -16,8 +17,9 @@ ExecStart=/usr/bin/kubelet \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --register-node=true \
   --serialize-image-pulls=false \
-  --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem \
-  --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem \
+  --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
+  --fail-swap-on=false \
   --v=2
 Restart=always
 RestartSec=10

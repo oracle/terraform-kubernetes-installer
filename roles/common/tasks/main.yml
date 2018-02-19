@@ -10,12 +10,17 @@
 - include: install-bmcs-cli.yml
   tags: ['common_bmcs_cli']
 
+- include: setup-users.yml
+  tags: ['common_users']
+
+- include: allow-sudo.yml
+  tags: ['common_users']
+
 - include: configure-host.yml
   tags: ['common_host']
 
 - include: create-dirs.yml
   tags: ['common', 'common_dirs']
-
 
 - name: Set common executed fact
   set_fact: common_executed=True

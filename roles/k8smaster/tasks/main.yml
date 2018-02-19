@@ -1,3 +1,6 @@
+- include: install-etcd.yml
+  tags: 'etcd_install'
+
 - include: install-k8smaster.yml
   tags: 'k8smaster_install'
 

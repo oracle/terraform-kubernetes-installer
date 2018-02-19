@@ -13,7 +13,7 @@ spec:
     - controller-manager
     - --master=http://127.0.0.1:8080
     - --cluster-cidr=10.99.0.0/16
-    - --cluster-name=dev-cluster
+    - --cluster-name=odx-prime-cluster
     - --leader-elect=true
     - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem

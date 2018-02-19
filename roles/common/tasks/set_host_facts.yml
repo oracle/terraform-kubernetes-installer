@@ -17,5 +17,5 @@
   setup: ~
   when: custom_facts.changed
   check_mode: no
-
-
+  tags:
+  - skip_ansible_lint

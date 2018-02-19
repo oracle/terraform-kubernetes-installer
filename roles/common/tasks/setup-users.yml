@@ -1,0 +1,42 @@
+- name: Create admin group
+  group:
+    name: "{{ admin_group }}"
+    state: present
+  tags: ["users"]
+
+- name: Setup admin users
+  user:
+    name: "{{ item.username }}"
+    state: "{{ item.state | default('present') }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    group: "{{ admin_group }}"
+    remove: yes
+  when: item.username is defined
+  with_items:
+    - "{{ admin_users }}"
+  tags: ["users"]
+
+- name: Add SSH-keys to users
+  authorized_key:
+    user: "{{ item.0.username }}"
+    key: "{{ item.1 }}"
+  with_subelements:
+    - "{{ admin_users }}"
+    - keys.active
+    - flags:
+      skip_missing: True
+  when: item.0.state != "absent" and not ansible_check_mode
+  tags: ["users"]
+
+- name: Remove old SSH-keys from users
+  authorized_key:
+    user: "{{ item.0.username }}"
+    key: "{{ item.1 }}"
+    state: absent
+  with_subelements:
+    - "{{ admin_users }}"
+    - keys.disabled
+    - flags:
+      skip_missing: True
+  when: item.0.state != "absent"
+  tags: ['users', 'debug']

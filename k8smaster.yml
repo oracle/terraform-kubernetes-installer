@@ -6,6 +6,5 @@
   vars_files:
     - vars/main.yml
   roles:
-    - { role: common,    tags: ['common'], when: not common_executed  }
-    - { role: flannel,   tags: ['flannel'], when: not flannel_executed  }
+    #- { role: common,    tags: ['common'], when: not common_executed  }
     - { role: k8smaster, tags: ['k8smaster'] }

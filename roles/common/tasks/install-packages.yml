@@ -13,11 +13,6 @@
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
 
-- name: Update base system
-  yum:
-    name: "*"
-    state: latest
-  tags: [packages]
 
 - name: Install yum apps
   yum:

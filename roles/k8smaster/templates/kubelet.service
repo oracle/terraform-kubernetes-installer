@@ -2,12 +2,14 @@
 Requires=docker.service
 After=docker.service
 [Service]
+Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"
 ExecStart=/usr/bin/kubelet \
   --allow-privileged=true \
   --cluster_domain=cluster.local \
   --kubeconfig=http://127.0.0.1:8080 \
   --pod-manifest-path=/etc/kubernetes/manifests \
-  --hostname-override= {{ ansible_fqdn }} \
+  --hostname-override={{ ansible_fqdn }} \
+  --fail-swap-on=false \
   --v=2
 Restart=always
 RestartSec=10

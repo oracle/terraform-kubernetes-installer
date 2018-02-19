@@ -1,5 +1,0 @@
-- include: install-etcd.yml
-  tags: 'etcd_install'
-
-#- include: debug.yml
-#  tags: 'etcd_debug'

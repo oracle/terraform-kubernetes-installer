@@ -8,7 +8,7 @@
     path: /etc/resolv.conf
     state: present
     regexp: '^search'
-    line: 'search .{{ dns_label }}.oraclevcn.com'
+    line: 'search odxprime.oraclevcn.com k8sad1.odxprime.oraclevcn.com k8sad2.odxprime.oraclevcn.com k8sad3.odxprime.oraclevcn.com'
 
 - name: Configure ntp file
   template:
@@ -21,3 +21,9 @@
     state: started
     enabled: yes
 
+- name: expand search domain in resolv dot conf
+  lineinfile:
+    path: /etc/resolv.conf
+    state: present
+    regexp: '^search'
+    line: 'search odxprime.oraclevcn.com k8sad1.odxprime.oraclevcn.com k8sad2.odxprime.oraclevcn.com k8sad3.odxprime.oraclevcn.com'
