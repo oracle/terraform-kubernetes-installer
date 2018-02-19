@@ -2,50 +2,53 @@
  * The instances/etcd module provisions and configures one or more etcd instances.
  */
 
-resource "baremetal_core_instance" "TFInstanceEtcd" {
+resource "oci_core_instance" "TFInstanceEtcd" {
   count               = "${var.count}"
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
-  display_name        = "${var.label_prefix}${var.display_name}-${count.index}"
-  hostname_label      = "${var.hostname_label}-${count.index}"
-  image               = "${lookup(data.baremetal_core_images.ImageOCID.images[0], "id")}"
+  display_name        = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
+  hostname_label      = "${var.hostname_label_prefix}-${count.index}"
+  image               = "${lookup(data.oci_core_images.ImageOCID.images[0], "id")}"
   shape               = "${var.shape}"
-  subnet_id           = "${var.subnet_id}"
+
+  create_vnic_details {
+    subnet_id         = "${var.subnet_id}"
+    display_name      = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
+    hostname_label    = "${var.hostname_label_prefix}-${count.index}"
+    assign_public_ip  = "${(var.control_plane_subnet_access == "private") ? "false" : "true"}"
+    private_ip        = "${var.assign_private_ip == "true" ? cidrhost(lookup(var.network_cidrs,var.subnet_name), count.index+2) : ""}"
+  },
 
   extended_metadata {
+    roles               = "etcd"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
-    tags = "group:etcd"
+
+    # Automate etcd instance configuration with cloud init run at launch time
+    user_data = "${base64encode(data.template_file.etcd-bootstrap.rendered)}"
+    tags      = "group:etcd"
   }
 
   timeouts {
     create = "60m"
   }
-}
 
-resource "null_resource" "remote-exec-etcd" {
-  count = "${var.count}"
-
-  provisioner "remote-exec" {
-    connection {
-      agent       = false
-      timeout     = "600s"
-      host        = "${element(baremetal_core_instance.TFInstanceEtcd.*.public_ip, count.index)}"
-      user        = "opc"
-      private_key = "${var.ssh_private_key}"
-    }
+  provisioner "local-exec" {
+    command = "sleep 10"
   }
 }
 
-resource "null_resource" "remote-exec-k8s-etcd" {
-  count = "${var.count}"
+resource "oci_core_volume" "TFVolumeInstanceEtcd" {
+  count               = "${var.etcd_iscsi_volume_create ? var.count : 0}"
+  availability_domain = "${var.availability_domain}"
+  compartment_id      = "${var.compartment_ocid}"
+  size_in_gbs         = "${var.etcd_iscsi_volume_size}"
+}
 
-  provisioner "remote-exec" {
-    connection {
-      agent       = false
-      timeout     = "600s"
-      host        = "${element(baremetal_core_instance.TFInstanceEtcd.*.public_ip, count.index)}"
-      user        = "opc"
-      private_key = "${var.ssh_private_key}"
-    }
-  }
+resource "oci_core_volume_attachment" "TFVolumeAttachmentInstanceEtcd" {
+  count           = "${var.etcd_iscsi_volume_create ? var.count : 0}"
+  attachment_type = "iscsi"
+  compartment_id  = "${var.compartment_ocid}"
+  instance_id     = "${oci_core_instance.TFInstanceEtcd.*.id[count.index]}"
+  volume_id       = "${oci_core_volume.TFVolumeInstanceEtcd.*.id[count.index]}"
+  depends_on      = ["oci_core_instance.TFInstanceEtcd", "oci_core_volume.TFVolumeInstanceEtcd"]
 }
