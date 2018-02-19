@@ -32,4 +32,12 @@ etcdAd1Count = "<ETCD_AD1_COUNT>"
 etcdAd2Count = "<ETCD_AD2_COUNT>"
 etcdAd3Count = "<ETCD_AD3_COUNT>"
 
-enable_k8s_master_lb = "false"
+master_oci_lb_enabled = "false"
+
+etcd_ssh_ingress = "0.0.0.0/0"
+worker_ssh_ingress = "0.0.0.0/0"
+master_ssh_ingress = "0.0.0.0/0"
+master_https_ingress = "0.0.0.0/0"
+worker_nodeport_ingress = "0.0.0.0/0"
+
+worker_iscsi_volume_create = "false"

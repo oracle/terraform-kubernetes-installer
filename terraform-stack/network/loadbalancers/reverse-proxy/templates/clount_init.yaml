@@ -1,5 +1,0 @@
-  - path: "/etc/nginx/nginx.conf"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${nginx_conf}

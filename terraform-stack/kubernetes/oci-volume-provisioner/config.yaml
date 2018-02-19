@@ -1,8 +1,0 @@
-auth:
-  tenancy: ${tenancy}
-  user: ${user}
-  key: ${key}
-  fingerprint: ${fingerprint} 
-  region: ${region}
-  compartment: ${compartment}
-  key_passphrase: ${key_passphrase}

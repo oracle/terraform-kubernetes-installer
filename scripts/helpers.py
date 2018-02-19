@@ -481,10 +481,11 @@ def populate_env(env_name):
     ca_key = get_terraform_output(env_name=env_name, output_name='root_ca_key')
     api_server_cert = get_terraform_output(env_name=env_name, output_name='api_server_cert_pem')
     api_server_key = get_terraform_output(env_name=env_name, output_name='api_server_private_key_pem')
-    k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_master_public_ips', as_list=True)
-    k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_worker_public_ips', as_list=True)
-    k8s_master_lb_ip = get_terraform_output(env_name=env_name, output_name='k8s_master_lb_ip', error_on_missing=False)
-    etcd_public_ips = get_terraform_output(env_name=env_name, output_name='k8s_etcd_public_ips', as_list=True)
+    k8s_master_public_ips = get_terraform_output(env_name=env_name, output_name='master_public_ips', as_list=True)
+    k8s_worker_public_ips = get_terraform_output(env_name=env_name, output_name='worker_public_ips', as_list=True)
+    k8s_master_lb_ips = get_terraform_output(env_name=env_name, output_name='master_lb_ip', as_list=True)
+    k8s_master_lb_ip = (k8s_master_lb_ips[0] if len(k8s_master_lb_ips) > 0 else None)
+    etcd_public_ips = get_terraform_output(env_name=env_name, output_name='etcd_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
 
     # Some regions cannot be reached through the oracle proxy

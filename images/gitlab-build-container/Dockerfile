@@ -30,9 +30,9 @@ FROM fedora:latest
  RUN chmod +x /usr/bin/terragrunt
 
  # Installs the BMC terraform provider.
- RUN curl -LO  https://github.com/oracle/terraform-provider-baremetal/releases/download/v1.0.18/linux.tar.gz
+ RUN curl -LO https://github.com/oracle/terraform-provider-oci/releases/download/v2.0.6/linux.tar.gz
  RUN tar -xzvf linux.tar.gz -C /
- RUN echo 'providers { baremetal = "/linux_amd64/terraform-provider-baremetal" }' > ~/.terraformrc
+ RUN echo 'providers { oci = "/linux_amd64/terraform-provider-oci_v2.0.6" }' > ~/.terraformrc
 
  # Installs the kubectl client
  RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.7.0/bin/linux/amd64/kubectl

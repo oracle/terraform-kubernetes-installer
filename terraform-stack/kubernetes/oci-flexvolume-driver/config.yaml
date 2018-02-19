@@ -1,8 +1,0 @@
----
-auth:
-  tenancy: ${tenancy}
-  user: ${user}
-  key: ${key}
-  fingerprint: ${fingerprint}
-  vcn: ${vcn}
-  key_passphase: ${key_passphrase}

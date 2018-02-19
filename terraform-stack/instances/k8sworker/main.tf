@@ -21,25 +21,13 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
     tags      = "group:k8s-worker"
   }
 
-  # TODO handle scenario when control_plane_subnet_access = "private"
   provisioner "remote-exec" {
-    when = "destroy"
-
-    inline = [
-      "nodeName=`getent hosts $(/usr/sbin/ip route get 1 | awk '{print $NF;exit}') | awk '{print $2}'`",
-      "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml drain $nodeName --force",
-      "[ -e /usr/bin/kubectl ] && sudo kubectl --kubeconfig /etc/kubernetes/manifests/worker-kubeconfig.yaml delete node $nodeName",
-      "exit 0",
-    ]
-
-    on_failure = "continue"
-
     connection {
       host        = "${self.public_ip}"
       user        = "opc"
       private_key = "${var.ssh_private_key}"
       agent       = false
-      timeout     = "30s"
+      timeout     = "600s"
     }
   }
 

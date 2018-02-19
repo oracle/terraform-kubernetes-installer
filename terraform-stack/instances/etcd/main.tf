@@ -22,9 +22,6 @@ resource "oci_core_instance" "TFInstanceEtcd" {
   extended_metadata {
     roles               = "etcd"
     ssh_authorized_keys = "${var.ssh_public_key_openssh}"
-
-    # Automate etcd instance configuration with cloud init run at launch time
-    user_data = "${base64encode(data.template_file.etcd-bootstrap.rendered)}"
     tags      = "group:etcd"
   }
 
@@ -32,8 +29,18 @@ resource "oci_core_instance" "TFInstanceEtcd" {
     create = "60m"
   }
 
-  provisioner "local-exec" {
-    command = "sleep 10"
+  provisioner "remote-exec" {
+    connection {
+      host        = "${self.public_ip}"
+      user        = "opc"
+      private_key = "${var.ssh_private_key}"
+      agent       = false
+      timeout     = "600s"
+    }
+  }
+
+  timeouts {
+    create = "60m"
   }
 }
 
