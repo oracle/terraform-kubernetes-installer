@@ -71,7 +71,7 @@ spec:
           optional: true
       containers:
       - name: kubedns
-        image: gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.2
+        image: gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{ k8s_dns_ver }}
         resources:
           limits:
             memory: 170Mi

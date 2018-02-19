@@ -1,5 +1,5 @@
 etcd_download_dir: "{{ package_download_dir }}"
 etcd_install_dir: "/opt"
-etcd_download_artifact: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+etcd_download_artifact: "etcd-v{{ etcd_ver }}-linux-amd64.tar.gz"
 etcd_advertise_port: 2380
 etcd_data_dir: "/var/lib/etcd"

@@ -12,14 +12,13 @@ import json
 import logging
 import textwrap
 import glob as _glob
-import string
-import random
 import ConfigParser
 import errno
 import shutil
 import filecmp
 import fileinput
 import base64
+import argparse
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.abspath(DIR + '/..')
@@ -253,13 +252,21 @@ def load_attributes_from_file(object, file, params, section, overwrite=True):
         raise Exception('No header %s found in file %s' % (section, file))
     for param in params:
         if config.has_option(section, param) and (overwrite or getattr(object, param) == None):
-            if params[param]['type'] == str:
-                    value = config.get(section, param)
-            elif params[param]['type'] == int:
+            if params[param]['type'] == 'string':
+                value = config.get(section, param)
+            elif params[param]['type'] == 'int':
                 value = config.getint(section, param)
-            elif params[param]['type'] == bool:
+            elif params[param]['type'] == 'boolean':
                 value = config.getboolean(section, param)
             setattr(object, param, value)
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def get_terraform_output(env_name, output_name, as_list=False, error_on_missing=True):
     """
@@ -307,7 +314,7 @@ def yes_or_no(question):
     """
     Prompts stdin with a yes/no question.
     """
-    reply = str(raw_input(question + ' (y/n): ')).lower().strip()
+    reply = str(raw_input(question + '? (y/n): ')).lower().strip()
     if reply[0] == 'y':
         return True
     if reply[0] == 'n':

@@ -13,7 +13,7 @@ spec:
     - proxy
     - --kubeconfig=/etc/kubernetes/manifests/worker-kubeconfig.yaml
     - --proxy-mode=iptables
-    - --cluster-cidr=10.99.0.0/16
+    - --cluster-cidr={{ flannel_network_cidr }}
     - --masquerade-all
     - --hostname-override={{ ansible_fqdn }}
     - --v=2

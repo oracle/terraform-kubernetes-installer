@@ -8,12 +8,14 @@ import traceback
 import argparse
 import os
 import shutil
-import collections
+import json
 import getpass
 import fileinput
+from collections import OrderedDict
 
 SCRIPTS_DIR = helpers.PROJECT_ROOT_DIR + '/scripts'
 TEMPLATES_DIR = SCRIPTS_DIR + '/templates'
+PARAMS_JSON = SCRIPTS_DIR + '/create_env_params.json'
 ANSIBLE_VAULT_CHALLENGE_FILE = SCRIPTS_DIR + '/ansible-vault-challenge.txt'
 RESUMABLE_FILE_NAME = 'resumeable.txt'
 RESUME_SECTION = 'RESUME'
@@ -21,7 +23,6 @@ K8S_SECTION = 'K8S'
 DESTROY_FILE_NAME = 'destroy.sh'
 PREFS_FILE_DEFAULT = os.path.expanduser('~') + '/.k8s/config'
 NUM_ADS = 3
-DEFAULT_SHAPE = 'VM.Standard1.2'
 
 helpers.logger = helpers.setup_logging('create_env.log')
 
@@ -56,32 +57,17 @@ def parse_args():
     #
     parser = argparse.ArgumentParser(description='Create New Managed Environment')
     parser.add_argument('env_name', type=str, help='Name of the environment')
-    params = {}
-    params['managed'] = {'help': 'Whether to create a managed environment', 'type': bool}
-    params['unmanaged'] = {'help': 'Whether to create an unmanaged environment', 'type': bool}
-    params['resume'] = {'help': 'Whether to resume execution of a failed previous run', 'type': bool}
-    params['prefs'] = {'help': 'File containing user preferences', 'type': str}
-    params['tenancy_ocid'] = {'help': 'OCI Tenancy OCID', 'type': str}
-    params['compartment_ocid'] = {'help':'OCI Compartment OCID', 'type': str}
-    params['user_ocid'] = {'help':'OCI User OCID', 'type': str}
-    params['fingerprint'] = {'help':'OCI API Fingerprint', 'type': str}
-    params['private_key_file'] = {'help':'OCI Private Key File', 'type': str}
-    params['region'] = {'help':'OCI Region to use', 'type': str}
-    params['k8s_master_shape'] = {'help':'OCI Compute node shape to use for K8S master nodes', 'type': str}
-    params['k8s_worker_shape'] = {'help':'OCI Compute node shape to use for K8S worker nodes', 'type': str}
-    params['etcd_shape'] = {'help':'OCI Compute node shape to use for Etcd nodes', 'type': str}
-    params['k8s_masters'] = {'help':'Number of K8S master nodes for respective ADs', 'type': str}
-    params['k8s_workers'] = {'help':'Number of K8S worker nodes for respective ADs', 'type': str}
-    params['etcds'] = {'help':'Number of dedicated Etcd nodes for respective ADs (specifying 0 will colocate Etcd with K8S masters)', 'type': str}
-    params['vars_file'] = {'help':'Ansible vars file to append to the generated environment\"s vars file', 'type': str}
-    params['skip_branch'] = {'help': 'Whether to skip creation of a new branch with a managed environment\'s files', 'type': bool}
 
+    # Load all possible params from params file, preserving ordering from params file in help output, for readability
+    f = open(PARAMS_JSON, 'r')
+    params = json.load(f, object_pairs_hook=OrderedDict)
     for param in params:
-        if params[param]['type'] == bool:
-            parser.add_argument('--' + param, help=params[param]['help'], action='store_const', const=True)
+        # We don't actually use argparse "defaults" here, to give us the chance to interactively prompt
+        # for certain unspecified values below
+        if params[param]['type'] == "boolean":
+            parser.add_argument('--' + param, help=params[param]['help'], type=helpers.str2bool, nargs='?', const=True)
         else:
-            parser.add_argument('--' + param, help=params[param]['help'], type=params[param]['type'],
-                                required=False)
+            parser.add_argument('--' + param, help=params[param]['help'], type=str, required=False)
     args = parser.parse_args()
 
     #
@@ -96,6 +82,9 @@ def parse_args():
         os.remove(resumable_file)
         return args
 
+    if os.path.isdir(env_dir):
+        raise Exception('Directory %s for the specified environment already exists' % env_dir)
+
     #
     # Load arguments from preferences file, if specified
     #
@@ -104,18 +93,25 @@ def parse_args():
         helpers.logger.info('Loading preferences from %s...' % args.prefs)
         helpers.load_attributes_from_file(args, args.prefs, params, K8S_SECTION, overwrite=False)
 
+    # Process any remaining args that haven't been specified yet
+    for param in params:
+        if getattr(args, param) is None:
+            if params[param]['prompt']:
+                if params[param]['type'] == 'boolean':
+                    setattr(args, param, helpers.yes_or_no(params[param]['help']))
+                else:
+                    setattr(args, param, helpers.prompt_for_value(params[param]['help'], params[param]['default']))
+            else:
+                setattr(args, param, params[param]['default'])
+
     # Ensure all expected boolean types have boolean values (no Nones)
     for param in params:
-        if params[param]['type'] == bool:
+        if params[param]['type'] == 'boolean':
             setattr(args, param, bool(getattr(args, param)))
 
     #
     # Handle prereqs that differ between managed/unmanaged environments.
     #
-    if args.managed and args.unmanaged:
-        raise Exception('Both managed and unmanaged options were specified')
-    if not args.managed and not args.unmanaged:
-        args.managed = helpers.yes_or_no('Create "managed" environment')
     if args.managed:
         # Ensure ansible-vault password set
         if not 'ANSIBLE_VAULT_PASSWORD_FILE' in os.environ:
@@ -138,43 +134,12 @@ def parse_args():
         if args.env_name in helpers.MANAGED_ENVS:
             raise Exception('Can\'t create an unmanaged environment using one of the names reserved for '
                             ' managed environments: %s' % helpers.MANAGED_ENVS)
-    if os.path.isdir(env_dir):
-       raise Exception('Directory %s for the specified environment already exists' % env_dir)
 
     #
-    # Prompt for params not specified on the command line
+    # Addition validation of certain params
     #
-
-    # Params with no defaults
-    for param in ('tenancy_ocid', 'compartment_ocid', 'user_ocid', 'fingerprint', 'private_key_file'):
-       if getattr(args, param) is None:
-           setattr(args, param, helpers.prompt_for_value(params[param]['help']))
-
-    # Params with defaults
-
-    # K8S master details
-    if args.k8s_masters is None:
-        args.k8s_masters = helpers.prompt_for_value(params['k8s_masters']['help'], '1,0,0')
     if sum(get_num_per_ad_list(args.k8s_masters)) <= 0:
         raise Exception('At least one K8S master must be specified')
-    if args.k8s_master_shape is None:
-        args.k8s_master_shape = helpers.prompt_for_value(params['k8s_master_shape']['help'], DEFAULT_SHAPE)
-
-    # K8S worker details
-    if args.k8s_workers is None:
-        args.k8s_workers = helpers.prompt_for_value(params['k8s_workers']['help'], '1,0,0')
-    if args.k8s_worker_shape is None:
-        args.k8s_worker_shape = helpers.prompt_for_value(params['k8s_worker_shape']['help'], DEFAULT_SHAPE)
-
-    # Etcd details
-    if args.etcds is None:
-        args.etcds = helpers.prompt_for_value(params['etcds']['help'], '0,0,0')
-    if sum(get_num_per_ad_list(args.etcds)) > 0:
-        if args.etcd_shape is None:
-            args.etcd_shape = helpers.prompt_for_value(params['etcd_shape']['help'], DEFAULT_SHAPE)
-
-    if args.region is None:
-        args.region = helpers.prompt_for_value(params['region']['help'], 'us-ashburn-1')
 
     return args
 
@@ -182,7 +147,6 @@ def stamp_out_env_dir(args):
     """
     Stamps out directory structure for the given environment.
     """
-
     env_dir = helpers.ENVS_DIR + '/' + args.env_name
     helpers.log('Creating directory structure at %s ' % env_dir, as_banner=True, bold=True)
     os.makedirs(env_dir)
@@ -198,9 +162,18 @@ def stamp_out_env_dir(args):
         with open(all_yml_file, 'a') as fo:
             fo.write(open(args.vars_file, 'r').read())
 
+    #
+    # Create dictionary of name/value pairs to be filled into templates
+    #
     token_values = {}
-    token_values['ENV_NAME'] = args.env_name
-    token_values['REGION'] = args.region
+    # Load all specified params as uppercase template values
+    for param in args.__dict__:
+        if type(args.__dict__[param]) == bool:
+            token_values[param.upper()] = str(args.__dict__[param]).lower()
+        else:
+            token_values[param.upper()] = args.__dict__[param]
+    # Load a few computed template values
+    token_values['PROJECT_ROOT_DIR'] = helpers.PROJECT_ROOT_DIR
     num_masters_per_ad = get_num_per_ad_list(args.k8s_masters)
     num_workers_per_ad = get_num_per_ad_list(args.k8s_workers)
     num_etcds_per_ad = get_num_per_ad_list(args.etcds)
@@ -208,12 +181,6 @@ def stamp_out_env_dir(args):
         token_values['K8S_MASTER_AD%s_COUNT' % (i + 1)] = num_masters_per_ad[i]
         token_values['K8S_WORKER_AD%d_COUNT' % (i + 1)] = num_workers_per_ad[i]
         token_values['ETCD_AD%d_COUNT' % (i + 1)] = num_etcds_per_ad[i]
-    token_values['K8S_MASTER_SHAPE'] = args.k8s_master_shape
-    token_values['K8S_WORKER_SHAPE'] = args.k8s_worker_shape
-    token_values['ETCD_SHAPE'] = args.etcd_shape
-    token_values['TENANCY_OCID'] = args.tenancy_ocid
-    token_values['COMPARTMENT_OCID'] = args.compartment_ocid
-    token_values['PROJECT_ROOT_DIR'] = helpers.PROJECT_ROOT_DIR
     env_name_tokens = args.env_name.split('/')
     if not args.managed:
         # Terraform prefix for objects will start with the local user name
@@ -222,10 +189,12 @@ def stamp_out_env_dir(args):
         # Terraform prefix for objects will be in the form <team>-<stage_dir_name>
         token_values['ENV_PREFIX'] = '-'.join(list(reversed(env_name_tokens)))
 
+    # Fill in Terraform and Ansible templates
     for file in (env_dir + '/terraform.tfvars', all_yml_file):
         for line in fileinput.FileInput(file, inplace=1):
             for token in token_values:
-                line = line.replace('<%s>' % str(token), str(token_values[token]))
+                value = "" if token_values[token] == None else str(token_values[token])
+                line = line.replace('<%s>' % str(token), value)
             print line.strip('\n')
 
 def deploy_terraform(args):

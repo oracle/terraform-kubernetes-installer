@@ -20,8 +20,8 @@ FROM fedora:latest
 
  RUN yum install -y unzip
  # Installs terraform.
- RUN curl -LO https://releases.hashicorp.com/terraform/0.10.4/terraform_0.10.4_linux_amd64.zip
- RUN unzip terraform_0.10.4_linux_amd64.zip
+ RUN curl -LO --retry 3 https://releases.hashicorp.com/terraform/0.11.1/terraform_0.11.1_linux_amd64.zip
+ RUN unzip terraform_0.11.1_linux_amd64.zip
  RUN mv terraform /usr/bin/
 
  # Installs terragrunt

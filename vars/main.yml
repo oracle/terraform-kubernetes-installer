@@ -4,10 +4,6 @@ log_root_dir: "/var/log"
 etcd_client_port: 2379
 pillar_dns_domain: "cluster.local"
 
-# Component versions
-etcd_version: 3.2.2
-flannel_version: 0.10.0
-k8s_ver: 1.8.5
 k8s_rel: 0
 k8s_full_ver: "{{ k8s_rel }}-{{ k8s_release }}"
 

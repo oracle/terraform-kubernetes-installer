@@ -26,5 +26,5 @@
     - telnet
     - nc
     - curl
-    - docker-engine
+    - "docker-engine-{{ docker_ver }}"
     - ntp

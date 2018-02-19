@@ -12,7 +12,7 @@ spec:
     - /hyperkube
     - controller-manager
     - --master=http://127.0.0.1:8080
-    - --cluster-cidr=10.99.0.0/16
+    - --cluster-cidr={{ flannel_network_cidr }}
     - --cluster-name=dev-cluster
     - --leader-elect=true
     - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem

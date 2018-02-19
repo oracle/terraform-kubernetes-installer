@@ -37,7 +37,7 @@
 
 - name: Download Etcd Tarball
   get_url:
-    url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_ver }}/{{ etcd_download_artifact }}"
     dest: "{{ package_download_dir }}"
     owner: etcd
   when: not etcd_downloaded.stat.exists
@@ -52,7 +52,7 @@
 
 - name: Symlink etcd dir
   file:
-    src: "{{ etcd_install_dir }}/etcd-v{{ etcd_version }}-linux-amd64"
+    src: "{{ etcd_install_dir }}/etcd-v{{ etcd_ver }}-linux-amd64"
     dest: "{{ etcd_install_dir }}/etcd"
     state: link
 

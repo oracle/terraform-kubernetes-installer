@@ -13,7 +13,7 @@ spec:
     - proxy
     - --master=http://127.0.0.1:8080
     - --proxy-mode=iptables
-    - --cluster-cidr=10.99.0.0/16
+    - --cluster-cidr={{ flannel_network_cidr }}
     securityContext:
       privileged: true
     volumeMounts:
