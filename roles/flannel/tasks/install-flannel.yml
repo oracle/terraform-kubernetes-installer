@@ -1,0 +1,99 @@
+
+
+- name: Check if Flannel tar is downloaded
+  stat:
+    path: "{{ package_download_dir }}/{{ flannel_artifact }}"
+    get_md5: False
+    get_checksum: False
+  register: flannel_downloaded
+
+- name: Create Flannel Download Dir
+  file:
+    path: "{{ flannel_download_dir }}"
+    state: directory
+
+- name: Download Flannel tar ball
+  get_url:
+    url: "https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/{{ flannel_artifact }}"
+    dest: "{{ flannel_download_dir }}"
+  when: not flannel_downloaded.stat.exists
+
+- name: Untar Flannel tarball
+  unarchive:
+    src: "{{ flannel_download_dir }}/{{ flannel_artifact }}"
+    dest: "{{ flannel_install_dir }}"
+    remote_src: true
+
+
+- name: Install flannel unit file
+  template:
+      src: templates/flannel.service
+      dest: /etc/systemd/system/flannel.service
+      owner: root
+      group: root
+      mode: 644
+
+- name: Install flannel json config file
+  template:
+      src: templates/flannel-network.json
+      dest: /tmp/flannel-network.json
+      owner: root
+      group: root
+      mode: 0644
+
+- name: Install etcd flannel config key
+  command: "curl -sf -L http://{{ etcd_lb_ip }}:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json"
+
+
+
+- name: Start flannel Service
+  service:
+     name: flannel
+     state: started
+     daemon_reload: yes
+     enabled: yes
+
+- name: Install cni-networking packages
+  yum:
+    name: containernetworking-cni
+    state: present
+
+- name: Create CNI Config Dir
+  file:
+    path: /etc/cni/net.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Install CNI Flannel config file
+  template:
+    src: templates/10-flannel.conf
+    dest: /etc/cni/net.d/10-flannel.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI-Bridge service
+  template:
+    src: templates/cni-bridge.service
+    dest: /etc/systemd/system/cni-bridge.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install CNI Bridge Startup Script
+  template:
+    src: templates/cni-bridge.sh
+    dest: /usr/local/bin/cni-bridge.sh
+    owner: root
+    group: root
+    mode: 0755
+
+
+- name: Start CNI Bridge Service
+  service:
+    name: cni-bridge
+    state: started
+    enabled: yes
+

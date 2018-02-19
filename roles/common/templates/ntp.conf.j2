@@ -1,0 +1,14 @@
+
+driftfile /var/lib/ntp/drift
+
+restrict 127.0.0.1
+restrict -6 ::1
+
+server time1.google.com iburst
+server time2.google.com iburst
+server time3.google.com iburst
+server time4.google.com iburst
+
+includefile /etc/ntp/crypto/pw
+
+keys /etc/ntp/keys

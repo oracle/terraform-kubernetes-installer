@@ -1,0 +1,23 @@
+---
+- name: Set hostname to FQDN
+  hostname:
+    name: "{{ ansible_fqdn }}"
+
+- name: expand search domain in resolv dot conf
+  lineinfile:
+    path: /etc/resolv.conf
+    state: present
+    regexp: '^search'
+    line: 'search .{{ dns_label }}.oraclevcn.com'
+
+- name: Configure ntp file
+  template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
+
+- name: Start the ntp service
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
+

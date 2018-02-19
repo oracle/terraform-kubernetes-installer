@@ -1,0 +1,87 @@
+---
+# Getting k8s pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewall
+  service:
+     name: firewalld
+     state: stopped
+     enabled: yes
+
+- name: Create ETCD User Group
+  group:
+    name: etcd
+    state: present
+    system: yes
+
+- name: Create ETCD System User
+  user:
+    name: etcd
+    group: etcd
+    state: present
+    system: yes
+
+- name: Create ETCD Dirs
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: etcd
+    group: etcd
+    mode: 0755
+  with_items:
+    - "{{ etcd_data_dir }}"
+  register: create_dirs
+
+- name: Create ETCD Download Dir
+  file:
+    path: "{{ etcd_download_dir }}"
+    state: directory
+
+- name: Check if ETCD is already downloaded
+  stat:
+    path: "{{ etcd_download_dir }}/{{ etcd_download_artifact }}"
+    get_md5: False
+    get_checksum: False
+  register: etcd_downloaded
+
+- debug: var=etcd_downloaded.stat
+
+#https://github.com/coreos/etcd/releases/download/v3.2.2/etcd-v3.2.2-linux-amd64.tar.gz
+- name: Download ETCD Tarball
+  get_url:
+    url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: "{{ etcd_download_dir }}"
+    owner: etcd
+  when: not etcd_downloaded.stat.exists
+
+- name: Untar ETCD tarball
+  unarchive:
+    src: "{{ etcd_download_dir }}/{{ etcd_download_artifact }}"
+    dest: "{{ etcd_install_dir }}"
+    remote_src: true
+
+- name: Stop ETCD Service
+  service:
+     name: etcd
+     state: stopped
+     enabled: yes
+  ignore_errors: yes
+
+- name: Symlink etcd dir
+  file:
+    src: "{{ etcd_install_dir }}/etcd-v{{ etcd_version }}-linux-amd64"
+    dest: "{{ etcd_install_dir }}/etcd"
+    state: link
+
+- name: Install etcd unit file
+  template:
+    src: templates/etcd.service
+    dest: /usr/lib/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: 644
+
+- name: Start ETC Service
+  service:
+     name: etcd
+     state: started
+     enabled: yes
+     daemon_reload: yes

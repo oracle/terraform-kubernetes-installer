@@ -1,0 +1,7 @@
+- name: Create common dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "u=rwx,g=rx,o="
+  with_items:
+    - "{{ package_download_dir }}"

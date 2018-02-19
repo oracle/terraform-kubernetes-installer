@@ -1,0 +1,5 @@
+- include: install-k8smaster.yml
+  tags: 'k8smaster_install'
+
+#- include: debug.yml
+#  tags: 'k8smaster_debug'

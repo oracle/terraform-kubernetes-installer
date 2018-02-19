@@ -1,0 +1,168 @@
+
+
+- name: Add kubernetes repo
+  yum_repository:
+    name: yum.kubernetes.io_repos_kubernetes-el7-x86_64
+    description: Kubernetes repo
+    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+
+- name: import google cloud YUM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+
+- name: import google cloud RPM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: install packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - jq
+    - kubelet
+    - kubectl
+    - kubernetes-cni
+  when: not ansible_check_mode
+
+# Getting k8s pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewalld
+  service:
+     name: firewalld
+     state: stopped
+     enabled:  no
+
+
+- name: Remove unnecessary flannel docker config
+  command: "{{ item }}"
+  with_items:
+      - rm -rf /usr/lib/systemd/system/docker.service.d
+      - rm -f /run/flannel/docker
+      - rm -rf /etc/systemd/system/docker.service.d
+
+
+- name: Install docker unit file
+  template:
+    src: templates/docker.service
+    dest: /usr/lib/systemd/system/docker.service
+    owner: root
+    group: root
+    mode: 0644
+  register: docker_svc_updated
+
+
+- name: Start Docker Service
+  service:
+    daemon-reload: yes
+    name: docker
+    state: stopped
+    enabled: yes
+
+  when: docker_svc_updated
+
+- name: Start Docker Service
+  service:
+     name: docker
+     state: started
+     enabled: yes
+     daemon-reload: yes
+  when: docker_svc_updated
+
+
+
+# Kube manifests
+- name: Install k8s proxy yaml file
+  template:
+    src: templates/kube-proxy.template.yaml
+    dest: /etc/kubernetes/manifests/kube-proxy.template.yaml
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install k8s kubeconfig
+  template:
+    src: templates/worker-kubeconfig.template.yaml
+    dest: /etc/kubernetes/manifests/worker-kubeconfig.yaml
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create ssl dirs
+  file:
+    state: directory
+    path: /etc/kubernetes/ssl
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install apiserver certs created by terraform
+  template:
+    src: envs/dev/apiserver.pem
+    dest: /etc/kubernetes/ssl/apiserver.pem
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Install apiserver private created by terraform
+  template:
+    src: envs/dev/apiserver-key.pem
+    dest: /etc/kubernetes/ssl/apiserver-key.pem
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Install ca certs created by terraform
+  template:
+    src: envs/dev/ca.pem
+    dest: /etc/kubernetes/ssl/ca.pem
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Install ca key created by terraform
+  template:
+    src: envs/dev/ca-key.pem
+    dest: /etc/kubernetes/ssl/ca-key.pem
+    owner: root
+    group: root
+    mode: 0600
+
+
+- name: Create service dir
+  file:
+    state: directory
+    path: /home/opc/services
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Environment config commands before starting kubelet
+  command: "{{ item }}"
+  with_items:
+    - iptables -F
+
+
+- name: Install kubelet service template file
+  template:
+    src: templates/kubelet.service
+    dest: /home/opc/services/kubelet.service
+    owner: root
+    group: root
+    mode: 0644
+  register: kubelet_svc_updated
+
+- name: Run Kubelet Service Populate Script
+  script: scripts/populate-kubelet.sh
+  ignore_errors: "{{ansible_check_mode}}"
+
+- name: Restart Kubelet Service
+  service:
+    name: kubelet
+    state: restarted
+    enabled: yes
+  when: kubelet_svc_updated
+
+
+

@@ -1,0 +1,6 @@
+- include: install-k8sworker.yml
+  tags: 'k8sworker_install'
+
+#- include: debug.yml
+#  tags: 'k8sworker_debug'
+

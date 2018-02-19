@@ -1,0 +1,23 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target cni-bridge.service
+Requires=cni-bridge.service
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dockerd \
+  --bridge=cni0 \
+  --iptables=false \
+  --ip-masq=false \
+  --host=unix:///var/run/docker.sock
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=1048576
+LimitNPROC=infinity
+LimitCORE=infinity
+TimeoutStartSec=0
+Delegate=yes
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

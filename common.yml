@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  roles:
+    - common
+  vars_files:
+    - vars/main.yml

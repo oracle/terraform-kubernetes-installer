@@ -1,0 +1,13 @@
+[Unit]
+Requires=docker.service
+After=docker.service
+[Service]
+ExecStart=/usr/bin/kubelet \
+  --allow-privileged=true \
+  --cluster_domain=cluster.local \
+  --kubeconfig=http://127.0.0.1:8080 \
+  --pod-manifest-path=/etc/kubernetes/manifests \
+  --hostname-override= {{ ansible_fqdn }} \
+  --v=2
+Restart=always
+RestartSec=10

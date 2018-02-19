@@ -1,0 +1,2 @@
+api_server_count: 3
+pillar_dns_domain: cluster.local
