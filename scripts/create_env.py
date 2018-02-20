@@ -18,6 +18,7 @@ TEMPLATES_DIR = SCRIPTS_DIR + '/templates'
 PARAMS_JSON = SCRIPTS_DIR + '/create_env_params.json'
 ANSIBLE_VAULT_CHALLENGE_FILE = SCRIPTS_DIR + '/ansible-vault-challenge.txt'
 RESUMABLE_FILE_NAME = 'resumeable.txt'
+TERRAFORM_SHA_FILE = 'terraform-sha.txt'
 RESUME_SECTION = 'RESUME'
 K8S_SECTION = 'K8S'
 DESTROY_FILE_NAME = 'destroy.sh'
@@ -222,6 +223,14 @@ def deploy_terraform(args):
     (stdout, stderr, returncode) = helpers.run_command(cmd=cmd, env=env, cwd=env_dir, verbose=True)
     if returncode != 0:
         raise Exception('Terraform deployment failed')
+
+    # Generate file indicating the SHA at which Terraform was deployed
+    f = open(env_dir + '/' + TERRAFORM_SHA_FILE, 'w')
+    cmd = 'git rev-parse --verify HEAD'
+    (stdout, _, returncode) = helpers.run_command(cmd=cmd, cwd=helpers.PROJECT_ROOT_DIR, silent=False, verbose=True)
+    if returncode != 0:
+        raise Exception('Failed to get Git SHA')
+    f.write(stdout)
 
 def deploy_ansible(args):
     """
