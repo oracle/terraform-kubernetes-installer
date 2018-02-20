@@ -38,7 +38,7 @@ variable "etcd_ver" {
 
 # TODO - because the bootstrap template uses yum, we only support Oracle Linux 7
 variable "flannel_ver" {
-  default = "v0.10.0"
+  default = "v0.9.1"
 }
 
 # Kubernetes
@@ -83,3 +83,7 @@ variable "worker_iscsi_volume_mount" {
 }
 
 variable "flexvolume_driver_version" {}
+
+variable "reverse_proxy_setup" {}
+
+variable "reverse_proxy_clount_init" {}

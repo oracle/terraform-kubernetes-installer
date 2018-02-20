@@ -211,12 +211,12 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         _wait_until(healthzOK, 600)
         _log(requests.get(masterPublicLBAddress + "/healthz", proxies={}, verify=False).text)
 
-        # Verify workers become ready
-        _log("Waiting for " + str(numWorkers) + " K8s workers to become ready", as_banner=True)
+        # Verify worker nodes become ready
+        _log("Waiting for " + str(numWorkers) + " K8s worker nodes to become ready", as_banner=True)
 
-        nodesReady = lambda: len(_kubectl("get nodes -o name", exit_on_error=True).splitlines()) >= numWorkers
-        _wait_until(nodesReady, 180)
-        workerList = _kubectl("get nodes -o name", exit_on_error=True)
+        nodesReady = lambda: len(_kubectl("get nodes --selector=node-role.kubernetes.io/node -o name", exit_on_error=True).splitlines()) >= numWorkers
+        _wait_until(nodesReady, 300)
+        workerList = _kubectl("get nodes --selector=node-role.kubernetes.io/node -o name", exit_on_error=True)
         _log(str(workerList))
 
         # Deploy
@@ -226,8 +226,8 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         _kubectl("apply -f " + TEST_ROOT_DIR + "/resources/frontend-service.yml", exit_on_error=True)
 
         # TODO poll instead of hard sleep
-        _log("Sleeping 30 seconds to let pods initialize", as_banner=True)
-        time.sleep(30)
+        _log("Sleeping 60 seconds to let pods initialize", as_banner=True)
+        time.sleep(60)
 
         helloServicePort = _kubectl("get svc/hello -o jsonpath={.spec.ports[0].nodePort}", exit_on_error=True)
         _log("Hello service port: " + str(helloServicePort))
@@ -244,10 +244,12 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
                 for serviceAddress in serviceAddressList:
                     _log("Checking " + serviceAddress)
                     deploymentReady = lambda: requests.get(serviceAddress).status_code == 200
-                    _wait_until(deploymentReady, 180)
+                    _wait_until(deploymentReady, 300)
 
     except Exception, e:
         _log("Unexpected error:", str(e))
+        _log(_kubectl("get pods --all-namespaces"))
+        _log(_kubectl("get daemonsets --all-namespaces"))
         traceback.print_exc()
         success = False
     finally:

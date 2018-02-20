@@ -75,6 +75,7 @@ write_files:
     content: |
       ${api-server-key-content}
 
+${reverse_proxy-content}
 
 runcmd:
  - echo "Running k8s init..."

@@ -21,6 +21,10 @@ name                                | default                 | description
 etcdShape                           | VM.Standard1.1          | OCI shape for etcd nodes
 k8sMasterShape                      | VM.Standard1.1          | OCI shape for k8s master(s)
 k8sWorkerShape                      | VM.Standard1.2          | OCI shape for k8s worker(s)
+master_oci_lb_enabled               | "true"                  | enable/disable the k8s master oci load balancer. "true": use oci load balancer for k8s master . "false": use a reverse proxy as a software load balancer for k8s masters.
+etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
+etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
+k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
 k8sMasterAd1Count                   | 1                       | number of k8s masters to create in Availability Domain 1
 k8sMasterAd2Count                   | 0                       | number of k8s masters to create in Availability Domain 2
 k8sMasterAd3Count                   | 0                       | number of k8s masters to create in Availability Domain 3
@@ -30,13 +34,11 @@ k8sWorkerAd3Count                   | 0                       | number of k8s wo
 etcdAd1Count                        | 1                       | number of etcd nodes to create in Availability Domain 1
 etcdAd2Count                        | 0                       | number of etcd nodes to create in Availability Domain 2
 etcdAd3Count                        | 0                       | number of etcd nodes to create in Availability Domain 3
+worker_iscsi_volume_create          | "false"                 | boolean flag indicating whether or not to attach an iSCSI volume to attach to each worker node
 worker_iscsi_volume_size            | unset                   | optional size of an iSCSI volume to attach to each worker
 worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
 etcd_iscsi_volume_create            | false                   | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
 etcd_iscsi_volume_size              | 50                      | size in GBs of volume when etcd_iscsi_volume_create is set
-etcd_lb_enabled                     | "true"                  | enable/disable the etcd load balancer. "true" use the etcd load balancer ip, "false" use a list of etcd instance ips
-etcdLBShape                         | 100Mbps                 | etcd cluster OCI Load Balancer shape / bandwidth
-k8sMasterLBShape                    | 100Mbps                 | Kubernetes Master OCI Load Balancer shape / bandwidth
 
 ### TLS Certificates & SSH key pair
 name                                | default                 | description
@@ -60,7 +62,7 @@ name                                | default            | description
 ------------------------------------|--------------------|------------
 docker_ver                          | 17.06.2.ol                     | Version of Docker to install
 etcd_ver                            | v3.2.2                         | Version of etcd to install
-flannel_ver                         | v0.10.0                         | Version of Flannel to install
+flannel_ver                         | v0.9.1                         | Version of Flannel to install
 k8s_ver                             | 1.8.5                          | Version of K8s to install (master and workers)
 k8s_dns_ver                         | 1.14.2                         | Version of Kube DNS to install
 k8s_dashboard_ver                   | 1.6.3                          | Version of Kubernetes dashboard to install
@@ -133,13 +135,14 @@ The following input variables are used to configure the inbound security rules f
 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
+dedicated_nat_subnets               | "true"                  | whether to provision dedicated subnets in each AD that are only used by NAT instance(s) (separate subnets = separate control)
 public_subnet_ssh_ingress           | 0.0.0.0/0               | A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)
 public_subnet_http_ingress          | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet
 public_subnet_https_ingress         | 0.0.0.0/0               | A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet
 natInstanceShape                    | VM.Standard1.1          | OCI shape for the optional NAT instance. Size according to the amount of expected _outbound_ traffic from nodes and pods
-nat_instance_ad1_enabled            | true                    | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
-nat_instance_ad2_enabled            | false                   | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
-nat_instance_ad3_enabled            | false                   | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
+nat_instance_ad1_enabled            | "true"                  | whether to provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)
+nat_instance_ad2_enabled            | "false"                 | whether to provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)
+nat_instance_ad3_enabled            | "false"                 | whether to provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)
 
 *Note*
 

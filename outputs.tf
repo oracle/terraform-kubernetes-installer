@@ -54,6 +54,10 @@ output "public_subnet_ids" {
   value = ["${module.vcn.public_subnet_ad1_id}", "${module.vcn.public_subnet_ad2_id}", "${module.vcn.public_subnet_ad3_id}", ""]
 }
 
+output "nat_subnet_ids" {
+  value = ["${module.vcn.nat_subnet_ad1_id}", "${module.vcn.nat_subnet_ad2_id}", "${module.vcn.nat_subnet_ad3_id}", ""]
+}
+
 output "worker_ssh_ingress_cidr" {
   value = "${var.worker_ssh_ingress}"
 }
@@ -76,37 +80,37 @@ output "etcd_ssh_ingress_cidr" {
 
 output "root_ca_pem" {
   sensitive = true
-  value = "${module.k8s-tls.root_ca_pem}"
+  value     = "${module.k8s-tls.root_ca_pem}"
 }
 
 output "root_ca_key" {
   sensitive = true
-  value = "${module.k8s-tls.root_ca_key}"
+  value     = "${module.k8s-tls.root_ca_key}"
 }
 
 output "api_server_private_key_pem" {
   sensitive = true
-  value = "${module.k8s-tls.api_server_private_key_pem}"
+  value     = "${module.k8s-tls.api_server_private_key_pem}"
 }
 
 output "api_server_cert_pem" {
   sensitive = true
-  value = "${module.k8s-tls.api_server_cert_pem}"
+  value     = "${module.k8s-tls.api_server_cert_pem}"
 }
 
 output "api_server_admin_token" {
   sensitive = true
-  value = "${module.k8s-tls.api_server_admin_token}"
+  value     = "${module.k8s-tls.api_server_admin_token}"
 }
 
 output "ssh_private_key" {
   sensitive = true
-  value = "${module.k8s-tls.ssh_private_key}"
+  value     = "${module.k8s-tls.ssh_private_key}"
 }
 
 output "ssh_public_key_openssh" {
   sensitive = true
-  value = "${module.k8s-tls.ssh_public_key_openssh}"
+  value     = "${module.k8s-tls.ssh_public_key_openssh}"
 }
 
 output "etcd_lb_ip" {
@@ -114,7 +118,7 @@ output "etcd_lb_ip" {
 }
 
 output "etcd_public_ips" {
-  value = "${concat(module.instances-etcd-ad1.instance_public_ips,module.instances-etcd-ad2.instance_public_ips,module.instances-etcd-ad3.instance_public_ips)}"
+  value = "${compact(concat(module.instances-etcd-ad1.instance_public_ips,module.instances-etcd-ad2.instance_public_ips,module.instances-etcd-ad3.instance_public_ips))}"
 }
 
 output "etcd_private_ips" {
@@ -126,7 +130,7 @@ output "master_lb_ip" {
 }
 
 output "master_public_ips" {
-  value = "${concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips)}"
+  value = "${compact(concat(module.instances-k8smaster-ad1.public_ips,module.instances-k8smaster-ad2.public_ips,module.instances-k8smaster-ad3.public_ips))}"
 }
 
 output "master_private_ips" {
@@ -134,7 +138,7 @@ output "master_private_ips" {
 }
 
 output "worker_public_ips" {
-  value = "${concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips)}"
+  value = "${compact(concat(module.instances-k8sworker-ad1.public_ips,module.instances-k8sworker-ad2.public_ips,module.instances-k8sworker-ad3.public_ips))}"
 }
 
 output "worker_private_ips" {
@@ -142,11 +146,11 @@ output "worker_private_ips" {
 }
 
 output "nat_instance_public_ips" {
-  value = "${concat(module.vcn.nat_instance_ad1_public_ips,module.vcn.nat_instance_ad2_public_ips,module.vcn.nat_instance_ad3_public_ips)}"
+  value = "${compact(concat(module.vcn.nat_instance_ad1_public_ips,module.vcn.nat_instance_ad2_public_ips,module.vcn.nat_instance_ad3_public_ips))}"
 }
 
 output "nat_instance_private_ips" {
-  value = "${concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips)}"
+  value = "${compact(concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips))}"
 }
 
 output "control_plane_subnet_access" {
@@ -155,5 +159,5 @@ output "control_plane_subnet_access" {
 
 output "kubeconfig" {
   sensitive = true
-  value = "${module.kubeconfig.kubeconfig}"
+  value     = "${module.kubeconfig.kubeconfig}"
 }
