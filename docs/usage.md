@@ -1,26 +1,25 @@
 [ansible tips]: https://ansible-tips-and-tricks.readthedocs.io/en/latest/ansible/install
 [terraform]: https://terraform.io
 [terragrunt]: https://github.com/gruntwork-io/terragrunt
-[bmcs]: https://cloud.oracle.com/en_US/bare-metal
-[bmcs provider]: https://github.com/oracle/terraform-provider-baremetal/releases
-[sudoers]: https://stackoverflow.com/questions/8633461/how-to-keep-environment-variables-when-using-sudo
+[oci]: https://cloud.oracle.com/cloud-infrastructure
+[oci provider]: https://github.com/oracle/terraform-provider-oci/releases
+[Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 # Using this Repo
 
 ## Prerequisites
 
 * Download and install [Ansible][ansible tips] **2.4** or higher (`brew install ansible`)
-* Download and install [Terraform][terraform] **0.10.4 exactly** (`brew install terraform`)
+* Download and install [Terraform][terraform] (v0.10.3 or later)
 * Download and install [Terragrunt][terragrunt] **0.13.2** or higher (`brew install terragrunt`)
-* Download and install [BareMetal Terraform Provider][bmcs provider] version **1.0.18**
-* Create a Terraform configuration file at  `~/.terraformrc` that specifies the path to the baremetal provider:
-```
-    providers {
-        baremetal = "<path_to_provider_binary>/terraform-provider-baremetal"
-    }
-```
-* (macOS) Install "requests" Python Package (`sudo easy_install -U requests`)
-  - if `sudo easy_install` couldn't access Internet, click [here][sudoers]
+* Download and install the [OCI Terraform Provider][oci provider] (v2.0.0 or later)
+* Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the OCI provider:
+  ```
+  providers {
+    oci = "<path_to_provider_binary>/terraform-provider-oci"
+  }
+  ```
+* Ensure you have [Kubectl][Kubectl] installed if you plan to interact with the cluster locally
   
 ## Seeding Ansible Vault
 
@@ -46,7 +45,7 @@ The following script will create an "unmanaged" environment (i.e. a personal env
 that won't be checked into Git):
 
 ```
-python ./scripts/create_env.py my-sandbox --unmanaged 
+python ./scripts/create_env.py my-sandbox --managed false 
 ```
 
 A number of parameters must be provided to this script, such as OCI tenancy/compartment/user details. 
@@ -55,13 +54,14 @@ See the script `--help` for usage. If not specified on the command line, the scr
 Additionally, a preferences file (default: `~/.k8s/config`) can be used to specify parameters.
 
 ```
-python ./scripts/create_env.py my-sandbox --unmanaged --prefs /tmp/.k8s/config
+python ./scripts/create_env.py my-sandbox --prefs /tmp/.k8s/config
 ```
 
 Here is a sample of the preferences file:
 
 ```
 [K8S]
+managed=false
 user_ocid=ocid1.user.oc1..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 fingerprint=aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa:aa
 private_key_file=/tmp/odx-sre-api_key.pem
@@ -74,6 +74,7 @@ etcd_shape=VM.Standard1.2
 k8s_masters=1,0,0
 k8s_workers=0,1,0
 etcds=1,1,1
+k8s_master_lb_enabled=false
 ```
 
 ### Options To Create_Env
@@ -82,34 +83,46 @@ Create_env requires a comma-separated list of the number of K8s master nodes to 
 must be specified for at least one AD.  For example, specifying 2 masters in AD2 and 1 in AD3:
 
 ```
-python ./scripts/create_env.py my-sandbox ... --k8s_masters 0,2,1 ...
+python ./scripts/create_env.py my-sandbox --managed false --k8s_masters 0,2,1 ...
 ```
 
 Similarly for K8s worker nodes:
 
 ```
-python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2
+python ./scripts/create_env.py my-sandbox --managed false --k8s_masters 1,0,0 --k8s_workers 1,3,2
 ```
 
 A similar comma-separated list is used to specify dedicated Etcd nodes as well:  
 
 ```
-python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 1,1,1
+python ./scripts/create_env.py my-sandbox --managed false --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 1,1,1
 ```
 
 Specifying no dedicated Etcd nodes will result in Etcds getting colocated with the K8s master nodes:
 
 ```
-python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 0,0,0
+python ./scripts/create_env.py my-sandbox --managed false --k8s_masters 1,0,0 --k8s_workers 1,3,2 --etcds 0,0,0
 ```
 
 It's possible to create a cluster consisting of only a master node, and to then make the master schedulable
 by Kubernetes:
 
 ```
-python ./scripts/create_env.py my-sandbox ... --k8s_masters 1,0,0 --k8s_workers 0,0,0 --etcds 0,0,0
+python ./scripts/create_env.py my-sandbox --managed false --k8s_masters 1,0,0 --k8s_workers 0,0,0 --etcds 0,0,0
 export KUBECONFIG=`pwd`/envs/my-sandbox/files/kubeconfig
 kubectl taint nodes --all node-role.kubernetes.io/master-
+```
+
+An OCI load balancer can be placed in front of the K8S master nodes, and used in the local kubeconfig file:
+
+```
+python ./scripts/create_env.py my-sandbox --managed false --k8s_master_lb_enabled true --k8s_master_lb_shape 100Mbps ...
+```
+
+An iSCSI volume can be attached to each K8S worker, for use as the workers' local Docker storage:
+
+```
+python ./scripts/create_env.py my-sandbox --managed false --worker_iscsi_volume_create true ...
 ```
 
 ## Setting up a Managed Environment
