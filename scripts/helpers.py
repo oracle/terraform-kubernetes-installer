@@ -36,7 +36,6 @@ API_SERVER_CERT_FILE = 'apiserver.pem'
 API_SERVER_KEY_FILE = 'apiserver-key.pem'
 DECRYPTED_BACKUP_EXT = ".decrypted"
 MANAGED_ENVS = ['dev', 'integ', 'prod']
-PROXY_REGIONS = ['eu-frankfurt-1']
 
 class ConsoleFormatter(object):
     """
@@ -495,34 +494,21 @@ def populate_env(env_name):
     etcd_public_ips = get_terraform_output(env_name=env_name, output_name='etcd_public_ips', as_list=True)
     region = get_terraform_output(env_name=env_name, output_name='region')
 
-    # Some regions cannot be reached through the oracle proxy
-    proxy_append = ''
-    if region in PROXY_REGIONS:
-        # Determine the local SSH version, which will determine which Ansible SSH proxy flags to specify
-        log('Environment: %s needs a proxy to connect, see the hosts file for added instructions' % env_name)
-        (stdout, stderr, returncode) = run_command('ssh -V', verbose=False, silent=True)
-        if returncode != 0:
-            raise Exception('Failed to fetch local SSH verion - error: %s' % stderr)
-        if 'libressl' in (stdout + stderr).lower():
-            proxy_append = ' ansible_ssh_common_args=\'-o ProxyCommand="nc -X connect -x www-proxy.us.oracle.com:80 %h %p" -o ConnectTimeout=100\''
-        else:
-            proxy_append = ' ansible_ssh_common_args=\'-o ProxyCommand="nc --proxy-type http --proxy www-proxy.us.oracle.com:80 %h %p" -o ConnectTimeout=100\''
-        
     # Write hosts file
     log('[%s] Generating Ansible environment files' % env_name, as_banner=True)
     hosts_file = '%s/%s/%s' % (ENVS_DIR, env_name, HOSTS_FILE_NAME)
     f = open(hosts_file, 'w')
     f.write('[k8s-master]\n')
     for master_address in k8s_master_public_ips:
-        f.write("%s%s\n" % (master_address, proxy_append))
+        f.write("%s\n" % master_address)
     f.write('[k8s-worker]\n')
     for worker_address in k8s_worker_public_ips:
-        f.write("%s%s\n" % (worker_address, proxy_append))
+        f.write("%s\n" % worker_address)
 
     # If not explicit Etcd nodes found, we'll use the k8smasters as the Etcds
     f.write('[etcd]\n')
     for etcd_address in (etcd_public_ips if len(etcd_public_ips) > 0 else k8s_master_public_ips):
-        f.write("%s%s\n" % (etcd_address, proxy_append))
+        f.write("%s\n" % etcd_address)
     f.close()
 
     # Generate keys and certs

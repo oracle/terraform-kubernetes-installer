@@ -19,7 +19,7 @@ This branch is currently fairly robust and contains:
 
 ### Further Work Needed to Reach Full Parity with TF Installer
 - Installation of K8S OCI flex volume and ingress controller and related config parameters to create_env.py.
-- Worker_docker_* configuration parameters to create_env.py and related Ansible config code.
+- (worker|master|etcd)_docker_* configuration parameters to create_env.py and related Ansible config code.
 - Need to add Nginx installation on worker nodes (for communication with masters) and on master nodes (for communication with etcds).
 - Get private cluster setup working, via a bastion when deploying Ansible.
 - Sync with latest tests for TF installer project (temporarily moved under `./others-orig`).
@@ -34,6 +34,8 @@ Other improvements that could be made, but may not be strictly required to merge
 - More consistent naming of parameters to create_env.py.  Parameter names are based on parameters from 
 the current TF installer, but these could be made more consistent in general (for example, we have params
 starting with "k8s_worker" and others starting with "worker").
+- Create_env user interface could be made slicker if the user is prompted for certain parameters 
+_conditionally_.  For example, for master LB shape only when master LB specified.   
 - Remove the few remaining cloud-init bits (such as for mounting block volumes), moving these to Ansible as well.
 - Remove the need for Terragrunt completely.
 

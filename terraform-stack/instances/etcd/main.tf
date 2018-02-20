@@ -28,20 +28,6 @@ resource "oci_core_instance" "TFInstanceEtcd" {
   timeouts {
     create = "60m"
   }
-
-  provisioner "remote-exec" {
-    connection {
-      host        = "${self.public_ip}"
-      user        = "opc"
-      private_key = "${var.ssh_private_key}"
-      agent       = false
-      timeout     = "600s"
-    }
-  }
-
-  timeouts {
-    create = "60m"
-  }
 }
 
 resource "oci_core_volume" "TFVolumeInstanceEtcd" {

@@ -25,16 +25,6 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
     tags      = "group:k8s-master"
   }
 
-  provisioner "remote-exec" {
-    connection {
-      host        = "${self.public_ip}"
-      user        = "opc"
-      private_key = "${var.ssh_private_key}"
-      agent       = false
-      timeout     = "600s"
-    }
-  }
-
   timeouts {
     create = "60m"
   }
