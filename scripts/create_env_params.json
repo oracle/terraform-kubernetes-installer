@@ -291,7 +291,7 @@
     "help": "Size of an iSCSI volume to attach to each K8S worker node",
     "type": "string",
     "prompt": false,
-    "default": null
+    "default": "50"
   },
   "worker_iscsi_volume_mount": {
     "help": "Mount path of iSCSI volume when worker_iscsi_volume_size",
@@ -309,7 +309,7 @@
     "help": "Size of an iSCSI volume to attach to each dedicated Etcd node",
     "type": "string",
     "prompt": false,
-    "default": null
+    "default": "50"
   },
   "dedicated_nat_subnets": {
     "help": "Provision dedicated subnets in each AD that are only used by NAT instance(s) (separate subnets = separate control)",

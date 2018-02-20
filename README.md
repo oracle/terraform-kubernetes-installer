@@ -2,37 +2,46 @@
 
 [![build status](https://gitlab-odx.oracle.com/sre/k8s-terraform-ansible/badges/master/build.svg)](https://gitlab-odx.oracle.com/sre/k8s-terraform-ansible/commits/master)
 
-This project sets up a Kubernetes cluster using Terraform and Ansible, following the pattern used in the 
-[Sauron](https://gitlab-odx.oracle.com/sre/sauron) project.  A number of helper scripts are provided that tie
-together Terraform and Ansible and help to manage long-lived environments.
+This project sets up a Kubernetes cluster using Terraform and Ansible.  It addresses 
+[this](https://github.com/oracle/terraform-kubernetes-installer/issues/152) tracking issue.
 
-## Project Status
+## Status
 
-This project is currently fairly robust and contains: 
-- A full project structure to stand up a working Kubernetes cluster with polished Terraform and Ansible code.
+### Current Branch Status
+
+This branch is currently fairly robust and contains: 
+- The full project structure to stand up a working Kubernetes cluster with polished Terraform and Ansible code.
+- Terraform code based on the latest TF installer code, pruned down to remove software configuration.
+- Working driver scripts for creating environments and managing them via Ansible.
+- Most parameters from the TF installer exposed via the driver script.
 - Working integration tests deploy and verify a multi-service app.
 - Working Gitlab pipeline which stands up an environment and runs integration tests.
-- Working helper scripts for creating environments and managing them via Ansible. 
 
-The work that needs to be done to make this a *fully* robust project include the following:
-- Add some (whatever is needed) of the flexibility offerred by the [terraform-kubernetes-installer](https://github.com/oracle/terraform-kubernetes-installer)
-project, like:
-  - Customizable security list rules.
-  - Creating a private cluster, not reachable from the internet
-- Add OCI flex volumes.
-- Add OCI ingress controller.
-- Add tests in the CI pipeline for
-  - More permutations of k8s cluster configuration.
-  - Forcing an upgrade to critical parts of the system, like Etcd or the Flannel network, while workloads are running.
-  - Upgrading from the last SHA deployed in production to the current SHA, while workloads are running.
-  - Using more realistic workloads in integration tests.
-- Add a CD pipeline for deploying to live environments.
-- Enforce specific versions of Terraform and Terragrunt.
-- Various Kubernetes update scenarios should be explicitly tested (and probably do not work currently), like:
-  - Any changes to master configuration, software, or scripts should trigger a restart of components such as the API
-   server and kubelet.
-- For internal cluster communication (i.e. from workers to masters and masters to etcds), use local Nginx for load balancing.
-- Convert pipelines to Wercker.
+### Further Work Needed to Reach Full Parity with TF Installer
+- Installation of K8S OCI flex volume and ingress controller and related config parameters to create_env.py.
+- Worker_docker_* configuration parameters to create_env.py and related Ansible config code.
+- Need to add Nginx installation on worker nodes (for communication with masters) and on master nodes (for communication with etcds).
+- Get private cluster setup working, via a bastion when deploying Ansible.
+- Sync with latest tests for TF installer project (temporarily moved under `./others-orig`).
+- Update docs (temporarily moved under `./others-orig`) to sync with the new workflow.  General usage of the new
+driver script is currently documented under `./docs/usage.md`.
+- Convert Gitlab CI pipelines to Wercker pipelines.
+
+### Further Improvements
+Other improvements that could be made, but may not be strictly required to merge this branch:
+
+- CI test scenarios covering more permutations of cluster setup options.  
+- More consistent naming of parameters to create_env.py.  Parameter names are based on parameters from 
+the current TF installer, but these could be made more consistent in general (for example, we have params
+starting with "k8s_worker" and others starting with "worker").
+- Remove the few remaining cloud-init bits (such as for mounting block volumes), moving these to Ansible as well.
+- Remove the need for Terragrunt completely.
+
+### Future Work
+
+- Investigate using Ansible code from [kubespray](https://github.com/kubernetes-incubator/kubespray) to replace
+our current Ansible code under `./roles`.  The rest of the project structure could remain intact, and if 
+kubespray is compatible with OCI and OEL, we'd be essentially just swapping our current Ansible with kubespray.
 
 ## Repository Structure
 
