@@ -36,5 +36,10 @@ resource "oci_identity_policy" "flexvolume_driver_policy" {
     "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to use volumes in compartment id ${var.compartment_ocid}",
     "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to use instances in compartment id ${var.compartment_ocid}",
     "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to manage volume-attachments in compartment id ${var.compartment_ocid}",
+
+    "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to read file-systems in compartment id ${var.compartment_ocid}",
+    "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to read mount-targets in compartment id ${var.compartment_ocid}",
+    "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to read private-ips in compartment id ${var.compartment_ocid}",
+    "Allow group id ${oci_identity_group.flexvolume_driver_group.id} to manage export-sets in compartment id ${var.compartment_ocid}",
   ]
 }
