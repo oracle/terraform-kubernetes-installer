@@ -1,7 +1,5 @@
 # Kubernetes Setup with Terraform and Ansible
 
-[![build status](https://gitlab-odx.oracle.com/sre/k8s-terraform-ansible/badges/master/build.svg)](https://gitlab-odx.oracle.com/sre/k8s-terraform-ansible/commits/master)
-
 This project sets up a Kubernetes cluster using Terraform and Ansible.  It addresses 
 [this](https://github.com/oracle/terraform-kubernetes-installer/issues/152) tracking issue.
 
