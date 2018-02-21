@@ -1,66 +1,46 @@
-# Terraform Kubernetes Installer for OCI Tests
+# Integration Tests
 
-## About
+This directory contains all integration tests.  These are meant to verify the functionalilty of a
+given environment.  General guidelines for integration tests:
+* They should be fairly quick, and run within a few minutes.
+* Our health check (./scripts/health.py) is a subset of these integration tets. 
+* They may make config changes to an environment to verify what they need to verify.
+In contrast, our health check may *not* make configuration (or any other disruptive) changes.
+* For this reason, we can freely run our _health check_ against any live environment.  But _integration 
+tests_ should only be run against environments whose purpose is exclusively for testing.
 
-The Terraform Kubernetes Installer for OCI Tests provides a set of tests including:
-
-- Terraform static config validation
-- Cluster Creation Tests
-
-Tests can be run locally and are are run against **every** commit to the main branch by default. Successful test results are also required before merging PRs into the main branch, although this is not currently automatic.
-
-## Running Tests Locally on the CLI (in your own tenancy)
-
-#### Prerequisites
-
-- Set up the general prerequisites as defined [here](../README.md#Prerequisites)
+## Prerequisites
 - Install [Python](https://www.python.org/downloads) 2.7 or later
-- Install required Python packages (below)
-- Create a _terraform.tfvars_ file in the project root that specifies your the required keys and OCIDs for your tenancy, user, and compartment
+- Deploy or reference an environment as described in the [project docs](../README.md)
+- Generate Ansible hosts for the environment as described [here](../ansible/README.md#running-ansible)
+- Install required Python packages:
 
-```bash
-# Install required Python packages
-$ pip install -r requirements.txt
+```
+pip install -r requirements.txt
+
+```
+- Set environment:
+
+```
+source env.sh
 ```
 
-```bash
-# start from the included example
-$ cp terraform.example.tfvars terraform.tfvars
-# specify private_key_path, fingerprint, tenancy_ocid, compartment_ocid, user_ocid, and region.
+## Running Integration Tests
+
+Run all tests:
+```
+python ./integration_tests.py <path_to_environment_health_file>
 ```
 
-```bash
-$ python2.7 ./create/runner.py
+Integration tests can also be run before and after an upgrade, such that the tests load data into an
+environment before an upgrade, and verify that the data is still present after the upgrade.
+
+Run tests _Before_ upgrade, specifying some unique runid:
+```
+python ./integration_tests.py --phase before --runid myrunid123 <path_to_environment_health_file>
 ```
 
-## Running Tests Locally using the Wercker CLI (in your own tenancy)
-
-#### Prerequisites
-
-- Install [Docker](https://docs.docker.com/engine/installation/)
-- Provide Terraform the value of the required keys and OCIDs in the container through environment variables prefixed with `X_TF_VAR`:
-
-```bash
-$ cat /tmp/bmcs_api_key.pem | pbcopy
-$ export X_TF_VAR_private_key=`pbpaste`
-$ export X_TF_VAR_fingerprint=...
-$ export X_TF_VAR_tenancy_ocid=ocid1.tenancy.oci...
-$ export X_TF_VAR_compartment_ocid=ocid1.compartment.oc1...
-$ export X_TF_VAR_user_ocid=ocid1.user.oc1...
-$ export X_TF_VAR_region=...
-$ cat /tmp/cloud_controller_bmcs_api_key.pem | pbcopy
-$ export X_TF_VAR_cloud_controller_user_ocid=ocid1.user.oc1...
-$ export X_TF_VAR_cloud_controller_user_fingerprint=...
-$ export X_TF_VAR_cloud_controller_user_private_key=`pbpaste`
+Run tests _After_ upgrade, specifying the same runid provided to the Before tests:
 ```
-
-```bash
-$ wercker build
-$ wercker deploy
+python ./integration_tests.py --phase after --runid myrunid123 <path_to_environment_health_file>
 ```
-
-### Notes
-
-- By default, the tests will create a series of clusters with Terraform, verify them, then destroy them
-- The tests use their own _cluster_ configuration (instance shapes, etc) defined in resources/*.tfvars
-

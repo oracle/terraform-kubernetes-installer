@@ -134,11 +134,6 @@ variable "etcdAd3Count" {
   default = 0
 }
 
-variable "etcd_endpoints" {
-  type    = "string"
-  default = " "
-}
-
 variable "ssh_public_key_openssh" {
   description = "SSH public key in OpenSSH authorized_keys format for instances (generated if left blank)"
   type        = "string"
@@ -231,37 +226,6 @@ variable "k8sMasterLBShape" {
   default = "100Mbps"
 }
 
-# Docker log file config
-variable "etcd_docker_max_log_size" {
-  description = "Maximum size of the etcd docker container logs"
-  default     = "50m"
-}
-
-variable "etcd_docker_max_log_files" {
-  description = "Maximum number of etcd docker container logs to rotate"
-  default     = "5"
-}
-
-variable "master_docker_max_log_size" {
-  description = "Maximum size of the etcd docker container logs"
-  default     = "50m"
-}
-
-variable "master_docker_max_log_files" {
-  description = "Maximum number of etcd docker container logs to rotate"
-  default     = "5"
-}
-
-variable "worker_docker_max_log_size" {
-  description = "Maximum size of the etcd docker container logs"
-  default     = "50m"
-}
-
-variable "worker_docker_max_log_files" {
-  description = "Maximum number of etcd docker json logs to rotate"
-  default     = "5"
-}
-
 # Kubernetes
 variable "ca_cert" {
   description = "CA certificate (generated if left blank)"
@@ -293,30 +257,6 @@ variable "api_server_admin_token" {
   default     = ""
 }
 
-variable "docker_ver" {
-  default = "17.06.2.ol"
-}
-
-variable "etcd_ver" {
-  default = "v3.2.2"
-}
-
-variable "flannel_ver" {
-  default = "v0.9.1"
-}
-
-variable "k8s_ver" {
-  default = "1.8.5"
-}
-
-variable "k8s_dashboard_ver" {
-  default = "1.6.3"
-}
-
-variable "k8s_dns_ver" {
-  default = "1.14.2"
-}
-
 variable "master_ol_image_name" {
   default = "Oracle-Linux-7.4-2018.01.20-0"
 }
@@ -345,11 +285,6 @@ variable "k8s_master_lb_access" {
 
 variable "master_maintain_private_ip" {
   default = "false"
-}
-
-variable "etcd_lb_access" {
-  description = "Whether etcd load balancer is launched in a public or private subnet"
-  default     = "private"
 }
 
 variable "etcd_maintain_private_ip" {
@@ -406,72 +341,4 @@ variable "etcd_iscsi_volume_create" {
 variable "etcd_iscsi_volume_size" {
   description = "Size of iscsi volume to be created"
   default     = 50
-}
-
-variable "flannel_backend" {
-  description = "Flannel backend - possible choices are vxlan, udp, and host-gw"
-  default     = "VXLAN"
-}
-
-# Cloud controller 
-variable "cloud_controller_version" {
-  default = "0.2.0"
-}
-
-variable "cloud_controller_user_ocid" {
-  default = ""
-}
-
-variable "cloud_controller_user_fingerprint" {
-  default = ""
-}
-
-variable "cloud_controller_user_private_key_path" {
-  default = ""
-}
-
-variable "cloud_controller_user_private_key_password" {
-  default = ""
-}
-
-# Flexvolume driver
-variable "flexvolume_driver_version" {
-  default = "0.5.1"
-}
-
-variable "flexvolume_driver_user_ocid" {
-  default = ""
-}
-
-variable "flexvolume_driver_user_fingerprint" {
-  default = ""
-}
-
-variable "flexvolume_driver_user_private_key_path" {
-  default = ""
-}
-
-variable "flexvolume_driver_user_private_key_password" {
-  default = ""
-}
-
-# Volume provisioner
-variable "volume_provisioner_version" {
-  default = "0.4.1"
-}
-
-variable "volume_provisioner_user_ocid" {
-  default = ""
-}
-
-variable "volume_provisioner_user_fingerprint" {
-  default = ""
-}
-
-variable "volume_provisioner_user_private_key_path" {
-  default = ""
-}
-
-variable "volume_provisioner_user_private_key_password" {
-  default = ""
 }

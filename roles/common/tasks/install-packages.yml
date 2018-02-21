@@ -1,0 +1,30 @@
+- name: Add Oracle Yum Repos
+  yum_repository:
+    name: ol7_software_collections
+    description: "Software Collection Library release 2.1 packages for Oracle Linux 7 (x86_64)"
+    file: public-yum-ol7
+    baseurl: http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+    gpgcheck: yes
+    enabled: yes
+
+- name: Add EPEL repository
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: Install yum apps
+  yum:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - vim
+    - python
+    - python-pip
+    - htop
+    - telnet
+    - nc
+    - curl
+    - "docker-engine-{{ docker_ver }}"
+    - ntp

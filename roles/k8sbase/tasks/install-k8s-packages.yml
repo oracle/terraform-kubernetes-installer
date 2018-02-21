@@ -1,0 +1,25 @@
+---
+- name: Add Kubernetes repo
+  yum_repository:
+    name: yum.kubernetes.io_repos_kubernetes-el7-x86_64
+    description: Kubernetes repo
+    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+
+- name: Import Google cloud YUM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+
+- name: Import Google cloud RPM key
+  rpm_key:
+    state: present
+    key: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: Install K8S base packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubelet
+    - kubectl
+    - kubernetes-cni

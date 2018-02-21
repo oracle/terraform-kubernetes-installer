@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-apiserver
+    image: quay.io/coreos/hyperkube:v{{ k8s_ver }}_coreos.0
+    command:
+    - /hyperkube
+    - apiserver
+    - --apiserver-count={{ groups['k8s-master'] | length }}
+    - --etcd-servers={% for host in groups['etcd']  %}
+http://{{ hostvars[host]['ansible_default_ipv4']['address']}}:{{ etcd_client_port }}
+{%- if loop.first %},{% endif %}
+{% endfor %}
+
+    - --allow-privileged=true
+    - --service-cluster-ip-range=10.21.0.0/16
+    - --secure-port=443
+    - --insecure-port=8080
+    - --insecure-bind-address=0.0.0.0
+    - --audit-log-maxage=30
+    - --audit-log-maxsize=100
+    - --audit-log-path=/var/log/apiserver/audit.log
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,Initializers
+    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
+    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --runtime-config=batch/v2alpha1,extensions/v1beta1=true,extensions/v1beta1/networkpolicies=true,admissionregistration.k8s.io/v1alpha1=true
+    - --anonymous-auth=true
+    #- --authorization-mode=RBAC
+    - --etcd-quorum-read=true
+    - --kubelet-client-certificate=/etc/kubernetes/ssl/apiserver.pem
+    - --kubelet-client-key=/etc/kubernetes/ssl/apiserver-key.pem
+    ports:
+    - containerPort: 443
+      hostPort: 443
+      name: https
+    - containerPort: 8080
+      hostPort: 8080
+      name: local
+    volumeMounts:
+    - mountPath: /etc/kubernetes/auth
+      name: auth-kubernetes
+      readOnly: true
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+    - mountPath: /var/log/apiserver
+      name: apiserver-logs
+      readOnly: false
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/auth
+    name: auth-kubernetes
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+  - hostPath:
+      path: /var/log/apiserver
+    name: apiserver-logs

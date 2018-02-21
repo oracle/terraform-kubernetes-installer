@@ -19,23 +19,11 @@ variable "label_prefix" {
   default = ""
 }
 
-variable "docker_ver" {
-  default = "17.06.2.ol"
-}
-
 variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2018.01.20-0"
 }
 
-variable "etcd_ver" {
-  default = "v3.2.2"
-}
-
 variable "tenancy_ocid" {}
-variable "flannel_network_cidr" {}
-variable "flannel_network_subnetlen" {}
-variable "flannel_backend" {}
-variable "etcd_discovery_url" {}
 
 variable "count" {
   default = "1"
@@ -44,15 +32,6 @@ variable "count" {
 variable "control_plane_subnet_access" {
   description = "Whether instances in the control plane are launched in a public or private subnets"
   default     = "public"
-}
-
-variable "etcd_docker_max_log_size" {
-  description = "Maximum size of the etcd docker container json logs"
-  default = "50m"
-}
-variable "etcd_docker_max_log_files" {
-  description = "Maximum number of etcd docker container json logs to rotate"
-  default = "5"
 }
 
 # iSCSI

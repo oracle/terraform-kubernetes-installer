@@ -37,6 +37,10 @@ variable "k8s-serviceip" {
   default = "10.21.0.1"
 }
 
+variable "master_ips" {
+  default = []
+}
+
 variable "master_lb_public_ip" {}
 
 variable "ssh_private_key" {

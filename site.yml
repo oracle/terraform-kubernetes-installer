@@ -1,0 +1,48 @@
+---
+- hosts: all
+  gather_facts: yes
+
+- hosts: all
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  roles:
+    - { role: common, tags: ['common'] }
+  vars_files:
+    - vars/main.yml
+
+- hosts: etcd
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  vars_files:
+    - vars/main.yml
+  roles:
+    - { role: etcd, tags: ['etcd'] }
+
+- hosts: k8s-master, k8s-worker
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  roles:
+    - { role: k8sbase, tags: ['k8sbase']  }
+  vars_files:
+    - vars/main.yml
+
+- hosts: k8s-master
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  vars_files:
+    - vars/main.yml
+  roles:
+    - { role: k8smaster, tags: ['k8smaster'] }
+
+- hosts: k8s-worker
+  gather_facts: yes
+  remote_user: opc
+  become: yes
+  vars_files:
+    - vars/main.yml
+  roles:
+    - { role: k8sworker, tags: ['k8sworker'] }

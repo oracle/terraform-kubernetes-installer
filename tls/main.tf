@@ -52,7 +52,8 @@ resource "tls_cert_request" "api-server" {
       "${var.master_lb_public_ip}",
       "${var.k8s-serviceip}",
       "127.0.0.1"
-  ))}"]
+      ))}",
+    "${var.master_ips}"]
 
   # system:masters group
   subject {

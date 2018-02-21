@@ -1,0 +1,98 @@
+---
+# Use the first master in the list here - it should be mostly safe to assume this is available by this point.
+# We may want to consider looping through available masters
+- name: Determine the Master internal IP
+  set_fact:
+    master_ip: "{{ hostvars[groups['k8s-master'][0]]['ansible_default_ipv4']['address']}}"
+
+- name: Create service dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+# TODO - check if we can remove this
+- name: Environment config commands before starting kubelet
+  command: "{{ item }}"
+  with_items:
+    - iptables -F
+    - setenforce 0
+  changed_when: False
+
+- name: Create service yaml dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Install K8S proxy yaml file
+  template:
+    src: templates/kube-proxy.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-proxy.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S kubeconfig
+  template:
+    src: templates/worker-kubeconfig.yaml
+    dest: "{{ k8s_manifests_dir }}/worker-kubeconfig.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Query OCI metadata about the worker
+  uri:
+    url: "{{ oci_metadata_service }}"
+    method: GET
+    status_code: 200
+  register: oci_metadata
+
+- name: Parse OCI metadata
+  set_fact:
+    region: "{{ oci_metadata.json.region }}"
+    availability_domain: "{{ oci_metadata.json.availabilityDomain | regex_replace(':', '-') }}"
+    zone: "{{ oci_metadata.json.availabilityDomain | lower | regex_replace(':', '-') }}"
+    shape: "{{ oci_metadata.json.shape }}"
+
+- name: Install Kubelet service file
+  template:
+    src: templates/kubelet.service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+    mode: 0644
+  register: kubelet_service
+
+- name: Restart Kubelet Service
+  service:
+     name: kubelet
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: kubelet_service.changed
+
+- name: Wait until worker becomes Ready according to the master
+  health_check:
+     url: "http://{{ master_ip }}:8080/api/v1/nodes/{{ ansible_fqdn }}"
+     expected_status: 200
+     expected_regexp: '.*"Ready".*'
+     initial_delay: 0
+     delay_between_tries: 5
+     max_retries: 50
+
+#
+# Wait until key services that depend on the workers are actually up and running
+#
+- name: Wait until K8S DNS is fully running
+  health_check:
+     url: "http://{{ master_ip }}:8080/apis/extensions/v1beta1/namespaces/kube-system/deployments/kube-dns"
+     expected_status: 200
+     expected_regexp: '.*MinimumReplicasAvailable*'
+     initial_delay: 0
+     delay_between_tries: 5
+     max_retries: 100

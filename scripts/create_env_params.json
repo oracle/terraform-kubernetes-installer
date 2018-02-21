@@ -1,0 +1,362 @@
+{
+  "managed": {
+    "help": "Create a \"managed\" environment whose state we'll be encrypting and committing to Git",
+    "type": "boolean",
+    "prompt": true,
+    "default": null
+  },
+  "resume": {
+    "help": "Resume execution of a failed previous run",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "skip_branch": {
+    "help": "Skip creation of a new branch with a managed environment's files",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "prefs": {
+    "help": "File containing user preferences",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "vars_file": {
+    "help": "Ansible vars file to append to the generated environment\"s vars file",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "tenancy_ocid": {
+    "help": "OCI Tenancy OCID",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "compartment_ocid": {
+    "help": "OCI Compartment OCID",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "user_ocid": {
+    "help": "OCI User OCID",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "fingerprint": {
+    "help": "OCI API Fingerprint",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "private_key_file": {
+    "help": "OCI Private Key File",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "region": {
+    "help": "OCI Region to use",
+    "type": "string",
+    "prompt": true,
+    "default": null
+  },
+  "k8s_masters": {
+    "help": "Number of K8S master nodes for respective ADs",
+    "type": "string",
+    "prompt": true,
+    "default": "1,0,0"
+  },
+  "k8s_master_shape": {
+    "help": "OCI Compute node shape to use for K8S master nodes",
+    "type": "string",
+    "prompt": true,
+    "default": "VM.Standard1.2"
+  },
+  "k8s_master_lb_enabled": {
+    "help": "Enable OCI Load Balancer in from of K8S master nodes",
+    "type": "boolean",
+    "prompt": true,
+    "default": true
+  },
+  "k8s_master_lb_shape": {
+    "help": "K8S Master OCI Load Balancer shape / bandwidth",
+    "type": "string",
+    "prompt": false,
+    "default": "100Mbps"
+  },
+  "k8s_workers": {
+    "help": "Number of K8S worker nodes for respective ADs",
+    "type": "string",
+    "prompt": true,
+    "default": "1,0,0"
+  },
+  "k8s_workers": {
+    "help": "Number of K8S worker nodes for respective ADs",
+    "type": "string",
+    "prompt": true,
+    "default": "1,0,0"
+  },
+  "k8s_worker_shape": {
+    "help": "OCI Compute node shape to use for K8S worker nodes",
+    "type": "string",
+    "prompt": true,
+    "default": "VM.Standard1.2"
+  },
+  "etcds": {
+    "help": "Number of dedicated Etcd nodes for respective ADs (specifying 0 will colocate Etcd with K8S masters)",
+    "type": "string",
+    "prompt": true,
+    "default": "0,0,0"
+  },
+  "etcd_shape": {
+    "help": "OCI Compute node shape to use for dedicated Etcd nodes",
+    "type": "string",
+    "prompt": false,
+    "default": "VM.Standard1.2"
+  },
+  "docker_ver": {
+    "help": "Version of Docker to install",
+    "type": "string",
+    "prompt": false,
+    "default": "17.06.2.ol"
+  },
+  "etcd_ver": {
+    "help": "Version of Etcd to install",
+    "type": "string",
+    "prompt": false,
+    "default": "3.2.2"
+  },
+  "flannel_ver": {
+    "help": "Version of Flannel to install",
+    "type": "string",
+    "prompt": false,
+    "default": "0.10.0"
+  },
+  "k8s_ver": {
+    "help": "Version of K8S to install (masters and workers)",
+    "type": "string",
+    "prompt": false,
+    "default": "1.8.5"
+  },
+  "k8s_dns_ver": {
+    "help": "Version of K8S DNS to install",
+    "type": "string",
+    "prompt": false,
+    "default": "1.14.2"
+  },
+  "k8s_dashboard_ver": {
+    "help": "Version of K8S dashboard to install",
+    "type": "string",
+    "prompt": false,
+    "default": "1.6.3"
+  },
+  "flannel_network_cidr": {
+    "help": "A CIDR notation IP range to use for flannel",
+    "type": "string",
+    "prompt": false,
+    "default": "10.99.0.0/16"
+  },
+  "flannel_backend": {
+    "help": "Backend to use for Flannel, choices are vxlan, udp, and host-gw",
+    "type": "string",
+    "prompt": false,
+    "default": "VXLAN"
+  },
+  "ca_cert": {
+    "help": "String value of PEM encoded CA certificate, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "ca_key": {
+    "help": "String value of PEM encoded CA private key, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "api_server_private_key": {
+    "help": "String value of PEM private key of API server, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "api_server_cert": {
+    "help": "String value of PEM encoded certificate for API server, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "api_server_admin_token": {
+    "help": "String value of the admin user's bearer token for API server, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "ssh_private_key": {
+    "help": "String value of PEM encoded SSH key pair for instances, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "ssh_public_key_openssh": {
+    "help": "String value of OpenSSH encoded SSH key pair key for instances, generated if not provided",
+    "type": "string",
+    "prompt": false,
+    "default": null
+  },
+  "master_ol_image_name": {
+    "help": "Image name of an Oracle-Linux-7.X image to use for K8S master nodes",
+    "type": "string",
+    "prompt": false,
+    "default": "Oracle-Linux-7.4-2018.01.20-0"
+  },
+  "worker_ol_image_name": {
+    "help": "Image name of an Oracle-Linux-7.X image to use for K8S worker nodes",
+    "type": "string",
+    "prompt": false,
+    "default": "Oracle-Linux-7.4-2018.01.20-0"
+  },
+  "etcd_ol_image_name": {
+    "help": "Image name of an Oracle-Linux-7.X image to use for dedicated Etcd nodes",
+    "type": "string",
+    "prompt": false,
+    "default": "Oracle-Linux-7.4-2018.01.20-0"
+  },
+  "nat_ol_image_name": {
+    "help": "Image name of an Oracle-Linux-7.X image to use for NAT instances (if applicable)",
+    "type": "string",
+    "prompt": false,
+    "default": "Oracle-Linux-7.4-2018.01.20-0"
+  },
+  "control_plane_subnet_access": {
+    "help": "Whether instances in the control plane are launched in a public or private subnets",
+    "type": "string",
+    "prompt": false,
+    "default": "public"
+  },
+  "k8s_master_lb_access": {
+    "help": "Whether the Kubernetes Master Load Balancer is launched in a public or private subnets",
+    "type": "string",
+    "prompt": false,
+    "default": "public"
+  },
+  "etcd_cluster_ingress": {
+    "help": "A CIDR notation IP range that is allowed to access the etcd cluster, must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "10.0.0.0/16"
+  },
+  "etcd_ssh_ingress": {
+    "help": "A CIDR notation IP range that is allowed to SSH to etcd nodes, must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "master_ssh_ingress": {
+    "help": "A CIDR notation IP range that is allowed to access the master(s), must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "master_https_ingress": {
+    "help": "A CIDR notation IP range that is allowed to access the HTTPs port on the master(s), must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "worker_ssh_ingress": {
+    "help": "A CIDR notation IP range that is allowed to SSH to worker(s), must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "worker_nodeport_ingress": {
+    "help": "A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s). Must be a subset of the VCN CIDR",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "worker_iscsi_volume_create": {
+    "help": "Attach an iSCSI volume to attach to each K8S worker node",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "worker_iscsi_volume_size": {
+    "help": "Size of an iSCSI volume to attach to each K8S worker node",
+    "type": "string",
+    "prompt": false,
+    "default": "50"
+  },
+  "worker_iscsi_volume_mount": {
+    "help": "Mount path of iSCSI volume when worker_iscsi_volume_size",
+    "type": "string",
+    "prompt": false,
+    "default": "/var/lib/docker"
+  },
+  "etcd_iscsi_volume_create": {
+    "help": "Attach an iSCSI volume to attach to each dedicated Etcd node",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "etcd_iscsi_volume_size": {
+    "help": "Size of an iSCSI volume to attach to each dedicated Etcd node",
+    "type": "string",
+    "prompt": false,
+    "default": "50"
+  },
+  "dedicated_nat_subnets": {
+    "help": "Provision dedicated subnets in each AD that are only used by NAT instance(s) (separate subnets = separate control)",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "public_subnet_ssh_ingress": {
+    "help": "A CIDR notation IP range that is allowed to SSH to instances in the public subnet (including NAT instances)",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "public_subnet_http_ingress": {
+    "help": "A CIDR notation IP range that is allowed access to port 80 on instances in the public subnet",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "public_subnet_https_ingress": {
+    "help": "A CIDR notation IP range that is allowed access to port 443 on instances in the public subnet",
+    "type": "string",
+    "prompt": false,
+    "default": "0.0.0.0/0"
+  },
+  "nat_instance_shape": {
+    "help": "OCI shape for the optional NAT instance. Size according to the amount of expected outbound traffic from nodes and pods",
+    "type": "string",
+    "prompt": false,
+    "default": "VM.Standard1.1"
+  },
+  "nat_instance_ad1_enabled": {
+    "help": "Provision a NAT instance in AD 1 (only used when control_plane_subnet_access=private)",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "nat_instance_ad2_enabled": {
+    "help": "Provision a NAT instance in AD 2 (only used when control_plane_subnet_access=private)",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  },
+  "nat_instance_ad3_enabled": {
+    "help": "Provision a NAT instance in AD 3 (only used when control_plane_subnet_access=private)",
+    "type": "boolean",
+    "prompt": false,
+    "default": false
+  }
+}

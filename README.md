@@ -1,174 +1,77 @@
-[terraform]: https://terraform.io
-[oci]: https://cloud.oracle.com/cloud-infrastructure
-[oci provider]: https://github.com/oracle/terraform-provider-oci/releases
-[API signing]: https://docs.us-phoenix-1.oraclecloud.com/Content/API/Concepts/apisigningkey.htm
-[Kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+# Kubernetes Setup with Terraform and Ansible
 
-# Terraform Kubernetes Installer for Oracle Cloud Infrastructure
+This project sets up a Kubernetes cluster using Terraform and Ansible.  It addresses 
+[this](https://github.com/oracle/terraform-kubernetes-installer/issues/152) tracking issue.
 
-[![wercker status](https://app.wercker.com/status/7dd9fa20b980673dc0e252961950f590/s/master "wercker status")](https://app.wercker.com/project/byKey/7dd9fa20b980673dc0e252961950f590)
+## Status
 
-## About
+### Current Branch Status
 
-The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
-Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is 
-used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][oci] (OCI).
+This branch is currently fairly robust and contains: 
+- The full project structure to stand up a working Kubernetes cluster with polished Terraform and Ansible code.
+- Terraform code based on the latest TF installer code, pruned down to remove software configuration.
+- Working driver scripts for creating environments and managing them via Ansible.
+- Most parameters from the TF installer exposed via the driver script.
+- Working integration tests deploy and verify a multi-service app.
+- Working Gitlab pipeline which stands up an environment and runs integration tests.
 
+### Further Work Needed to Reach Full Parity with TF Installer
+- Installation of K8S OCI flex volume and ingress controller and related config parameters to create_env.py.
+- (worker|master|etcd)_docker_* configuration parameters to create_env.py and related Ansible config code.
+- Need to add Nginx installation on worker nodes (for communication with masters) and on master nodes (for communication with etcds).
+- Get private cluster setup working, via a bastion when deploying Ansible.
+- Sync with latest tests for TF installer project (temporarily moved under `./others-orig`).
+- Update docs (temporarily moved under `./others-orig`) to sync with the new workflow.  General usage of the new
+driver script is currently documented under `./docs/usage.md`.
+- Convert Gitlab CI pipelines to Wercker pipelines.
 
-## Cluster Overview
+### Further Improvements
+Other improvements that could be made, but may not be strictly required to merge this branch:
 
-Terraform is used to _provision_ the cloud infrastructure and any required local resources for the Kubernetes cluster including:
+- CI test scenarios covering more permutations of cluster setup options.  
+- More consistent naming of parameters to create_env.py.  Parameter names are based on parameters from 
+the current TF installer, but these could be made more consistent in general (for example, we have params
+starting with "k8s_worker" and others starting with "worker").
+- Create_env user interface could be made slicker if the user is prompted for certain parameters 
+_conditionally_.  For example, for master LB shape only when master LB specified.   
+- Remove the few remaining cloud-init bits (such as for mounting block volumes), moving these to Ansible as well.
+- Remove the need for Terragrunt completely.
 
-#### OCI Infrastructure
+### Future Work
 
-- Virtual Cloud Network (VCN) with dedicated subnets for etcd, masters, and workers in each availability domain
-- Dedicated compute instances for etcd, Kubernetes master and worker nodes in each availability domain
-- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the Kubernetes Master(s)
-- [Public or Private](./docs/input-variables.md#network-access-configuration) TCP/SSL OCI Load Balancer to distribute traffic to the node(s) in the etcd cluster
-- [Optional](./docs/input-variables.md#private-network-access) NAT instance for Internet-bound traffic on any private subnets
-- 2048-bit SSH RSA Key-Pair for compute instances when not overridden by `ssh_private_key` and `ssh_public_key_openssh` [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair)
-- Self-signed CA and TLS cluster certificates when not overridden by the [input variables](./docs/input-variables.md#tls-certificates--ssh-key-pair) `ca_cert`, `ca_key`, etc.
+- Investigate using Ansible code from [kubespray](https://github.com/kubernetes-incubator/kubespray) to replace
+our current Ansible code under `./roles`.  The rest of the project structure could remain intact, and if 
+kubespray is compatible with OCI and OEL, we'd be essentially just swapping our current Ansible with kubespray.
 
-#### Cluster Configuration
+## Repository Structure
 
-Terraform uses cloud-init scripts to handle the instance-level _configuration_ for instances in the Control Plane to 
-configure:
+* Ansible-related:
+  * **roles** - Ansible roles.
+  * **vars** - Ansible variables.
+* Terraform-related:
+  * **identity** - Terraform provider.
+  * **instances** - Terraform compute instances.
+  * **network** - Terraform network - VCNs and load balancers.
+  * **tls** - Terraform key and cert generation.
+* **envs** - Contains Terraform state and Ansible custom variables for all both managed (long-lived) and unmanaged
+(ephemeral) environments:
+  * Managed environments are checked into Git under `./envs` and are called `dev`, `integ`, or `prod`.  
+  * Unmanaged environments are also placed under `./envs`, can be called anything else, and are not checked into Git. 
+  * Notice how there are no Terraform config files in any of the live directories. Instead, a `terraform.tfvars` 
+  file points up to the project root directory, which has the actual Terraform config.
+* **images** - Custom Docker images used by this project.
+* **library** - Custom Ansible tasks.
+* **scripts** - Scripts to create and manage environments.
+* **tests** - Integration tests.
 
-- Highly Available (HA) Kubernetes master configuration
-- Highly Available (HA) etcd cluster configuration
-- Optional [GPU support](./docs/gpu-workers.md) for worker nodes that need to run specific workloads
-- Kubernetes Dashboard and kube-DNS cluster add-ons
-- Kubernetes RBAC (role-based authorization control)
-- Integration with OCI [Cloud Controller Manager](https://github.com/oracle/oci-cloud-controller-manager) (CCM)
-- Integration with OCI [Flexvolume Driver](https://github.com/oracle/oci-flexvolume-driver)
+## [Using This Repo](docs/usage.md)
 
-The Terraform scripts also accept a number of other [input variables](./docs/input-variables.md) to choose instance shapes (including GPU) and how they are placed across the availability domain (ADs), etc. If your requirements extend beyond the base configuration, the modules can be used to form your own customized configuration.
+## [CI/CD](docs/ci-cd.md)
 
-![](./docs/images/arch.jpg)
+## [Scripts](docs/scripts.md)
 
-## Prerequisites
+## [Integration Tests](tests/README.md)
 
-1. Download and install [Terraform][terraform] (v0.10.3 or later)
-2. Download and install the [OCI Terraform Provider][oci provider] (v2.0.0 or later)
-3. Create an Terraform configuration file at  `~/.terraformrc` that specifies the path to the OCI provider:
-```
-providers {
-  oci = "<path_to_provider_binary>/terraform-provider-oci"
-}
-```
-4.  Ensure you have [Kubectl][Kubectl] installed if you plan to interact with the cluster locally
+## [Terraform References](docs/terraform.md)
 
-###### Optionally create separate IAM resources for OCI plugins
-
-The OCI [Cloud Controller Manager (CCM)](https://github.com/oracle/oci-cloud-controller-manager) and [Volume Provisioner (VP)](https://github.com/oracle/oci-volume-provisioner) enables Kubernetes to dynamically provision OCI resources such as Load Balancers and Block Volumes as a part of pod and service creation. In order to facilitate this, OCI credentials and OCID information are automatically stored in the cluster as a Kubernetes Secret.
-
-By default, the credentials of the user creating the cluster is used. However, in some cases, it makes sense to use a more restricted set of credentials whose policies are limited to a particular set of resources within the compartment.
-
-To Terraform separate IAM users, groups, and policy resources, run the `terraform plan` and `terraform apply` commands from the `identity` directory and set the appropriate [input variables](./docs/input-variables.md#mandatory-input-variables) relating to your custom users, fingerprints, and key paths.
-
-## Quick start
-
-### Customize the configuration
-
-Create a _terraform.tfvars_ file in the project root that specifies your configuration.
-
-```bash
-# start from the included example
-$ cp terraform.example.tfvars terraform.tfvars
-```
-
-* Set [mandatory](./docs/input-variables.md#mandatory-input-variables) OCI input variables relating to your tenancy, user, and compartment.
-* Override [optional](./docs/input-variables.md#optional-input-variables) input variables to customize the default configuration.
-
-### Deploy the cluster
-
-Initialize Terraform:
-
-```
-$ terraform init
-``` 
-
-View what Terraform plans do before actually doing it:
-
-```
-$ terraform plan
-```
-
-Use Terraform to Provision resources and stand-up k8s cluster on OCI:
-
-```
-$ terraform apply
-```
-
-### Access the cluster
-
-The Kubernetes cluster will be running after the configuration is applied successfully and the cloud-init scripts have been given time to finish asynchronously. Typically, this takes around 5 minutes after `terraform apply` and will vary depending on the overall configuration, instance counts, and shapes.
-
-A working kubeconfig can be found in the `./generated` folder or generated on the fly using the `kubeconfig` Terraform output variable.
-
-Your network access settings determine whether your cluster is accessible from the outside. See [Accessing the Cluster](./docs/cluster-access.md) for more details.
-
-#### Verify the cluster:
-
-If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
-your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
-
-To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
-
-```bash
-# warning: 0.0.0.0/0 is wide open. remember to undo this.
-etcd_ssh_ingress = "0.0.0.0/0"
-master_ssh_ingress = "0.0.0.0/0"
-worker_ssh_ingress = "0.0.0.0/0"
-master_https_ingress = "0.0.0.0/0"
-worker_nodeport_ingress = "0.0.0.0/0"
-```
-
-```bash
-$ scripts/cluster-check.sh
-```
-```
-[cluster-check.sh] Running some basic checks on Kubernetes cluster....
-[cluster-check.sh]   Checking ssh connectivity to each node...
-[cluster-check.sh]   Checking whether instance bootstrap has completed on each node...
-[cluster-check.sh]   Checking Flannel's etcd key from each node...
-[cluster-check.sh]   Checking whether expected system services are running on each node...
-[cluster-check.sh]   Checking status of /healthz endpoint at each k8s master node...
-[cluster-check.sh]   Checking status of /healthz endpoint at the LB...
-[cluster-check.sh]   Running 'kubectl get nodes' a number of times through the master LB...
-
-The Kubernetes cluster is up and appears to be healthy.
-Kubernetes master is running at https://129.146.22.175:443
-KubeDNS is running at https://129.146.22.175:443/api/v1/proxy/namespaces/kube-system/services/kube-dns
-kubernetes-dashboard is running at https://129.146.22.175:443/ui
-```
-
-### Deploy a simple load-balanced application with shared volumes
-
-Check out the [example application deployment](./docs/example-deployments.md) for a walk through of deploying a simple application that leverages both the Cloud Controller Manager and Flexvolume Driver plugins.
-
-### Scale, upgrade, or delete the cluster
-
-Check out the [example cluster operations](./docs/examples.md) for details on how to use Terraform to scale, upgrade, replace, or delete your cluster.
-
-## Known issues and limitations
-
-* The OCI Load Balancers that gets created and attached to the VCN when a service of type `--type=LoadBalancer` is an out-of-band change to Terraform. As a result, the cluster's VCN will not be able to be destroyed until all services of type `LoadBalancer` have been deleted using `kubectl` or the OCI Console.
-* The OCI Block Volumes that gets created and attached to the workers when persistent volumes are create is also an out-of-band change to Terraform. As a result, the instances will not be able to be destroyed until all persistent volumes have been deleted using `kubectl` or the OCI Console.
-* Scaling or replacing etcd members in or out after the initial deployment is currently unsupported
-* Failover or HA configuration for NAT instance(s) is currently unsupported
-* Resizing the iSCSI volume will delete and recreate the volume
-* GPU Bare Metal instance shapes are currently only available in the Ashburn region and may be limited to specific availability domains
-* Provisioning a _mix_ of GPU-enabled and non-GPU-enabled worker node instance shapes is currently unsupported
-
-## Testing
-
-Tests run _automatically_ on every commit to the main branch. Additionally, the tests should be run against any pull-request before it is merged.
-
-See [Testing](tests/README.md) for details.
-
-## Contributing
-
-This project is open source. Oracle appreciates any contributions that are made by the open source community.
-
-See [Contributing](CONTRIBUTING.md) for details.
+## [Ansible References](docs/ansible.md)

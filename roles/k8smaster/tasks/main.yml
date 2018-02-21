@@ -1,0 +1,137 @@
+---
+- name: Create manifests dirs
+  file:
+    state: directory
+    path: "{{ k8s_manifests_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S API server yaml file
+  template:
+    src: templates/kube-apiserver.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-apiserver.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S controller yaml file
+  template:
+    src: templates/kube-controller-manager.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-controller-manager.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S proxy yaml file
+  template:
+    src: templates/kube-proxy.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-proxy.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S scheduler yaml file
+  template:
+    src: templates/kube-scheduler.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-scheduler.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install K8S RBAC yaml file
+  template:
+    src: templates/kube-rbac-role-binding.yaml
+    dest: "{{ k8s_manifests_dir }}/kube-rbac-role-binding.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+# TODO - check if we can remove this
+- name: Environment config commands before starting kubelet
+  command: "{{ item }}"
+  with_items:
+    - iptables -F
+    - setenforce 0
+  changed_when: False
+
+- name: Install K8S kubeconfig
+  template:
+    src: templates/master-kubeconfig.yaml
+    dest: "{{ k8s_manifests_dir }}/master-kubeconfig.yaml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Query OCI metadata about the worker
+  uri:
+    url: "{{ oci_metadata_service }}"
+    method: GET
+    status_code: 200
+  register: oci_metadata
+
+- name: Parse OCI metadata
+  set_fact:
+    region: "{{ oci_metadata.json.region }}"
+    availability_domain: "{{ oci_metadata.json.availabilityDomain | regex_replace(':', '-') }}"
+    zone: "{{ oci_metadata.json.availabilityDomain | lower | regex_replace(':', '-') }}"
+    shape: "{{ oci_metadata.json.shape }}"
+
+- name: Install Kubelet service file
+  template:
+    src: templates/kubelet.service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+    mode: 0644
+  register: kubelet_service
+
+- name: Restart Kubelet Service
+  service:
+     name: kubelet
+     daemon-reload: yes
+     state: restarted
+     enabled: yes
+  when: kubelet_service.changed
+
+- name: Ensure K8s API server comes up
+  health_check:
+     url: http://localhost:8080/healthz
+     expected_status: 200
+     initial_delay: 0
+     delay_between_tries: 5
+     max_retries: 100
+
+- name: Create service yaml dir
+  file:
+    state: directory
+    path: "{{ service_yaml_dir }}"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Prepare K8S DNS yaml file
+  template:
+    src: templates/kube-dns.yaml
+    dest: "{{ service_yaml_dir }}/kube-dns.yaml"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Prepare K8S dashboard yaml file
+  template:
+    src: templates/kubernetes-dashboard.yaml
+    dest: "{{ service_yaml_dir }}/kubernetes-dashboard.yaml"
+    owner: opc
+    group: opc
+    mode: 0755
+
+- name: Install K8S DNS
+  command: "kubectl apply -f {{ service_yaml_dir }}/kube-dns.yaml"
+  when: inventory_hostname == groups['k8s-master'][0]
+  changed_when: False
+
+- name: Install K8S dashboard
+  command: "kubectl apply -f {{ service_yaml_dir }}/kubernetes-dashboard.yaml"
+  when: inventory_hostname == groups['k8s-master'][0]
+  changed_when: False

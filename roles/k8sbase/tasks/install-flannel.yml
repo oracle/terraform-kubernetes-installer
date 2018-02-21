@@ -1,0 +1,108 @@
+---
+- name: Set flannel executed fact
+  set_fact: flannel_executed=False
+
+- name: Check if Flannel tar is downloaded
+  stat:
+    path: "{{ package_download_dir }}/{{ flannel_artifact }}"
+    get_md5: False
+    get_checksum: False
+  register: flannel_downloaded
+
+- name: Download Flannel tar ball
+  get_url:
+    url: "https://github.com/coreos/flannel/releases/download/v{{ flannel_ver }}/{{ flannel_artifact }}"
+    dest: "{{ package_download_dir }}"
+  when: not flannel_downloaded.stat.exists
+
+- name: Untar Flannel tarball
+  unarchive:
+    src: "{{ package_download_dir }}/{{ flannel_artifact }}"
+    dest: "{{ flannel_install_dir }}"
+    remote_src: true
+  register: flannel_install
+  when: not flannel_downloaded.stat.exists
+
+- name: Install Flannel service file
+  template:
+      src: templates/flannel.service
+      dest: /etc/systemd/system/flannel.service
+      owner: root
+      group: root
+      mode: 644
+  register: flannel_service
+
+# Use the first etcd in the list here - it should be mostly safe to assume this is available by this point.
+# We may want to consider looping through available Etcds
+- name: Determine the Etcd internal IP
+  set_fact:
+    etcd_ip: "{{ hostvars[groups['etcd'][0]]['ansible_default_ipv4']['address']}}"
+
+- name: Check for existing Etcd Flannel config key
+  uri:
+    url: "http://{{ etcd_ip }}:{{ etcd_client_port }}/v2/keys/flannel/network/config"
+    method: GET
+    status_code: 200, 404
+  register: etcd_flannel_config
+
+- name: Install Etcd Flannel config key
+  uri:
+    url: "http://{{ etcd_ip }}:{{ etcd_client_port }}/v2/keys/flannel/network/config"
+    method: PUT
+    status_code: 200, 201
+    body: "value={{ flannel_network_json | to_json }}"
+  when: etcd_flannel_config.status == 404
+
+- name: Start Flannel Service
+  service:
+     name: flannel
+     daemon_reload: yes
+     state: restarted
+     enabled: yes
+  when: flannel_install.changed or flannel_service.changed
+
+- name: Install CNI Networking packages
+  yum:
+    name: containernetworking-cni
+    state: present
+
+- name: Create CNI Config Dir
+  file:
+    path: /etc/cni/net.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Install CNI Flannel config file
+  template:
+    src: templates/10-flannel.conf
+    dest: /etc/cni/net.d/10-flannel.conf
+    owner: root
+    group: root
+    mode: 0644
+  register: cni_flannel_config
+
+- name: Install CNI Bridge Startup Script
+  template:
+    src: templates/cni-bridge.sh
+    dest: /usr/local/bin/cni-bridge.sh
+    owner: root
+    group: root
+    mode: 0755
+  register: cni_bridge_config
+
+# Always run this (can'
+- name: Start CNI Bridge
+  shell: "/usr/local/bin/cni-bridge.sh"
+  changed_when: False
+
+- name: Set flannel executed fact
+  set_fact: flannel_executed=True
+
+# Getting K8S pod networking working with firewalld is tricky, turn it off for now
+- name: Disable Firewalld
+  service:
+      name: firewalld
+      state: stopped
+      enabled:  no

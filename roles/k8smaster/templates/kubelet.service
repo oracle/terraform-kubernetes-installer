@@ -1,0 +1,24 @@
+[Unit]
+Requires=docker.service
+After=docker.service
+[Service]
+Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"
+ExecStart=/usr/bin/kubelet \
+  --allow-privileged=true \
+  --cluster_dns=10.21.21.21 \
+  --cluster_domain=cluster.local \
+  --container-runtime=docker \
+  --docker=unix:///var/run/docker.sock \
+  --hostname-override={{ ansible_fqdn }} \
+  --kubeconfig=/etc/kubernetes/manifests/master-kubeconfig.yaml \
+  --require-kubeconfig=true \
+  --network-plugin=cni \
+  --node-labels node-role.kubernetes.io/master=,failure-domain.beta.kubernetes.io/region={{ region }},failure-domain.beta.kubernetes.io/zone={{ zone }},node.info/external.ipaddress={{ inventory_hostname }},node.info/availability.domain={{ availability_domain }},node.info/node.shape={{ shape }} \
+  --pod-manifest-path=/etc/kubernetes/manifests \
+  --register-node=true \
+  --serialize-image-pulls=false \
+  --fail-swap-on=false \
+  --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
+  --v=2
+Restart=always
+RestartSec=10

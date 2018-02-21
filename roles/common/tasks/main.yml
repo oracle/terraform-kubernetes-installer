@@ -1,0 +1,15 @@
+---
+- name: Set common executed fact
+  set_fact: common_executed=False
+
+- include: install-packages.yml
+  tags: ['common_packages']
+
+- include: configure-host.yml
+  tags: ['common_host']
+
+- include: create-dirs.yml
+  tags: ['common', 'common_dirs']
+
+- name: Set common executed fact
+  set_fact: common_executed=True
