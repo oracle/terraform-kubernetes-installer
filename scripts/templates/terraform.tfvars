@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "<PROJECT_ROOT_DIR>/terraform-stack/"
+    source = "<PROJECT_ROOT_DIR>/"
   }
 }
 
