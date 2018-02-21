@@ -436,7 +436,7 @@ variable "cloud_controller_user_private_key_password" {
 
 # Flexvolume driver
 variable "flexvolume_driver_version" {
-  default = "0.5.1"
+  default = "0.5.2"
 }
 
 variable "flexvolume_driver_user_ocid" {
