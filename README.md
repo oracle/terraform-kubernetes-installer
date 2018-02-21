@@ -47,19 +47,24 @@ kubespray is compatible with OCI and OEL, we'd be essentially just swapping our 
 
 ## Repository Structure
 
+* Ansible-related:
+  * **roles** - Ansible roles.
+  * **vars** - Ansible variables.
+* Terraform-related:
+  * **identity** - Terraform provider.
+  * **instances** - Terraform compute instances.
+  * **network** - Terraform network - VCNs and load balancers.
+  * **tls** - Terraform key and cert generation.
 * **envs** - Contains Terraform state and Ansible custom variables for all both managed (long-lived) and unmanaged
 (ephemeral) environments:
   * Managed environments are checked into Git under `./envs` and are called `dev`, `integ`, or `prod`.  
   * Unmanaged environments are also placed under `./envs`, can be called anything else, and are not checked into Git. 
   * Notice how there are no Terraform config files in any of the live directories. Instead, a `terraform.tfvars` 
-  file points up to the `terraform-stack/` directory which has the actual Terraform config.
+  file points up to the project root directory, which has the actual Terraform config.
 * **images** - Custom Docker images used by this project.
 * **library** - Custom Ansible tasks.
-* **roles** - Ansible roles.
 * **scripts** - Scripts to create and manage environments.
-* **terraform-stack** - Terraform code.
 * **tests** - Integration tests.
-* **vars** - Ansible variables.
 
 ## [Using This Repo](docs/usage.md)
 
