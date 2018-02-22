@@ -1,6 +1,6 @@
 {
   "managed": {
-    "help": "Create a \"managed\" environment whose state we'll be encrypting and committing to Git",
+    "help": "Create a 'managed' environment whose state we'll be encrypting and committing to Git",
     "type": "boolean",
     "prompt": true,
     "default": null
@@ -24,7 +24,7 @@
     "default": null
   },
   "vars_file": {
-    "help": "Ansible vars file to append to the generated environment\"s vars file",
+    "help": "Ansible vars file to append to the generated environment's vars file",
     "type": "string",
     "prompt": false,
     "default": null
