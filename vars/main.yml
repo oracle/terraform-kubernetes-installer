@@ -12,3 +12,7 @@ k8s_manifests_dir: "/etc/kubernetes/manifests"
 
 # Publicly documented OCI endpoint from which to retrieve metadata about the instance calling it
 oci_metadata_service: "http://169.254.169.254/opc/v1/instance"
+
+nginx_version:    1.12.1-1
+nginx_config_path: /etc/nginx
+nginx_rpm_url: "https://nginx.org/packages/rhel/7/x86_64/RPMS/nginx-{{ nginx_version }}.el7.ngx.x86_64.rpm"
