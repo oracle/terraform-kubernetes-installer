@@ -1,0 +1,44 @@
+---
+- name: Install nginx
+  yum:
+    name: "{{ nginx_rpm_url }}"
+    validate_certs: no
+    state: present
+  register: nginx_install
+
+- name: Install nginx service
+  template:
+    src: templates/nginx.service
+    dest: /etc/systemd/system/nginx.service
+    owner: root
+    group: root
+    mode: 0644
+  register: nginx_service
+
+- name: Copy nginx config
+  template:
+    src: "templates/nginx.conf.j2"
+    dest: "{{ nginx_config_path }}/nginx.conf"
+  register: nginx_config
+
+- name: SELinux allow listener ports
+  seport:
+    ports: "{{ master_nginx_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+
+- name: All traffic from nginx to backend servers
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+
+- name: Start nginx service
+  tags: nginx_restart
+  service:
+     name: nginx
+     state: restarted
+     enabled: yes
+     daemon_reload: yes
+  when: nginx_install.changed or nginx_service.changed or nginx_config.changed

@@ -227,7 +227,7 @@ def deploy_terraform(args):
     # Generate file indicating the SHA at which Terraform was deployed
     f = open(env_dir + '/' + TERRAFORM_SHA_FILE, 'w')
     cmd = 'git rev-parse --verify HEAD'
-    (stdout, _, returncode) = helpers.run_command(cmd=cmd, cwd=helpers.PROJECT_ROOT_DIR, silent=False, verbose=True)
+    (stdout, _, returncode) = helpers.run_command(cmd=cmd, cwd=helpers.PROJECT_ROOT_DIR, silent=True, verbose=False)
     if returncode != 0:
         raise Exception('Failed to get Git SHA')
     f.write(stdout)

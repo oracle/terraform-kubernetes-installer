@@ -1,0 +1,25 @@
+error_log stderr warn;
+pid        /var/run/nginx.pid;
+worker_rlimit_nofile  200000;
+worker_processes auto;
+events {
+    multi_accept on;
+    use epoll;
+    worker_connections 1024;
+}
+
+stream {
+    upstream apiserver {
+        least_conn;
+    {% for master_host in groups['k8s-master'] %}
+        server {{ hostvars[master_host]['ansible_default_ipv4']['address'] }}:8080;
+    {% endfor %}
+    }
+
+    server {
+        listen        127.0.0.1:{{ master_nginx_port }};
+        proxy_pass    apiserver;
+        proxy_timeout 10m;
+        proxy_connect_timeout 5s;
+    }
+}

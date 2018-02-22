@@ -14,15 +14,26 @@ This branch is currently fairly robust and contains:
 - Most parameters from the TF installer exposed via the driver script.
 - Working integration tests deploy and verify a multi-service app.
 - Working Gitlab pipeline which stands up an environment and runs integration tests.
+- General improvements:
+  - The progress of the cluster setup is visible to the user, and when the driver script/Ansible finishes,
+    the cluster is fully ready to go.
+  - No internal cluster traffic leaves the VCN via LBs or anything else.
+  - Etcd internal communication no longer needs to be done via an LB when this done via Ansible.  Each Etcd 
+    node is aware of its peer's direct addresses (using internal VCN addresses).  Adding or replacing an 
+    Etcd member (and rerunning Ansible) simply refreshes each Etcd's list of peers, while keeping the cluster
+    intact throughout.
+  - Nginx is (always) used on the worker nodes to communicate with the masters.
+  - Master OCI LB is optional (and prompted via driver script).  If not specified, the public address of the 
+    first master is used in the locally generated client kubeconfig.  If specified, the public address of the
+    LB is used.  As indicated above, this OCI LB is not used anywhere internally in the cluster.
 
 ### Further Work Needed to Reach Full Parity with TF Installer
 - Installation of K8S OCI flex volume and ingress controller and related config parameters to create_env.py.
 - (worker|master|etcd)_docker_* configuration parameters to create_env.py and related Ansible config code.
-- Need to add Nginx installation on worker nodes (for communication with masters) and on master nodes (for communication with etcds).
 - Get private cluster setup working, via a bastion when deploying Ansible.
 - Sync with latest tests for TF installer project (temporarily moved under `./others-orig`).
-- Update docs (temporarily moved under `./others-orig`) to sync with the new workflow.  General usage of the new
-driver script is currently documented under `./docs/usage.md`.
+- Restore top-level README.md and docs (temporarily moved under `./others-orig`) to sync with the new workflow.  
+General usage of the new driver script is currently documented under `./docs/usage.md`.
 - Convert Gitlab CI pipelines to Wercker pipelines.
 
 ### Further Improvements
