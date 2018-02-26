@@ -41,6 +41,7 @@ resource "oci_core_volume" "TFVolumeInstanceEtcd" {
   count               = "${var.etcd_iscsi_volume_create ? var.count : 0}"
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
+  display_name        = "block-volume-${var.hostname_label_prefix}-${count.index}"
   size_in_gbs         = "${var.etcd_iscsi_volume_size}"
 }
 
