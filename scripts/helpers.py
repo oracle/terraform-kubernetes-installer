@@ -525,17 +525,6 @@ def populate_env(env_name):
     # Generate kubeconfig
     kubeconfig = files_dir + '/kubeconfig'
     log('[%s] Generating kubeconfig: %s' % (env_name, kubeconfig), as_banner=True)
-    client_key_file = files_dir + '/k8s-client-key.pem'
-    client_file = files_dir + '/k8s-client.pem'
-    client_csr_file = files_dir + '/k8s-client.csr'
-
-    # Generate local client certs
-    run_command("openssl genrsa -out %s 2048" % client_key_file, verbose=False, silent=True, verify_return_code=True)
-    run_command('openssl req -new -key %s -out %s -subj "/CN=k8s-client"' %
-                (client_key_file, client_csr_file), verbose=False, silent=True, verify_return_code=True)
-    run_command('openssl x509 -req -in %s -CA %s -CAkey %s -CAcreateserial -out %s -days 1000 -extensions v3_req' %
-                (client_csr_file, files_dir + '/' + CA_CERT_FILE, files_dir + '/' + CA_KEY_FILE, client_file),
-                verbose=False, silent=True, verify_return_code=True)
 
     kubeconfig_template = TEMPLATES_DIR + '/kubeconfig'
     shutil.copyfile(kubeconfig_template, kubeconfig)
@@ -543,8 +532,8 @@ def populate_env(env_name):
 
     # Use public LB in kubeconfig if available
     token_values['MASTER_URL'] = 'https://%s:443' % (k8s_master_lb_ip if k8s_master_lb_ip != None else k8s_master_public_ips[0])
-    token_values['CLIENT_CERT_DATA'] = base64.b64encode(open(client_file, 'r').read())
-    token_values['CLIENT_KEY_DATA'] = base64.b64encode(open(client_key_file, 'r').read())
+    token_values['CLIENT_CERT_DATA'] = base64.b64encode(api_server_cert)
+    token_values['CLIENT_KEY_DATA'] = base64.b64encode(api_server_key)
     token_values['CA_DATA'] = base64.b64encode(ca_cert)
     for line in fileinput.FileInput(kubeconfig, inplace=1):
         for token in token_values:
