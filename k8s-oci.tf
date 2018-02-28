@@ -58,6 +58,7 @@ module "vcn" {
   dedicated_nat_subnets                   = "${var.dedicated_nat_subnets}"
   worker_ssh_ingress                      = "${var.worker_ssh_ingress}"
   worker_nodeport_ingress                 = "${var.worker_nodeport_ingress}"
+  master_nodeport_ingress                 = "${var.master_nodeport_ingress}"
   external_icmp_ingress                   = "${var.external_icmp_ingress}"
   internal_icmp_ingress                   = "${var.internal_icmp_ingress}"
 }

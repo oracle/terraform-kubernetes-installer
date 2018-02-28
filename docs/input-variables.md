@@ -118,6 +118,7 @@ master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation 
 master_https_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the HTTPs port on the master(s). Must be a subset of the VCN CIDR.
 worker_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to worker(s). Must be a subset of the VCN CIDR.
 worker_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the worker(s). Must be a subset of the VCN CIDR.
+master_nodeport_ingress             | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access NodePorts (30000-32767) on the masters(s). Must be a subset of the VCN CIDR. 
 
 
 #### _Private_ Network Access

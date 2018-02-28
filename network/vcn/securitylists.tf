@@ -138,6 +138,15 @@ resource "oci_core_security_list" "K8SMasterSubnet" {
       protocol = "6"
       source   = "${var.master_https_ingress}"
     },
+    {
+      tcp_options {
+        "min" = 30000
+        "max" = 32767
+      }
+
+      protocol = "6"
+      source   = "${var.master_nodeport_ingress}"
+    },
   ]
 
   provisioner "local-exec" {

@@ -36,6 +36,7 @@
 #worker_ssh_ingress = "0.0.0.0/0"
 #master_https_ingress = "0.0.0.0/0"
 #worker_nodeport_ingress = "0.0.0.0/0"
+#worker_nodeport_ingress = "10.0.0.0/16"
 
 #control_plane_subnet_access = "public"
 #k8s_master_lb_access = "public"
