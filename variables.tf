@@ -181,6 +181,11 @@ variable "worker_nodeport_ingress" {
   default     = "10.0.0.0/16"
 }
 
+variable "master_nodeport_ingress" {
+  description = "A CIDR notation IP range that is allowed to access service ports to the instances on the master subnet"
+  default     = "10.0.0.0/16"
+}
+
 variable "public_subnet_ssh_ingress" {
   description = "A CIDR notation IP range that is allowed to SSH to instances on the public subnet"
   default     = "0.0.0.0/0"

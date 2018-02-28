@@ -101,6 +101,10 @@ variable "worker_nodeport_ingress" {
   default = "10.0.0.0/16"
 }
 
+variable "master_nodeport_ingress" {
+  default = "10.0.0.0/16"
+}
+
 # For optional NAT instance (when control_plane_subnet_access = "private")
 
 variable "public_subnet_ssh_ingress" {
