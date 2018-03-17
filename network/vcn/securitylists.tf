@@ -1,5 +1,5 @@
 resource "oci_core_security_list" "EtcdSubnet" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.coreservice_compartment_ocid != "")  ? var.coreservice_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}etcd_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 
@@ -67,7 +67,7 @@ resource "oci_core_security_list" "EtcdSubnet" {
   }
 }
 resource "oci_core_security_list" "K8SMasterSubnet" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.coreservice_compartment_ocid != "")  ? var.coreservice_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sMaster_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 
@@ -154,7 +154,7 @@ resource "oci_core_security_list" "K8SMasterSubnet" {
 }
 
 resource "oci_core_security_list" "K8SWorkerSubnet" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.coreservice_compartment_ocid != "")  ? var.coreservice_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sWorker_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 
@@ -225,7 +225,7 @@ resource "oci_core_security_list" "K8SWorkerSubnet" {
 
 resource "oci_core_security_list" "PublicSecurityList" {
   count          = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.lb_compartment_ocid != "")  ? var.lb_compartment_ocid : var.compartment_ocid}"
   display_name   = "public_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 
@@ -310,7 +310,7 @@ resource "oci_core_security_list" "PublicSecurityList" {
 
 resource "oci_core_security_list" "NatSecurityList" {
   count          = "${(var.control_plane_subnet_access == "private") && (var.dedicated_nat_subnets == "true") ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.nat_compartment_ocid != "")  ? var.nat_compartment_ocid : var.compartment_ocid}"
   display_name   = "nat_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 
@@ -394,7 +394,7 @@ resource "oci_core_security_list" "NatSecurityList" {
 }
 
 resource "oci_core_security_list" "K8SCCMLBSubnet" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.lb_compartment_ocid != "")  ? var.lb_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sCCM_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   egress_security_rules = [{
@@ -407,7 +407,7 @@ resource "oci_core_security_list" "K8SCCMLBSubnet" {
 
 resource "oci_core_security_list" "BastionSecurityList" {
   count          = "${(var.control_plane_subnet_access == "private") && (var.dedicated_bastion_subnets == "true") ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.bastion_compartment_ocid != "")  ? var.bastion_compartment_ocid : var.compartment_ocid}"
   display_name   = "bastion_security_list"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   egress_security_rules = [{

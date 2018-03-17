@@ -72,6 +72,16 @@ variable "label_prefix" {
 
 variable "compartment_ocid" {}
 
+variable "network_compartment_ocid" {}
+
+variable "nat_compartment_ocid" {}
+
+variable "bastion_compartment_ocid" {}
+
+variable "lb_compartment_ocid" {}
+
+variable "coreservice_compartment_ocid" {}
+
 variable "vcn_dns_name" {}
 
 # Security lists

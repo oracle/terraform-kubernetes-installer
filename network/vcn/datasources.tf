@@ -12,7 +12,7 @@ data "oci_core_images" "ImageOCID" {
 # Gets a list of VNIC attachments on the NAT instance in AD 1
 data "oci_core_vnic_attachments" "NATInstanceAD1Vnics" {
   count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad1_enabled == "true") ? "1" : "0"}"
-  compartment_id      = "${var.compartment_ocid}"
+  compartment_id      = "${(var.nat_compartment_ocid != "")  ? var.nat_compartment_ocid : var.compartment_ocid}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   instance_id         = "${oci_core_instance.NATInstanceAD1.id}"
 }
@@ -32,7 +32,7 @@ data "oci_core_private_ips" "NATInstanceAD1PrivateIPDatasource" {
 # Gets a list of VNIC attachments on the NAT instance in AD 2
 data "oci_core_vnic_attachments" "NATInstanceAD2Vnics" {
   count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad2_enabled == "true") ? "1" : "0"}"
-  compartment_id      = "${var.compartment_ocid}"
+  compartment_id      = "${(var.nat_compartment_ocid != "")  ? var.nat_compartment_ocid : var.compartment_ocid}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
   instance_id         = "${oci_core_instance.NATInstanceAD2.id}"
 }
@@ -52,7 +52,7 @@ data "oci_core_private_ips" "NATInstanceAD2PrivateIPDatasource" {
 # Gets a list of VNIC attachments on the NAT instance in AD 3
 data "oci_core_vnic_attachments" "NATInstanceAD3Vnics" {
   count               = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad3_enabled == "true") ? "1" : "0"}"
-  compartment_id      = "${var.compartment_ocid}"
+  compartment_id      = "${(var.nat_compartment_ocid != "")  ? var.nat_compartment_ocid : var.compartment_ocid}"
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
   instance_id         = "${oci_core_instance.NATInstanceAD3.id}"
 }

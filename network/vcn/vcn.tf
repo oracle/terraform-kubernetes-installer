@@ -1,18 +1,18 @@
 resource "oci_core_virtual_network" "CompleteVCN" {
   cidr_block     = "${lookup(var.network_cidrs, "VCN-CIDR")}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}${var.vcn_dns_name}"
   dns_label      = "${var.vcn_dns_name}"
 }
 
 resource "oci_core_internet_gateway" "PublicIG" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   display_name   = "${var.label_prefix}PublicIG"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
 }
 
 resource "oci_core_route_table" "PublicRouteTable" {
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   display_name   = "${var.label_prefix}RouteTableForComplete"
 
@@ -27,7 +27,7 @@ resource "oci_core_route_table" "PublicRouteTable" {
 resource "oci_core_route_table" "NATInstanceAD1RouteTable" {
   # Provisioned only when k8s instances in AD1 are in private subnets
   count          = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad1_enabled == "true") ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   display_name   = "NATInstanceAD1RouteTable"
 
@@ -43,7 +43,7 @@ resource "oci_core_route_table" "NATInstanceAD1RouteTable" {
 resource "oci_core_route_table" "NATInstanceAD2RouteTable" {
   # Provisioned only when k8s instances in AD2 are in private subnets
   count          = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad2_enabled == "true") ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   display_name   = "NATInstanceAD2RouteTable"
 
@@ -59,7 +59,7 @@ resource "oci_core_route_table" "NATInstanceAD2RouteTable" {
 resource "oci_core_route_table" "NATInstanceAD3RouteTable" {
   # Provisioned only when k8s instances in AD3 are in private subnets
   count          = "${(var.control_plane_subnet_access == "private") && (var.nat_instance_ad3_enabled == "true") ? "1" : "0"}"
-  compartment_id = "${var.compartment_ocid}"
+  compartment_id = "${(var.network_compartment_ocid != "")  ? var.network_compartment_ocid : var.compartment_ocid}"
   vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
   display_name   = "NATInstanceAD3RouteTable"
 
