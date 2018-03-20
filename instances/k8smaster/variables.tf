@@ -64,6 +64,7 @@ variable "k8s_dns_ver" {
 variable "api_server_count" {}
 
 variable "root_ca_pem" {}
+variable "root_ca_key" {}
 variable "api_server_private_key_pem" {}
 variable "api_server_cert_pem" {}
 variable "k8s_apiserver_token_admin" {}
