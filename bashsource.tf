@@ -1,6 +1,6 @@
 resource null_resource "build_source" {
   provisioner "local-exec" {
-    command = "echo \"export KUBECONFIG=${path.module}/generated/kubeconfig\" > source.sh "
+    command = "echo \"export KUBECONFIG=${path.root}/generated/kubeconfig\" > ${var.label_prefix}source.sh"
   }
 }
 
@@ -17,7 +17,7 @@ resource null_resource "etcd-ad1" {
   }
   
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}etcdad1-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad1.instance_public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}etcdad1-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad1.instance_public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -34,7 +34,7 @@ resource null_resource "etcd-ad2" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}etcdad2-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad2.instance_public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}etcdad2-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad2.instance_public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -51,7 +51,7 @@ resource null_resource "etcd-ad3" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}etcad3-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad3.instance_public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}etcad3-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-etcd-ad3.instance_public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -71,7 +71,7 @@ resource null_resource "k8smaster-ad1" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}masterad1-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad1.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}masterad1-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad1.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -87,7 +87,7 @@ resource null_resource "k8smaster-ad2" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}masterad2-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad2.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}masterad2-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad2.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -104,7 +104,7 @@ resource null_resource "k8smaster-ad3" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}masterad3-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad3.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}masterad3-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8smaster-ad3.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -112,7 +112,7 @@ resource null_resource "k8sworker-ad1" {
   count = "${var.k8sWorkerAd1Count}"
   depends_on = [
     "module.instances-k8sworker-ad1",
-  ] 
+  ]
 
   triggers {
     worker_id = "${element(module.instances-k8sworker-ad1.ids, count.index)}"
@@ -120,7 +120,7 @@ resource null_resource "k8sworker-ad1" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}workerad1-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad1.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}workerad1-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad1.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -136,7 +136,7 @@ resource null_resource "k8sworker-ad2" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}workerad2-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad2.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}workerad2-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad2.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
@@ -153,7 +153,7 @@ resource null_resource "k8sworker-ad3" {
   }
 
   provisioner "local-exec" {
-    command = "echo 'alias ${var.label_prefix}workerad3-${count.index}=\"ssh -i ${path.module}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad3.public_ips, count.index)}\"' >> source.sh"
+    command = "echo 'alias ${var.label_prefix}workerad3-${count.index}=\"ssh -i ${path.root}/generated/instances_id_rsa opc@${element(module.instances-k8sworker-ad3.public_ips, count.index)}\"' >> source.sh"
   }
 }
 
