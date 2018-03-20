@@ -1,6 +1,6 @@
 resource null_resource "build_source" {
   provisioner "local-exec" {
-    command = "echo \"export KUBECONFIG=${path.root}/generated/kubeconfig\" > source.sh "
+    command = "echo \"export KUBECONFIG=${path.root}/generated/kubeconfig\" > ${var.label_prefix}source.sh"
   }
 }
 
