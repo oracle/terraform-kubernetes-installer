@@ -24,6 +24,26 @@ variable "network_cidrs" {
   }
 }
 
+variable "network_subnet_dns" {
+  type = "map"
+
+  default = {
+    etcdSubnetAD1     = "etcdsubnet1"
+    etcdSubnetAD2     = "etcdsubnet2"
+    etcdSubnetAD3     = "etcdsubnet3"
+    masterSubnetAD1   = "k8smasterad1"
+    masterSubnetAD2   = "k8smasterad2"
+    masterSubnetAD3   = "k8smasterad3"
+    workerSubnetAD1   = "k8sworkerad1"
+    workerSubnetAD2   = "k8sworkerad2"
+    workerSubnetAD3   = "k8sworkerad3"
+    k8sCCMLBSubnetAD1 = "k8sccmlbad1"
+    k8sCCMLBSubnetAD2 = "k8sccmlbad2"
+    k8sCCMLBSubnetAD3 = "k8sccmlbad3"
+  }
+}
+
+
 variable "tenancy_ocid" {}
 
 variable "control_plane_subnet_access" {

@@ -61,6 +61,7 @@ module "vcn" {
   master_nodeport_ingress                 = "${var.master_nodeport_ingress}"
   external_icmp_ingress                   = "${var.external_icmp_ingress}"
   internal_icmp_ingress                   = "${var.internal_icmp_ingress}"
+  network_subnet_dns                      = "${var.network_subnet_dns}"
 }
 
 module "oci-cloud-controller" {
