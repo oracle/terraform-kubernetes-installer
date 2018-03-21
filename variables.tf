@@ -3,11 +3,25 @@ variable "tenancy_ocid" {}
 
 variable "compartment_ocid" {}
 
+# VCN config if this is set the no VCN is created and instead these 3 varables are use
+variable "vcn_id" {
+  default = ""
+}
+
+variable "public_routetable_id" {
+  default = ""
+}
+
+variable "dhcp_options_id" {
+  default = ""
+}
+
+
+
 variable "network_cidrs" {
   type = "map"
 
   default = {
-    VCN-CIDR          = "10.0.0.0/16"
     PublicSubnetAD1   = "10.0.10.0/24"
     PublicSubnetAD2   = "10.0.11.0/24"
     PublicSubnetAD3   = "10.0.12.0/24"
@@ -63,6 +77,10 @@ variable "region" {
 
 variable "vcn_dns_name" {
   default = "k8sbmcs"
+}
+
+variable "vcn_cidr" {
+  default = "10.0.0.0/16"
 }
 
 variable "disable_auto_retries" {
