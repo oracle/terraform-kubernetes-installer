@@ -15,6 +15,16 @@ region                              | us-phoenix-1            | String value of 
 
 ## Optional Input Variables:
 
+### VNC Configuration
+
+By deafult a VCN, an Internet Gateway and a public route table out this gatewat will be created and used. If you wish to use an existing VCN then set the following variables
+
+name                                | default                 |
+------------------------------------|-------------------------|------------
+vcn_id                              | "" (Optional)           | The VCN OCID to use to configure all subnets with
+dhcp_options_id                     | "" (Optional)   	      | The DCHP options of the VCN to use when creating subnets
+public_routetable_id                | "" (Optional)           | The routetable OCID that has access to the public internet via a Internet Gateway
+
 ### Compute Instance Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
@@ -100,6 +110,7 @@ name                                | default     | description
 control_plane_subnet_access         | public      | Whether instances in the control plane are launched in a public or private subnets
 k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
 etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
+
 
 #### _Public_ Network Access (default)
 
