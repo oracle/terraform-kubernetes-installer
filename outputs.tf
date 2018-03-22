@@ -27,15 +27,21 @@ output "etcd_lb_backendset_2380_name" {
 }
 
 output "vcn_id" {
-  value = "${module.vcn.vcn_id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_id) : var.vcn_id}"
 }
 
+# Same as below but kept for backwards compatability
 output "vcn_route_for_complete_id" {
-  value = "${module.vcn.public_routetable_id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
 }
+
+output "public_routetable_id" {
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
+}
+
 
 output "vcn_dhcp_options_id" {
-  value = "${module.vcn.dhcp_options_id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_dhcp_options_id) : var.vcn_dhcp_options_id}"
 }
 
 output "etcd_subnet_ids" {

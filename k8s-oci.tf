@@ -16,7 +16,7 @@ module "k8s-tls" {
 ### Virtual Cloud Network
 
 module "vcn" {
-  create_vcn                              = "${var.vcn_id == "" ? 1 : 0}"
+  create_vcn                              = "${var.vcn_id == "" ? "true" : "false"}"
   source                                  = "./network/vcn"
   compartment_ocid                        = "${var.compartment_ocid}"
   label_prefix                            = "${var.label_prefix}"
@@ -33,12 +33,8 @@ module "subnets" {
 
   # Use a existing VCN and public route table and dhcp options
   vcn_id                                  = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_id) : var.vcn_id}"
-  dhcp_options_id                         = "${var.vcn_id == "" ? join(" ",module.vcn.dhcp_options_id) : var.dhcp_options_id}"
+  dhcp_options_id                         = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_dhcp_options_id) : var.vcn_dhcp_options_id}"
   public_routetable_id                    = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
-  #vcn_id                                  = "${module.vcn.vcn_id}"
-  #dhcp_options_id                         = "${module.vcn.dhcp_options_id}"
-  #public_routetable_id                    = "${module.vcn.public_routetable_id}"
-  
   vcn_dns_name                            = "${var.vcn_dns_name}"
   additional_etcd_security_lists_ids      = "${var.additional_etcd_security_lists_ids}"
   additional_k8smaster_security_lists_ids = "${var.additional_k8s_master_security_lists_ids}"

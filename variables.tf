@@ -12,7 +12,7 @@ variable "public_routetable_id" {
   default = ""
 }
 
-variable "dhcp_options_id" {
+variable "vcn_dhcp_options_id" {
   default = ""
 }
 
