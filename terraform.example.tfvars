@@ -7,7 +7,7 @@
 
 # VCN
 #vcn_id = "ocid1.vcn.oc1.phx.aaaaaaaa545hjqe26s77xpiiuyznb6baxym5ff6lnx5asgggnptwfcg3t7na"
-#dhcp_options_id = "ocid1.dhcpoptions.oc1.phx.aaaaaaaat27e4e6li545u4tnymwk7452gpxvqcszg6jbflpfqvtr7vkxjqnq"
+#vcn_dhcp_options_id = "ocid1.dhcpoptions.oc1.phx.aaaaaaaat27e4e6li545u4tnymwk7452gpxvqcszg6jbflpfqvtr7vkxjqnq"
 #public_routetable_id = "ocid1.routetable.oc1.phx.aaaaaaaab5obbsciewyf73r4ggm26uvmykqbyhwphwqiuvqpune3bosoyey
 
 # CCM user
