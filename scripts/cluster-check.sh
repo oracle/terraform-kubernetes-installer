@@ -297,11 +297,11 @@ fi
 terraform output ssh_private_key >/tmp/instances_id_rsa
 chmod 600 /tmp/instances_id_rsa
 
-control_plane_subnet_access=$(terraform output control_plane_subnet_access)
-if [[ $control_plane_subnet_access == "private" ]]; then
-	echo This script does not currently support checking private clusters
-	exit 1
-fi
+#control_plane_subnet_access=$(terraform output control_plane_subnet_access)
+#if [[ $control_plane_subnet_access == "private" ]]; then
+#	echo This script does not currently support checking private clusters
+#	exit 1
+#fi
 
 log_msg "Running some basic checks on Kubernetes cluster...."
 
@@ -311,7 +311,7 @@ check_etcdctl_flannel
 check_system_services
 check_get_nodes
 check_kube-dns
-check_nginx_deployment
+#check_nginx_deployment
 print_success
 
 exit 0

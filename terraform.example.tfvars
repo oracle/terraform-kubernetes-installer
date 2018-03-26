@@ -7,13 +7,17 @@
 
 # VCN
 #vcn_id = "ocid1.vcn.oc1.phx.aaaaaaaa545hjqe26s77xpiiuyznb6baxym5ff6lnx5asgggnptwfcg3t7na"
-#vcn_dhcp_options_id = "ocid1.dhcpoptions.oc1.phx.aaaaaaaat27e4e6li545u4tnymwk7452gpxvqcszg6jbflpfqvtr7vkxjqnq"
-#public_routetable_id = "ocid1.routetable.oc1.phx.aaaaaaaab5obbsciewyf73r4ggm26uvmykqbyhwphwqiuvqpune3bosoyey
+#generic_ad1_subnet = "ocid1.subnet.oc1.iad.aaaaaaaasrods6p7bfnni6znrv4p3voftikyxan3csfofpi5oq2m4zj2zbxq"
+#generic_ad2_subnet = "ocid1.subnet.oc1.iad.aaaaaaaa5jo4divkwmxolzdtsjd7qe44y4axu4gysuzfa2chehmi5fpgxmhq"
+#generic_ad3_subnet = "ocid1.subnet.oc1.iad.aaaaaaaawzzif3czghzohkgr6m4j5xt7g6ud236aaghgrsxknjcciejljkga"
+
 
 # CCM user
 #cloud_controller_user_ocid = "ocid1.tenancy.oc1..aaaaaaaa763cu5f3m7qpzwnvr2shs3o26ftrn7fkgz55cpzgxmglgtui3v7q"
 #cloud_controller_user_fingerprint = "ed:51:83:3b:d2:04:f4:af:9d:7b:17:96:dd:8a:99:bc"
 #cloud_controller_user_private_key_path = "/tmp/bmcs_api_key.pem"
+
+#generic_image_ocid = "ocid1.image.oc1.iad.aaaaaaaautkmgjebjmwym5i6lvlpqfzlzagvg5szedggdrbp6rcjcso3e4kq"
 
 #etcdShape = "VM.Standard1.2"
 #k8sMasterShape = "VM.Standard1.8"
@@ -30,6 +34,9 @@
 #k8sWorkerAd1Count = "1"
 #k8sWorkerAd2Count = "1"
 #k8sWorkerAd3Count = "1"
+
+etcd_lb_enabled = "false"
+master_oci_lb_enabled = "false"
 
 #etcdLBShape = "100Mbps"
 #k8sMasterLBShape = "100Mbps"

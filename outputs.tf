@@ -26,43 +26,43 @@ output "etcd_lb_backendset_2380_name" {
   value = "${module.etcd-lb.backendset_2380_name}"
 }
 
-output "vcn_id" {
-  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_id) : var.vcn_id}"
-}
+#output "vcn_id" {
+#  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_id) : var.vcn_id}"
+#}
 
 # Same as below but kept for backwards compatability
-output "vcn_route_for_complete_id" {
-  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
-}
+#output "vcn_route_for_complete_id" {
+#  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
+#}
 
-output "public_routetable_id" {
-  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
-}
+#output "public_routetable_id" {
+#  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
+#}
 
 
-output "vcn_dhcp_options_id" {
-  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_dhcp_options_id) : var.vcn_dhcp_options_id}"
-}
+#output "vcn_dhcp_options_id" {
+#  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_dhcp_options_id) : var.vcn_dhcp_options_id}"
+#}
 
-output "etcd_subnet_ids" {
-  value = ["${module.subnets.etcd_subnet_ad1_id}", "${module.subnets.etcd_subnet_ad2_id}", "${module.subnets.etcd_subnet_ad3_id}"]
-}
+#output "etcd_subnet_ids" {
+#  value = ["${module.subnets.etcd_subnet_ad1_id}", "${module.subnets.etcd_subnet_ad2_id}", "${module.subnets.etcd_subnet_ad3_id}"]
+#}
 
-output "worker_subnet_ids" {
-  value = ["${module.subnets.k8worker_subnet_ad1_id}", "${module.subnets.k8worker_subnet_ad2_id}", "${module.subnets.k8worker_subnet_ad3_id}"]
-}
+#output "worker_subnet_ids" {
+#  value = ["${module.subnets.k8worker_subnet_ad1_id}", "${module.subnets.k8worker_subnet_ad2_id}", "${module.subnets.k8worker_subnet_ad3_id}"]
+#}
 
-output "master_subnet_ids" {
-  value = ["${module.subnets.k8smaster_subnet_ad1_id}", "${module.subnets.k8smaster_subnet_ad2_id}", "${module.subnets.k8smaster_subnet_ad3_id}"]
-}
+#output "master_subnet_ids" {
+#  value = ["${module.subnets.k8smaster_subnet_ad1_id}", "${module.subnets.k8smaster_subnet_ad2_id}", "${module.subnets.k8smaster_subnet_ad3_id}"]
+#}
 
-output "public_subnet_ids" {
-  value = ["${module.subnets.public_subnet_ad1_id}", "${module.subnets.public_subnet_ad2_id}", "${module.subnets.public_subnet_ad3_id}", ""]
-}
+#output "public_subnet_ids" {
+#  value = ["${module.subnets.public_subnet_ad1_id}", "${module.subnets.public_subnet_ad2_id}", "${module.subnets.public_subnet_ad3_id}", ""]
+#}
 
-output "nat_subnet_ids" {
-  value = ["${module.subnets.nat_subnet_ad1_id}", "${module.subnets.nat_subnet_ad2_id}", "${module.subnets.nat_subnet_ad3_id}", ""]
-}
+#output "nat_subnet_ids" {
+#  value = ["${module.subnets.nat_subnet_ad1_id}", "${module.subnets.nat_subnet_ad2_id}", "${module.subnets.nat_subnet_ad3_id}", ""]
+#}
 
 output "worker_ssh_ingress_cidr" {
   value = "${var.worker_ssh_ingress}"
@@ -151,17 +151,17 @@ output "worker_private_ips" {
   value = "${concat(module.instances-k8sworker-ad1.private_ips,module.instances-k8sworker-ad2.private_ips,module.instances-k8sworker-ad3.private_ips )}"
 }
 
-output "nat_instance_public_ips" {
-  value = "${compact(concat(module.subnets.nat_instance_ad1_public_ips,module.subnets.nat_instance_ad2_public_ips,module.subnets.nat_instance_ad3_public_ips))}"
-}
+#output "nat_instance_public_ips" {
+#  value = "${compact(concat(module.subnets.nat_instance_ad1_public_ips,module.subnets.nat_instance_ad2_public_ips,module.subnets.nat_instance_ad3_public_ips))}"
+#}
 
-output "nat_instance_private_ips" {
-  value = "${compact(concat(module.subnets.nat_instance_ad1_private_ips,module.subnets.nat_instance_ad2_private_ips,module.subnets.nat_instance_ad3_private_ips))}"
-}
+#output "nat_instance_private_ips" {
+#  value = "${compact(concat(module.subnets.nat_instance_ad1_private_ips,module.subnets.nat_instance_ad2_private_ips,module.subnets.nat_instance_ad3_private_ips))}"
+#}
 
-output "control_plane_subnet_access" {
-  value = "${module.subnets.control_plane_subnet_access}"
-}
+#output "control_plane_subnet_access" {
+#  value = "${module.subnets.control_plane_subnet_access}"
+#}
 
 output "kubeconfig" {
   sensitive = true

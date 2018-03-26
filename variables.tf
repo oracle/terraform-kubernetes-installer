@@ -5,7 +5,6 @@ variable "compartment_ocid" {}
 
 # VCN config if this is set the no VCN is created and instead these 3 varables are use
 variable "vcn_id" {
-  default = ""
 }
 
 variable "public_routetable_id" {
@@ -518,3 +517,8 @@ variable "volume_provisioner_user_private_key_path" {
 variable "volume_provisioner_user_private_key_password" {
   default = ""
 }
+
+variable "generic_ad1_subnet" {}
+variable "generic_ad2_subnet" {}
+variable "generic_ad3_subnet" {}
+varaible "generic_image_ocid" {}
