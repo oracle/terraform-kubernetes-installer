@@ -521,4 +521,4 @@ variable "volume_provisioner_user_private_key_password" {
 variable "generic_ad1_subnet" {}
 variable "generic_ad2_subnet" {}
 variable "generic_ad3_subnet" {}
-varaible "generic_image_ocid" {}
+variable "generic_image_ocid" {}

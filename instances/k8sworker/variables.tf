@@ -87,3 +87,7 @@ variable "flexvolume_driver_version" {}
 variable "reverse_proxy_setup" {}
 
 variable "reverse_proxy_clount_init" {}
+
+variable "generic_image_ocid" {
+  default = "ocid1.image.oc1.iad.aaaaaaaautkmgjebjmwym5i6lvlpqfzlzagvg5szedggdrbp6rcjcso3e4kq"
+}
