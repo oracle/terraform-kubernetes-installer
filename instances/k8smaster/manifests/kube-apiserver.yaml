@@ -21,6 +21,7 @@ spec:
     - --audit-log-maxage=30
     - --audit-log-maxsize=100
     - --audit-log-path=/var/log/apiserver/audit.log
+    - --feature-gates=AdvancedAuditing=false
     - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,Initializers
     - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
