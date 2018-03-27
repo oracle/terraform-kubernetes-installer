@@ -15,6 +15,16 @@ region                              | us-phoenix-1            | String value of 
 
 ## Optional Input Variables:
 
+### VCN Configuration
+
+By deafult a VCN, an Internet Gateway and a public route table out this gatewat will be created and used. If you wish to use an existing VCN then set the following variables. When using an existing VCN you need to make sure that the subnet ranges and DNS labels specified in the variables 'network_cidrs' and 'network_subnet_dns' do not overlap with existing values.
+
+name                                | default                 |
+------------------------------------|-------------------------|------------
+vcn_id                              | "" (Optional)           | The VCN OCID to use to configure all subnets with
+vcn_dhcp_options_id                 | "" (Optional)   	      | The DCHP options of the VCN to use when creating subnets
+public_routetable_id                | "" (Optional)           | The routetable OCID that has access to the public internet via a Internet Gateway
+
 ### Compute Instance Configuration
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
@@ -101,6 +111,7 @@ control_plane_subnet_access         | public      | Whether instances in the con
 k8s_master_lb_access                | public      | Whether the Kubernetes Master Load Balancer is launched in a public or private subnets
 etcd_lb_access                	    | private	  | Whether the etcd Load Balancer is launched in a public or private subnets
 
+
 #### _Public_ Network Access (default)
 
 ![](./images/public_cp_subnet_access.jpg)
@@ -111,7 +122,9 @@ The following input variables are used to configure the inbound security rules o
 
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
-network_cidrs                       | See map in variables.tf | A CIDR notation IP range of the VCN and its subnets.
+vcn_cidr                            | 10.0.0.0/16             | The A CIDR notation IP range of the VCN 
+network_cidrs                       | See map in variables.tf | A CIDR notation IP range of the subnets within the VCN.
+network_subnet_dns                  | See map in variables.tf | A DNS label for each of the subnets in the VCN (Max 15 characters)
 etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster. Must be a subset of the VCN CIDR.
 etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes. Must be a subset of the VCN CIDR.
 master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s). Must be a subset of the VCN CIDR.

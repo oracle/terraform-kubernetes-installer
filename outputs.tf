@@ -27,35 +27,41 @@ output "etcd_lb_backendset_2380_name" {
 }
 
 output "vcn_id" {
-  value = "${module.vcn.id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_id) : var.vcn_id}"
 }
 
+# Same as below but kept for backwards compatability
 output "vcn_route_for_complete_id" {
-  value = "${module.vcn.route_for_complete_id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
 }
+
+output "public_routetable_id" {
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.public_routetable_id) : var.public_routetable_id}"
+}
+
 
 output "vcn_dhcp_options_id" {
-  value = "${module.vcn.dhcp_options_id}"
+  value = "${var.vcn_id == "" ? join(" ",module.vcn.vcn_dhcp_options_id) : var.vcn_dhcp_options_id}"
 }
 
 output "etcd_subnet_ids" {
-  value = ["${module.vcn.etcd_subnet_ad1_id}", "${module.vcn.etcd_subnet_ad2_id}", "${module.vcn.etcd_subnet_ad3_id}"]
+  value = ["${module.subnets.etcd_subnet_ad1_id}", "${module.subnets.etcd_subnet_ad2_id}", "${module.subnets.etcd_subnet_ad3_id}"]
 }
 
 output "worker_subnet_ids" {
-  value = ["${module.vcn.k8worker_subnet_ad1_id}", "${module.vcn.k8worker_subnet_ad2_id}", "${module.vcn.k8worker_subnet_ad3_id}"]
+  value = ["${module.subnets.k8worker_subnet_ad1_id}", "${module.subnets.k8worker_subnet_ad2_id}", "${module.subnets.k8worker_subnet_ad3_id}"]
 }
 
 output "master_subnet_ids" {
-  value = ["${module.vcn.k8smaster_subnet_ad1_id}", "${module.vcn.k8smaster_subnet_ad2_id}", "${module.vcn.k8smaster_subnet_ad3_id}"]
+  value = ["${module.subnets.k8smaster_subnet_ad1_id}", "${module.subnets.k8smaster_subnet_ad2_id}", "${module.subnets.k8smaster_subnet_ad3_id}"]
 }
 
 output "public_subnet_ids" {
-  value = ["${module.vcn.public_subnet_ad1_id}", "${module.vcn.public_subnet_ad2_id}", "${module.vcn.public_subnet_ad3_id}", ""]
+  value = ["${module.subnets.public_subnet_ad1_id}", "${module.subnets.public_subnet_ad2_id}", "${module.subnets.public_subnet_ad3_id}", ""]
 }
 
 output "nat_subnet_ids" {
-  value = ["${module.vcn.nat_subnet_ad1_id}", "${module.vcn.nat_subnet_ad2_id}", "${module.vcn.nat_subnet_ad3_id}", ""]
+  value = ["${module.subnets.nat_subnet_ad1_id}", "${module.subnets.nat_subnet_ad2_id}", "${module.subnets.nat_subnet_ad3_id}", ""]
 }
 
 output "worker_ssh_ingress_cidr" {
@@ -146,15 +152,15 @@ output "worker_private_ips" {
 }
 
 output "nat_instance_public_ips" {
-  value = "${compact(concat(module.vcn.nat_instance_ad1_public_ips,module.vcn.nat_instance_ad2_public_ips,module.vcn.nat_instance_ad3_public_ips))}"
+  value = "${compact(concat(module.subnets.nat_instance_ad1_public_ips,module.subnets.nat_instance_ad2_public_ips,module.subnets.nat_instance_ad3_public_ips))}"
 }
 
 output "nat_instance_private_ips" {
-  value = "${compact(concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips))}"
+  value = "${compact(concat(module.subnets.nat_instance_ad1_private_ips,module.subnets.nat_instance_ad2_private_ips,module.subnets.nat_instance_ad3_private_ips))}"
 }
 
 output "control_plane_subnet_access" {
-  value = "${module.vcn.control_plane_subnet_access}"
+  value = "${module.subnets.control_plane_subnet_access}"
 }
 
 output "kubeconfig" {

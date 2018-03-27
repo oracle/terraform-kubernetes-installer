@@ -3,11 +3,25 @@ variable "tenancy_ocid" {}
 
 variable "compartment_ocid" {}
 
+# VCN config if this is set the no VCN is created and instead these 3 varables are use
+variable "vcn_id" {
+  default = ""
+}
+
+variable "public_routetable_id" {
+  default = ""
+}
+
+variable "vcn_dhcp_options_id" {
+  default = ""
+}
+
+
+
 variable "network_cidrs" {
   type = "map"
 
   default = {
-    VCN-CIDR          = "10.0.0.0/16"
     PublicSubnetAD1   = "10.0.10.0/24"
     PublicSubnetAD2   = "10.0.11.0/24"
     PublicSubnetAD3   = "10.0.12.0/24"
@@ -29,6 +43,26 @@ variable "network_cidrs" {
   }
 }
 
+variable "network_subnet_dns" {
+  type = "map"
+
+  default = {
+    etcdSubnetAD1     = "etcdsubnet1"
+    etcdSubnetAD2     = "etcdsubnet2"
+    etcdSubnetAD3     = "etcdsubnet3"
+    masterSubnetAD1   = "k8smasterad1"
+    masterSubnetAD2   = "k8smasterad2"
+    masterSubnetAD3   = "k8smasterad3"
+    workerSubnetAD1   = "k8sworkerad1"
+    workerSubnetAD2   = "k8sworkerad2"
+    workerSubnetAD3   = "k8sworkerad3"
+    k8sCCMLBSubnetAD1 = "k8sccmlbad1"
+    k8sCCMLBSubnetAD2 = "k8sccmlbad2"
+    k8sCCMLBSubnetAD3 = "k8sccmlbad3"
+  }
+}
+
+
 variable "domain_name" {
   default = "k8sbmcs.oraclevcn.com"
 }
@@ -43,6 +77,10 @@ variable "region" {
 
 variable "vcn_dns_name" {
   default = "k8sbmcs"
+}
+
+variable "vcn_cidr" {
+  default = "10.0.0.0/16"
 }
 
 variable "disable_auto_retries" {

@@ -1,7 +1,7 @@
 resource "oci_core_security_list" "EtcdSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}etcd_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
 
   egress_security_rules = [
     {
@@ -70,7 +70,7 @@ resource "oci_core_security_list" "EtcdSubnet" {
 resource "oci_core_security_list" "K8SMasterSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sMaster_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
 
   egress_security_rules = [
     {
@@ -157,7 +157,7 @@ resource "oci_core_security_list" "K8SMasterSubnet" {
 resource "oci_core_security_list" "K8SWorkerSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sWorker_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
 
   egress_security_rules = [
     {
@@ -228,7 +228,7 @@ resource "oci_core_security_list" "PublicSecurityList" {
   count          = "${var.control_plane_subnet_access == "private" ? "1" : "0"}"
   compartment_id = "${var.compartment_ocid}"
   display_name   = "public_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
 
   egress_security_rules = [{
     protocol    = "all"
@@ -313,7 +313,7 @@ resource "oci_core_security_list" "NatSecurityList" {
   count          = "${(var.control_plane_subnet_access == "private") && (var.dedicated_nat_subnets == "true") ? "1" : "0"}"
   compartment_id = "${var.compartment_ocid}"
   display_name   = "nat_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
 
   egress_security_rules = [{
     protocol    = "all"
@@ -397,7 +397,7 @@ resource "oci_core_security_list" "NatSecurityList" {
 resource "oci_core_security_list" "K8SCCMLBSubnet" {
   compartment_id = "${var.compartment_ocid}"
   display_name   = "${var.label_prefix}k8sCCM_security_list"
-  vcn_id         = "${oci_core_virtual_network.CompleteVCN.id}"
+  vcn_id         = "${var.vcn_id}"
   egress_security_rules = [{
     protocol    = "all"
     destination = "0.0.0.0/0"
