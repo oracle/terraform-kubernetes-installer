@@ -5,6 +5,9 @@ variable "compartment_ocid" {}
 variable "display_name_prefix" {}
 variable "hostname_label_prefix" {}
 
+variable "flannel_network_cidr" {}
+variable "flannel_backend" {}
+
 variable "count" {
   default = "1"
 }

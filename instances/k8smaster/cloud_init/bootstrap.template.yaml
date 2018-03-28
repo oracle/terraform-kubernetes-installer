@@ -67,21 +67,6 @@ write_files:
     encoding: "gzip+base64"
     content: |
       ${volume_provisioner_secret_content}
-  - path: "/root/services/flannel.service"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${flannel_service_content}
-  - path: "/root/services/cni-bridge.service"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${cnibridge_service_content}
-  - path: "/root/services/cni-bridge.sh"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${cnibridge_sh_content}
   - path: "/etc/kubernetes/manifests/master-kubeconfig.yaml"
     permissions: "0755"
     encoding: "gzip+base64"

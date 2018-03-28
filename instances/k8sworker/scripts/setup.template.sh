@@ -10,7 +10,6 @@ curl -sL --retry 3 http://169.254.169.254/opc/v1/instance/ | tee /tmp/instance_m
 ## Create policy file that blocks autostart of services on install
 printf '#!/bin/sh\necho "All runlevel operations denied by policy" >&2\nexit 101\n' >/tmp/policy-rc.d && chmod +x /tmp/policy-rc.d
 export K8S_API_SERVER_LB=${master_lb}
-export ETCD_ENDPOINTS=${etcd_endpoints}
 export RANDFILE=$(mktemp)
 export HOSTNAME=$(hostname)
 
@@ -36,34 +35,6 @@ if [[ -n "$${BROADCOM_DRIVER}" ]]; then
    echo "Disabling hardware TX checksum offloading"
    ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx off
 fi
-
-## etcd
-######################################
-
-# Download etcdctl client
-curl -L --retry 3 https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz
-tar zxf /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz -C /tmp/ && cp /tmp/etcd-${etcd_ver}-linux-amd64/etcd* /usr/local/bin/
-
-# Wait for etcd to become active (through the LB)
-until [ $(/usr/local/bin/etcdctl --endpoints ${etcd_endpoints} cluster-health | grep '^cluster ' | grep -c 'is healthy$') == "1" ]; do
-	echo "Waiting for etcd cluster to be healthy"
-	sleep 1
-done
-
-## Flannel
-######################################
-curl -L --retry 3 https://github.com/coreos/flannel/releases/download/${flannel_ver}/flanneld-amd64 -o /usr/local/bin/flanneld \
-	&& chmod 755 /usr/local/bin/flanneld
-export ETCD_SERVER=${etcd_endpoints}
-echo "IP_LOCAL: $IP_LOCAL ETCD_SERVER: $ETCD_SERVER"
-envsubst </root/services/flannel.service >/etc/systemd/system/flannel.service
-systemctl daemon-reload && systemctl enable flannel && systemctl start flannel
-
-## Create cni bridge interface w/ IP from flannel
-######################################
-cp /root/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
-cp /root/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
-systemctl enable cni-bridge && systemctl start cni-bridge
 
 ## Setup NVMe drives and mount at /var/lib/docker
 ######################################
@@ -104,10 +75,6 @@ fi
 
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
 
-cat <<EOF > /etc/sysconfig/docker-network
-DOCKER_NETWORK_OPTIONS="--bridge=cni0 --iptables=false --ip-masq=false"
-EOF
-
 cat <<EOF > /etc/sysconfig/docker
 OPTIONS="--selinux-enabled --log-opt max-size=${docker_max_log_size} --log-opt max-file=${docker_max_log_files}"
 DOCKER_CERT_PATH=/etc/docker
@@ -146,18 +113,6 @@ sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 systemctl stop firewalld.service
 systemctl disable firewalld.service
 
-# Configure pod network:
-mkdir -p /etc/cni/net.d
-cat >/etc/cni/net.d/10-flannel.conf <<EOF
-{
-	"name": "podnet",
-	"type": "flannel",
-	"delegate": {
-		"isDefaultGateway": true
-	}
-}
-EOF
-
 ## Install Flex Volume Driver for OCI
 #####################################
 mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/oracle~oci/
@@ -194,21 +149,6 @@ else
 fi
 
 curl -L --retry 3 http://storage.googleapis.com/kubernetes-release/release/v${k8s_ver}/bin/linux/amd64/kubectl -o /bin/kubectl && chmod 755 /bin/kubectl
-
-## Pull etcd docker image from registry
-docker pull quay.io/coreos/etcd:${etcd_ver}
-
-## Start etcd proxy container
-######################################
-docker run -d \
-	-p 2380:2380 -p 2379:2379 \
-	-v /etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt \
-	--net=host \
-	--restart=always \
-	quay.io/coreos/etcd:${etcd_ver} \
-	/usr/local/bin/etcd \
-	-discovery ${etcd_discovery_url} \
-	--proxy on
 
 ## FQDN constructed from live environment since DNS label for the subnet is optional
 sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" /etc/kubernetes/manifests/kube-proxy.yaml >/tmp/kube-proxy.yaml
@@ -258,8 +198,6 @@ sleep $[ ( $RANDOM % 10 )  + 1 ]s
 systemctl daemon-reload
 systemctl enable kubelet
 systemctl start kubelet
-
-systemctl restart flannel
 
 yum install -y nfs-utils
 

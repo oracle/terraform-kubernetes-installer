@@ -1,9 +1,0 @@
-[Unit]
-Requires=network.target
-Before=docker.service
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/cni-bridge.sh
-RemainAfterExit=true
-[Install]
-WantedBy=multi-user.target

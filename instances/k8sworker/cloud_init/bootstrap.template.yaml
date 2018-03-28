@@ -29,23 +29,6 @@ write_files:
       ${worker_kubeconfig_template_content}
 
 # systemd services
-  - path: "/root/services/flannel.service"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${flannel_service_content}
-
-  - path: "/root/services/cni-bridge.service"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${cnibridge_service_content}
-
-  - path: "/root/services/cni-bridge.sh"
-    permissions: "0600"
-    encoding: "gzip+base64"
-    content: |
-      ${cnibridge_sh_content}
 
   - path: "/root/services/kubelet.service"
     permissions: "0600"
