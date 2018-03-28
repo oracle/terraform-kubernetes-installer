@@ -5,13 +5,6 @@ locals {
 
   reverse_proxy_clount_init = "${var.master_oci_lb_enabled == "true" ? "" : module.reverse-proxy.clount_init}"
   reverse_proxy_setup       = "${var.master_oci_lb_enabled == "true" ? "" : module.reverse-proxy.setup}"
-
-  etcd_endpoints = "${var.etcd_lb_enabled == "true" ?
-    join(",",formatlist("http://%s:2379", module.etcd-lb.ip_addresses)) :
-    join(",",formatlist("http://%s:2379", compact(concat(
-      module.instances-etcd-ad1.private_ips, 
-      module.instances-etcd-ad2.private_ips, 
-      module.instances-etcd-ad3.private_ips)))) }"
 }
 
 ### CA and Cluster Certificates
@@ -109,91 +102,30 @@ module "oci-volume-provisioner" {
 }
 
 ### Compute Instance(s)
+module "etcd-cluster" {
+  source = "./etcd-cluster"
 
-module "instances-etcd-ad1" {
-  source                      = "./instances/etcd"
-  count                       = "${var.etcdAd1Count}"
-  availability_domain         = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
-  compartment_ocid            = "${var.compartment_ocid}"
-  control_plane_subnet_access = "${var.control_plane_subnet_access}"
-  display_name_prefix         = "etcd-ad1"
-  domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
-  hostname_label_prefix       = "etcd-ad1"
-  oracle_linux_image_name     = "${var.etcd_ol_image_name}"
-  label_prefix                = "${var.label_prefix}"
-  shape                       = "${var.etcdShape}"
   ssh_public_key_openssh      = "${module.k8s-tls.ssh_public_key_openssh}"
-  network_cidrs               = "${var.network_cidrs}"
-  subnet_id                   = "${module.vcn.etcd_subnet_ad1_id}"
-  subnet_name                 = "etcdSubnetAD1"
-  tenancy_ocid                = "${var.compartment_ocid}"
-  etcd_docker_max_log_size    = "${var.etcd_docker_max_log_size}"
-  etcd_docker_max_log_files   = "${var.etcd_docker_max_log_files}"
-  etcd_iscsi_volume_create    = "${var.etcd_iscsi_volume_create}"
-  etcd_iscsi_volume_size      = "${var.etcd_iscsi_volume_size}"
-  assign_private_ip           = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
-}
+  label_prefix                = "${var.label_prefix}"
+   
+  tenancy_ocid                = "${var.tenancy_ocid}"
+  compartment_ocid            = "${var.compartment_ocid}"
+  # Network
+  vcn                         = "${module.vcn.id}"
+  # Maybe a Map 
+  subnet_ad1_id               = "${module.vcn.etcd_subnet_ad1_id}"
+  subnet_ad2_id               = "${module.vcn.etcd_subnet_ad2_id}"
+  subnet_ad3_id               = "${module.vcn.etcd_subnet_ad3_id}"
+  domain_name                 = "${var.domain_name}"
 
-module "instances-etcd-ad2" {
-  source                      = "./instances/etcd"
-  count                       = "${var.etcdAd2Count}"
-  availability_domain         = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[1],"name")}"
-  compartment_ocid            = "${var.compartment_ocid}"
-  control_plane_subnet_access = "${var.control_plane_subnet_access}"
-  display_name_prefix         = "etcd-ad2"
-  domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
-  hostname_label_prefix       = "etcd-ad2"
-  oracle_linux_image_name     = "${var.etcd_ol_image_name}"
-  label_prefix                = "${var.label_prefix}"
-  shape                       = "${var.etcdShape}"
-  ssh_public_key_openssh      = "${module.k8s-tls.ssh_public_key_openssh}"
-  network_cidrs               = "${var.network_cidrs}"
-  subnet_id                   = "${module.vcn.etcd_subnet_ad2_id}"
-  subnet_name                 = "etcdSubnetAD2"
-  tenancy_ocid                = "${var.compartment_ocid}"
-  etcd_docker_max_log_size    = "${var.etcd_docker_max_log_size}"
-  etcd_docker_max_log_files   = "${var.etcd_docker_max_log_files}"
-  etcd_iscsi_volume_create    = "${var.etcd_iscsi_volume_create}"
-  etcd_iscsi_volume_size      = "${var.etcd_iscsi_volume_size}"
-  assign_private_ip           = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
-}
+  etcdShape                   = "${etcdShape}"
+  etcdAd1Count                = "${var.etcdAd1Count}"
+  etcdAd2Count                = "${var.etcdAd2Count}"
+  etcdAd3Count                = "${var.etcdAd3Count}"
 
-module "instances-etcd-ad3" {
-  source                      = "./instances/etcd"
-  count                       = "${var.etcdAd3Count}"
-  availability_domain         = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[2],"name")}"
-  compartment_ocid            = "${var.compartment_ocid}"
+  etcd_lb_enabled             = "${etcd_lb_enabled}" 
+
   control_plane_subnet_access = "${var.control_plane_subnet_access}"
-  display_name_prefix         = "etcd-ad3"
-  docker_ver                  = "${var.docker_ver}"
-  domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  etcd_ver                    = "${var.etcd_ver}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
-  hostname_label_prefix       = "etcd-ad3"
-  oracle_linux_image_name     = "${var.etcd_ol_image_name}"
-  label_prefix                = "${var.label_prefix}"
-  shape                       = "${var.etcdShape}"
-  ssh_public_key_openssh      = "${module.k8s-tls.ssh_public_key_openssh}"
-  network_cidrs               = "${var.network_cidrs}"
-  subnet_id                   = "${module.vcn.etcd_subnet_ad3_id}"
-  subnet_name                 = "etcdSubnetAD3"
-  tenancy_ocid                = "${var.compartment_ocid}"
-  etcd_docker_max_log_size    = "${var.etcd_docker_max_log_size}"
-  etcd_docker_max_log_files   = "${var.etcd_docker_max_log_files}"
-  etcd_iscsi_volume_create    = "${var.etcd_iscsi_volume_create}"
-  etcd_iscsi_volume_size      = "${var.etcd_iscsi_volume_size}"
-  assign_private_ip           = "${var.etcd_maintain_private_ip == "true" ? "true": "false"}"
 }
 
 module "instances-k8smaster-ad1" {
@@ -434,26 +366,6 @@ module "instances-k8sworker-ad3" {
 }
 
 ### Load Balancers
-
-module "etcd-lb" {
-  source           = "./network/loadbalancers/etcd"
-  etcd_lb_enabled  = "${var.etcd_lb_enabled}"
-  compartment_ocid = "${var.compartment_ocid}"
-  is_private       = "${var.etcd_lb_access == "private" ? "true": "false"}"
-
-  # Handle case where var.etcd_lb_access=public, but var.control_plane_subnet_access=private
-  etcd_subnet_0_id     = "${var.etcd_lb_access == "private" ? module.vcn.etcd_subnet_ad1_id: coalesce(join(" ", module.vcn.public_subnet_ad1_id), join(" ", list(module.vcn.etcd_subnet_ad1_id)))}"
-  etcd_subnet_1_id     = "${var.etcd_lb_access == "private" ? "": coalesce(join(" ", module.vcn.public_subnet_ad2_id), join(" ", list(module.vcn.etcd_subnet_ad2_id)))}"
-  etcd_ad1_private_ips = "${module.instances-etcd-ad1.private_ips}"
-  etcd_ad2_private_ips = "${module.instances-etcd-ad2.private_ips}"
-  etcd_ad3_private_ips = "${module.instances-etcd-ad3.private_ips}"
-  etcdAd1Count         = "${var.etcdAd1Count}"
-  etcdAd2Count         = "${var.etcdAd2Count}"
-  etcdAd3Count         = "${var.etcdAd3Count}"
-  label_prefix         = "${var.label_prefix}"
-  shape                = "${var.etcdLBShape}"
-}
-
 module "k8smaster-public-lb" {
   source                = "./network/loadbalancers/k8smaster"
   master_oci_lb_enabled = "${var.master_oci_lb_enabled}"
