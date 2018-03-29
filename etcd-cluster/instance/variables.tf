@@ -1,6 +1,3 @@
-variable "network_cidrs" {
-  type = "map"
-}
 variable "availability_domain" {}
 variable "compartment_ocid" {}
 variable "display_name_prefix" {}
@@ -11,7 +8,7 @@ variable "shape" {
 }
 
 variable "subnet_id" {}
-variable "subnet_name" {}
+variable "subnet_cidr" {}
 variable "ssh_public_key_openssh" {}
 variable "domain_name" {}
 

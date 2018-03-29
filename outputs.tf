@@ -14,17 +14,6 @@ output "master_lb_backendset_name" {
   value = "${module.k8smaster-public-lb.backendset_name}"
 }
 
-output "etcd_lb_id" {
-  value = "${module.etcd-lb.load_balancer_id}"
-}
-
-output "etcd_lb_backendset_2379_name" {
-  value = "${module.etcd-lb.backendset_2379_name}"
-}
-
-output "etcd_lb_backendset_2380_name" {
-  value = "${module.etcd-lb.backendset_2380_name}"
-}
 
 output "vcn_id" {
   value = "${module.vcn.id}"
@@ -114,15 +103,15 @@ output "ssh_public_key_openssh" {
 }
 
 output "etcd_lb_ip" {
-  value = ["${module.etcd-lb.ip_addresses}"]
+  value = ["${module.etcd-cluster.ip_addresses}"]
 }
 
 output "etcd_public_ips" {
-  value = "${compact(concat(module.instances-etcd-ad1.instance_public_ips,module.instances-etcd-ad2.instance_public_ips,module.instances-etcd-ad3.instance_public_ips))}"
+  value = "${module.etcd-cluster.etcd_public_ips}"
 }
 
 output "etcd_private_ips" {
-  value = "${concat(module.instances-etcd-ad1.private_ips,module.instances-etcd-ad2.private_ips,module.instances-etcd-ad3.private_ips)}"
+  value = "${module.etcd-cluster.etcd_private_ips}"
 }
 
 output "master_lb_ip" {
