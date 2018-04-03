@@ -84,19 +84,19 @@ deploy:
         name: print cluster creation test log
         code: |
           cat tests/createtests.log || true
-    - script:
-        name: perform additional cleanup after tests
-        code: |
-          export TF_VAR_private_key_path=/tmp/bmcs_api_key.pem
-          echo -e "$TF_VAR_private_key" > $TF_VAR_private_key_path
-          terraform destroy -force || true
-          terraform destroy -refresh=true -force || true
-          terraform destroy -force -target=module.instances-k8smaster-ad1 || true
-          terraform destroy -force -target=module.instances-k8smaster-ad2 || true
-          terraform destroy -force -target=module.instances-k8smaster-ad3 || true
-          terraform destroy -force -target=module.instances-k8sworker-ad1 || true
-          terraform destroy -force -target=module.instances-k8sworker-ad2 || true
-          terraform destroy -force -target=module.instances-k8sworker-ad3 || true
-          terraform destroy -force -target=module.instances-etcd-ad1 || true
-          terraform destroy -force -target=module.instances-etcd-ad2 || true
-          terraform destroy -force -target=module.instances-etcd-ad3 || true
+    # - script:
+    #     name: perform additional cleanup after tests
+    #     code: |
+    #       export TF_VAR_private_key_path=/tmp/bmcs_api_key.pem
+    #       echo -e "$TF_VAR_private_key" > $TF_VAR_private_key_path
+    #       terraform destroy -force || true
+    #       terraform destroy -refresh=true -force || true
+    #       terraform destroy -force -target=module.instances-k8smaster-ad1 || true
+    #       terraform destroy -force -target=module.instances-k8smaster-ad2 || true
+    #       terraform destroy -force -target=module.instances-k8smaster-ad3 || true
+    #       terraform destroy -force -target=module.instances-k8sworker-ad1 || true
+    #       terraform destroy -force -target=module.instances-k8sworker-ad2 || true
+    #       terraform destroy -force -target=module.instances-k8sworker-ad3 || true
+    #       terraform destroy -force -target=module.instances-etcd-ad1 || true
+    #       terraform destroy -force -target=module.instances-etcd-ad2 || true
+    #       terraform destroy -force -target=module.instances-etcd-ad3 || true
