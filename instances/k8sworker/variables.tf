@@ -90,3 +90,7 @@ variable "reverse_proxy_clount_init" {}
 
 variable "generic_image_ocid" {
 }
+
+variable "use_hostname_as_nodename" {
+  default = true
+}

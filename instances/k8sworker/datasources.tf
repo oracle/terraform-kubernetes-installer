@@ -26,6 +26,7 @@ data "template_file" "setup-template" {
     worker_iscsi_volume_mount = "${var.worker_iscsi_volume_mount}"
     flexvolume_driver_version = "${var.flexvolume_driver_version}"
     reverse_proxy_setup       = "${var.reverse_proxy_setup}"
+    use_hostname_as_nodename  = "${var.use_hostname_as_nodename}"
   }
 }
 

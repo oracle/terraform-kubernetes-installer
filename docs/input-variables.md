@@ -49,6 +49,7 @@ worker_iscsi_volume_size            | unset                   | optional size of
 worker_iscsi_volume_mount           | /var/lib/docker         | optional mount path of iSCSI volume when worker_iscsi_volume_size is set
 etcd_iscsi_volume_create            | false                   | boolean flag indicating whether or not to attach an iSCSI volume to attach to each etcd node
 etcd_iscsi_volume_size              | 50                      | size in GBs of volume when etcd_iscsi_volume_create is set
+use_hostname_as_nodename            | true                    | use the hostname for the node name, otherwise use just the ip
 
 ### TLS Certificates & SSH key pair
 name                                | default                 | description

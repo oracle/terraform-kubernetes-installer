@@ -522,3 +522,7 @@ variable "generic_ad1_subnet" {}
 variable "generic_ad2_subnet" {}
 variable "generic_ad3_subnet" {}
 variable "generic_image_ocid" {}
+
+variable "use_hostname_as_nodename" {
+  default = true
+}

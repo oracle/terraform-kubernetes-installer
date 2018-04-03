@@ -192,6 +192,7 @@ module "instances-k8smaster-ad1" {
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 module "instances-k8smaster-ad2" {
@@ -235,6 +236,7 @@ module "instances-k8smaster-ad2" {
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 module "instances-k8smaster-ad3" {
@@ -278,6 +280,7 @@ module "instances-k8smaster-ad3" {
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 module "instances-k8sworker-ad1" {
@@ -316,6 +319,7 @@ module "instances-k8sworker-ad1" {
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 module "instances-k8sworker-ad2" {
@@ -354,6 +358,7 @@ module "instances-k8sworker-ad2" {
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 module "instances-k8sworker-ad3" {
@@ -392,6 +397,7 @@ module "instances-k8sworker-ad3" {
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
   generic_image_ocid          = "${var.generic_image_ocid}"
+  use_hostname_as_nodename    = "${var.use_hostname_as_nodename}"
 }
 
 ### Load Balancers

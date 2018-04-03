@@ -97,3 +97,7 @@ variable "assign_private_ip" {
 
 variable "generic_image_ocid" {
 }
+
+variable "use_hostname_as_nodename" {
+  default = true
+}
