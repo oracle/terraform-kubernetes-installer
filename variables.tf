@@ -480,3 +480,7 @@ variable "volume_provisioner_user_private_key_path" {
 variable "volume_provisioner_user_private_key_password" {
   default = ""
 }
+
+variable "use_hostname_as_nodename" {
+  default = true
+}
