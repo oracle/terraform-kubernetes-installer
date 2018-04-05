@@ -7,7 +7,7 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
-  hostname_label      = "${var.hostname_label_prefix}-${count.index}"
+  hostname_label      = "${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
   image               = "${lookup(data.oci_core_images.ImageOCID.images[0], "id")}"
   shape               = "${var.shape}"
   subnet_id           = "${var.subnet_id}"
@@ -52,7 +52,7 @@ resource "oci_core_volume" "TFVolumeK8sWorker" {
   count               = "${var.worker_iscsi_volume_create ? var.count : 0}"
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
-  display_name        = "block-volume-${var.hostname_label_prefix}-${count.index}"
+  display_name        = "block-volume-${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
   size_in_gbs         = "${var.worker_iscsi_volume_size}"
 }
 
