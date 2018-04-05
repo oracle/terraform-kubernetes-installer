@@ -7,7 +7,7 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
-  hostname_label      = "${var.hostname_label_prefix}-${count.index}"
+  hostname_label      = "${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
   image               = "${var.generic_image_ocid}"
   shape               = "${var.shape}"
 
