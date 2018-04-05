@@ -14,7 +14,7 @@ resource "oci_core_instance" "TFInstanceEtcd" {
   create_vnic_details {
     subnet_id         = "${var.subnet_id}"
     display_name      = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
-    hostname_label    = "${var.hostname_label_prefix}-${count.index}"
+    hostname_label    = "${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
     assign_public_ip  = "${(var.control_plane_subnet_access == "private") ? "false" : "true"}"
     private_ip        = "${var.assign_private_ip == "true" ? cidrhost(lookup(var.network_cidrs,var.subnet_name), count.index+2) : ""}"
   },
