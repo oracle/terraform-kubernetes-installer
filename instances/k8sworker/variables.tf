@@ -87,3 +87,7 @@ variable "flexvolume_driver_version" {}
 variable "reverse_proxy_setup" {}
 
 variable "reverse_proxy_clount_init" {}
+
+variable "use_hostname_as_nodename" {
+  default = true
+}

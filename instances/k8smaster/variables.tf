@@ -95,3 +95,7 @@ variable "assign_private_ip" {
   description = "Assign a static private ip based on CIDR block for that AD"
   default = false
 }
+
+variable "use_hostname_as_nodename" {
+  default = true
+}
