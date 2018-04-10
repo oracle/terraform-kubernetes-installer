@@ -45,27 +45,9 @@ until [ $(/usr/local/bin/etcdctl --endpoints ${etcd_endpoints} cluster-health | 
 	sleep 1
 done
 
-## Flannel
-######################################
-curl -L --retry 3 https://github.com/coreos/flannel/releases/download/${flannel_ver}/flanneld-amd64 -o /usr/local/bin/flanneld \
-	&& chmod 755 /usr/local/bin/flanneld
-export ETCD_SERVER=${etcd_endpoints}
-echo "IP_LOCAL: $IP_LOCAL ETCD_SERVER: $ETCD_SERVER"
-envsubst </root/services/flannel.service >/etc/systemd/system/flannel.service
-systemctl daemon-reload && systemctl enable flannel && systemctl start flannel
-
-# Create cni bridge interface w/ IP from flannel
-cp /root/services/cni-bridge.service /etc/systemd/system/cni-bridge.service
-cp /root/services/cni-bridge.sh /usr/local/bin/cni-bridge.sh && chmod +x /usr/local/bin/cni-bridge.sh
-systemctl enable cni-bridge && systemctl start cni-bridge
-
 ## Docker
 ######################################
 until yum -y install docker-engine-${docker_ver}; do sleep 1 && echo -n "."; done
-
-cat <<EOF > /etc/sysconfig/docker-network
-DOCKER_NETWORK_OPTIONS="--bridge=cni0 --iptables=false --ip-masq=false"
-EOF
 
 cat <<EOF > /etc/sysconfig/docker
 OPTIONS="--selinux-enabled --log-opt max-size=${docker_max_log_size} --log-opt max-file=${docker_max_log_files}"
@@ -101,18 +83,6 @@ sudo sed -i  s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 setenforce 0
 systemctl stop firewalld.service
 systemctl disable firewalld.service
-
-# Configure pod network:
-mkdir -p /etc/cni/net.d
-cat >/etc/cni/net.d/10-flannel.conf <<EOF
-{
-	"name": "podnet",
-	"type": "flannel",
-	"delegate": {
-		"isDefaultGateway": true
-	}
-}
-EOF
 
 ## Install Flex Volume Driver for OCI
 #####################################
@@ -179,17 +149,26 @@ systemctl start kubelet
 
 until kubectl get all; do sleep 1 && echo -n "."; done
 
-systemctl restart flannel
-
 ## Wait for k8s master to be available. There is a possible race on pod networks otherwise.
 until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do
 	sleep 3
 done
 
+# Install flannel
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+## This could be done better
+curl -sSL https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/kube-flannel.yml | \
+    sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" \
+        -e "s#vxlan#${flannel_backend}#g" | \
+    kubectl apply -f -
+
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
 kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager-rbac.yaml
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager.yaml
+curl -sSL https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager.yaml | \
+    sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" | \
+    kubectl apply -f -
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml

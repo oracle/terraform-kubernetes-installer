@@ -17,6 +17,8 @@ data "template_file" "setup-template" {
     docker_ver                 = "${var.docker_ver}"
     etcd_ver                   = "${var.etcd_ver}"
     flannel_ver                = "${var.flannel_ver}"
+    flannel_network_cidr       = "${var.flannel_network_cidr}"
+    flannel_backend            = "${var.flannel_backend}"
     k8s_ver                    = "${var.k8s_ver}"
     docker_max_log_size        = "${var.master_docker_max_log_size}"
     docker_max_log_files       = "${var.master_docker_max_log_files}"
@@ -59,7 +61,8 @@ data "template_file" "kube-controller-manager" {
   template = "${file("${path.module}/manifests/kube-controller-manager.yaml")}"
 
   vars = {
-    k8s_ver = "${var.k8s_ver}"
+    k8s_ver              = "${var.k8s_ver}"
+    flannel_network_cidr = "${var.flannel_network_cidr}"
   }
 }
 
@@ -76,7 +79,8 @@ data "template_file" "kube-proxy" {
   template = "${file("${path.module}/manifests/kube-proxy.yaml")}"
 
   vars = {
-    k8s_ver = "${var.k8s_ver}"
+    k8s_ver              = "${var.k8s_ver}"
+    flannel_network_cidr = "${var.flannel_network_cidr}"
   }
 }
 
@@ -102,18 +106,6 @@ data "template_file" "kube-rbac" {
 
 data "template_file" "master-kubeconfig" {
   template = "${file("${path.module}/manifests/master-kubeconfig.template.yaml")}"
-}
-
-data "template_file" "flannel-service" {
-  template = "${file("${path.module}/scripts/flannel.service")}"
-}
-
-data "template_file" "cnibridge-service" {
-  template = "${file("${path.module}/scripts/cni-bridge.service")}"
-}
-
-data "template_file" "cnibridge-sh" {
-  template = "${file("${path.module}/scripts/cni-bridge.sh")}"
 }
 
 data "template_file" "token_auth_file" {
@@ -145,9 +137,6 @@ data "template_file" "kube_master_cloud_init_file" {
     api-server-key-content                   = "${base64gzip(var.api_server_private_key_pem)}"
     api-server-cert-content                  = "${base64gzip(var.api_server_cert_pem)}"
     api-token_auth_template_content          = "${base64gzip(data.template_file.token_auth_file.rendered)}"
-    flannel_service_content                  = "${base64gzip(data.template_file.flannel-service.rendered)}"
-    cnibridge_service_content                = "${base64gzip(data.template_file.cnibridge-service.rendered)}"
-    cnibridge_sh_content                     = "${base64gzip(data.template_file.cnibridge-sh.rendered)}"
     cloud_provider_secret_content            = "${base64gzip(var.cloud_controller_secret)}"
     flexvolume_driver_secret_content         = "${base64gzip(var.flexvolume_driver_secret)}"
     volume_provisioner_secret_content        = "${base64gzip(var.volume_provisioner_secret)}"

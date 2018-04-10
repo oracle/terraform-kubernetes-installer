@@ -74,26 +74,11 @@ docker run -d \
 	-listen-peer-urls http://0.0.0.0:2380 \
 	-discovery ${etcd_discovery_url}
 
-# Generate a flannel configuration JSON that we will store into etcd using curl.
-cat >/tmp/flannel-network.json <<EOF
-{
-  "Network": "${flannel_network_cidr}",
-  "Subnetlen": ${flannel_network_subnetlen},
-  "Backend": {
-    "Type": "${flannel_backend}",
-    "VNI" : 1
-  }
-}
-EOF
-
 # wait for etcd to become active
 while ! curl -sf -o /dev/null http://$FQDN_HOSTNAME:2379/v2/keys/; do
 	sleep 1
 	echo "Try again"
 done
-
-# put the flannel config in etcd
-curl -sf -L http://$FQDN_HOSTNAME:2379/v2/keys/flannel/network/config -X PUT --data-urlencode value@/tmp/flannel-network.json
 
 # Download etcdctl client etcd_ver
 while ! curl -L https://github.com/coreos/etcd/releases/download/${etcd_ver}/etcd-${etcd_ver}-linux-amd64.tar.gz -o /tmp/etcd-${etcd_ver}-linux-amd64.tar.gz; do

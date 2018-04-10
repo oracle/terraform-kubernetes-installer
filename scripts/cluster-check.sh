@@ -117,44 +117,6 @@ function check_cloud_init_finished() {
 	done
 }
 
-function check_etcdctl_flannel() {
-	log_msg "  Checking Flannel's etcd key from each node..."
-	for master in $(terraform output master_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${master}" "sudo /usr/local/bin/etcdctl ls 2>&1")
-		if [[ $ret != "/flannel" ]]; then
-			log_msg "  [FAILED] etcd and/or flannel is not available on master ${master}"
-			exit 1
-		fi
-		ret=$(ssh_run_command "${master}" "/usr/sbin/ip route show | grep --only-matching cni0")
-		if [[ $ret != "cni0" ]]; then
-			log_msg "  [FAILED] there may be an issue with container networking on master ${master}"
-			exit 1
-		fi
-	done
-
-	for worker in $(terraform output worker_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${worker}" "sudo /usr/local/bin/etcdctl ls 2>&1")
-		if [[ $ret != "/flannel" ]]; then
-			log_msg "  [FAILED] etcd and/or flannel is not available on worker ${worker}"
-			exit 1
-		fi
-		ret=$(ssh_run_command "${worker}" "/usr/sbin/ip route show | grep --only-matching cni0")
-		if [[ $ret != "cni0" ]]; then
-			log_msg "  [FAILED] there may be an issue with container networking on worker ${worker}"
-			exit 1
-		fi
-	done
-
-	for etcd in $(terraform output etcd_public_ips | sed "s/,/ /g"); do
-		ret=$(ssh_run_command "${etcd}" "sudo /usr/local/bin/etcdctl ls 2>&1")
-		if [[ $ret != "/flannel" ]]; then
-			log_msg "  [FAILED] etcd and/or flannel is not available on etcd node ${etcd}"
-			exit 1
-		fi
-	done
-
-}
-
 function check_system_services() {
 
 	log_msg "  Checking whether expected system services are running on each node..."
@@ -167,11 +129,6 @@ function check_system_services() {
 		ret=$(ssh_run_command "${master}" "sudo systemctl status kubelet 2>&1 | grep --only-matching 'Active: active' | tr -d '\r\n'")
 		if [[ $ret != "Active: active" ]]; then
 			log_msg "  [FAILED] expected kubelet service is not running on master $master"
-			exit 1
-		fi
-		ret=$(ssh_run_command "${master}" "sudo systemctl status flannel 2>&1 | grep --only-matching 'Active: active' | tr -d '\r\n'")
-		if [[ $ret != "Active: active" ]]; then
-			log_msg "  [FAILED] expected flannel service is not running on master $master"
 			exit 1
 		fi
 
@@ -191,11 +148,6 @@ function check_system_services() {
 		ret=$(ssh_run_command "${worker}" "sudo systemctl status kubelet 2>&1 | grep --only-matching 'Active: active' | tr -d '\r\n'")
 		if [[ $ret != "Active: active" ]]; then
 			log_msg "  [FAILED] expected kubelet service is not running on worker $worker"
-			exit 1
-		fi
-		ret=$(ssh_run_command "${worker}" "sudo systemctl status flannel 2>&1 | grep --only-matching 'Active: active' | tr -d '\r\n'")
-		if [[ $ret != "Active: active" ]]; then
-			log_msg "  [FAILED] expected flannel service is not running on worker $worker"
 			exit 1
 		fi
 		ret=$(ssh_run_command "${worker}" "sudo docker ps | grep --only-matching \"hyperkube proxy\" | tr -d '\r\n'")
@@ -240,6 +192,15 @@ function check_kube-dns() {
 	output=$(kubectl get pods --namespace=kube-system -l k8s-app=kube-dns 2>&1 | grep kube-dns | awk '{print $2}')
 	if [[ $output != "3/3" ]]; then
 		log_msg "  [FAILED] expected 3/3 kube-dns pods to be running in the cluster"
+		exit 1
+	fi
+}
+
+function check_kube-flannel() {
+	log_msg "  Checking status of kube-flannel pod..."
+	output=$(kubectl get pods --namespace=kube-system -l app=flannel 2>&1 | grep kube-flannel | awk '{print $3}' | grep -vi running)
+	if [[ ! -z $output ]]; then
+		log_msg "  [FAILED] kube-flannel is not running in the cluster"
 		exit 1
 	fi
 }
@@ -307,10 +268,10 @@ log_msg "Running some basic checks on Kubernetes cluster...."
 
 check_ssh_connectivity
 check_cloud_init_finished
-check_etcdctl_flannel
 check_system_services
 check_get_nodes
 check_kube-dns
+check_kube-flannel
 check_nginx_deployment
 print_success
 

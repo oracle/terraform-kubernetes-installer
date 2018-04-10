@@ -32,9 +32,6 @@ variable "etcd_ver" {
 }
 
 variable "tenancy_ocid" {}
-variable "flannel_network_cidr" {}
-variable "flannel_network_subnetlen" {}
-variable "flannel_backend" {}
 variable "etcd_discovery_url" {}
 
 variable "count" {

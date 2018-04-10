@@ -19,7 +19,7 @@ spec:
     - --master=${master_lb}
     - --kubeconfig=/etc/kubernetes/manifests/worker-kubeconfig.yaml
     - --proxy-mode=iptables
-    - --cluster-cidr=10.99.0.0/16
+    - --cluster-cidr=${flannel_network_cidr}
     - --masquerade-all
     - --hostname-override=__FQDN_HOSTNAME__
     - --v=2

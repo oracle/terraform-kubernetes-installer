@@ -4,6 +4,7 @@ variable "availability_domain" {}
 variable "compartment_ocid" {}
 variable "display_name_prefix" {}
 variable "hostname_label_prefix" {}
+variable "flannel_network_cidr" {}
 
 variable "count" {
   default = "1"
@@ -32,15 +33,6 @@ variable "oracle_linux_image_name" {
   default = "Oracle-Linux-7.4-2018.01.20-0"
 }
 
-variable "etcd_ver" {
-  default = "v3.2.2"
-}
-
-# TODO - because the bootstrap template uses yum, we only support Oracle Linux 7
-variable "flannel_ver" {
-  default = "v0.9.1"
-}
-
 # Kubernetes
 variable "master_lb" {}
 
@@ -52,10 +44,6 @@ variable "root_ca_pem" {}
 variable "root_ca_key" {}
 variable "api_server_private_key_pem" {}
 variable "api_server_cert_pem" {}
-
-# etcd
-variable "etcd_discovery_url" {}
-variable "etcd_endpoints" {}
 
 variable "worker_docker_max_log_size" {
   description = "Maximum size of the k8s worker docker container json logs"

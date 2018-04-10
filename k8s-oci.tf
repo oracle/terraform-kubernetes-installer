@@ -119,9 +119,6 @@ module "instances-etcd-ad1" {
   display_name_prefix         = "etcd-ad1"
   domain_name                 = "${var.domain_name}"
   etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
   hostname_label_prefix       = "etcd-ad1"
   oracle_linux_image_name     = "${var.etcd_ol_image_name}"
   label_prefix                = "${var.label_prefix}"
@@ -147,9 +144,6 @@ module "instances-etcd-ad2" {
   display_name_prefix         = "etcd-ad2"
   domain_name                 = "${var.domain_name}"
   etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
   hostname_label_prefix       = "etcd-ad2"
   oracle_linux_image_name     = "${var.etcd_ol_image_name}"
   label_prefix                = "${var.label_prefix}"
@@ -177,9 +171,6 @@ module "instances-etcd-ad3" {
   domain_name                 = "${var.domain_name}"
   etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
   etcd_ver                    = "${var.etcd_ver}"
-  flannel_backend             = "${var.flannel_backend}"
-  flannel_network_cidr        = "10.99.0.0/16"
-  flannel_network_subnetlen   = 24
   hostname_label_prefix       = "etcd-ad3"
   oracle_linux_image_name     = "${var.etcd_ol_image_name}"
   label_prefix                = "${var.label_prefix}"
@@ -237,6 +228,8 @@ module "instances-k8smaster-ad1" {
   volume_provisioner_secret   = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
+  flannel_backend             = "${var.flannel_backend}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 module "instances-k8smaster-ad2" {
@@ -280,6 +273,8 @@ module "instances-k8smaster-ad2" {
   volume_provisioner_secret   = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
+  flannel_backend             = "${var.flannel_backend}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 module "instances-k8smaster-ad3" {
@@ -323,6 +318,8 @@ module "instances-k8smaster-ad3" {
   volume_provisioner_secret   = "${module.oci-volume-provisioner.volume-provisioner-yaml}"
   assign_private_ip           = "${var.master_maintain_private_ip}"
   etcd_endpoints              = "${local.etcd_endpoints}"
+  flannel_backend             = "${var.flannel_backend}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 module "instances-k8sworker-ad1" {
@@ -337,9 +334,6 @@ module "instances-k8sworker-ad1" {
   worker_docker_max_log_size  = "${var.worker_docker_max_log_size}"
   worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  etcd_ver                    = "${var.etcd_ver}"
-  flannel_ver                 = "${var.flannel_ver}"
   hostname_label_prefix       = "k8s-worker-ad1"
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
@@ -356,10 +350,10 @@ module "instances-k8sworker-ad1" {
   subnet_id                   = "${module.vcn.k8worker_subnet_ad1_id}"
   tenancy_ocid                = "${var.compartment_ocid}"
   flexvolume_driver_version   = "${var.flexvolume_driver_version}"
-  etcd_endpoints              = "${local.etcd_endpoints}"
   worker_iscsi_volume_create  = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 module "instances-k8sworker-ad2" {
@@ -374,9 +368,6 @@ module "instances-k8sworker-ad2" {
   worker_docker_max_log_size  = "${var.worker_docker_max_log_size}"
   worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  etcd_ver                    = "${var.etcd_ver}"
-  flannel_ver                 = "${var.flannel_ver}"
   hostname_label_prefix       = "k8s-worker-ad2"
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
@@ -393,10 +384,10 @@ module "instances-k8sworker-ad2" {
   subnet_id                   = "${module.vcn.k8worker_subnet_ad2_id}"
   tenancy_ocid                = "${var.compartment_ocid}"
   flexvolume_driver_version   = "${var.flexvolume_driver_version}"
-  etcd_endpoints              = "${local.etcd_endpoints}"
   worker_iscsi_volume_create  = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 module "instances-k8sworker-ad3" {
@@ -411,9 +402,6 @@ module "instances-k8sworker-ad3" {
   worker_docker_max_log_size  = "${var.worker_docker_max_log_size}"
   worker_docker_max_log_files = "${var.worker_docker_max_log_files}"
   domain_name                 = "${var.domain_name}"
-  etcd_discovery_url          = "${template_file.etcd_discovery_url.id}"
-  etcd_ver                    = "${var.etcd_ver}"
-  flannel_ver                 = "${var.flannel_ver}"
   hostname_label_prefix       = "k8s-worker-ad3"
   oracle_linux_image_name     = "${var.worker_ol_image_name}"
   k8s_ver                     = "${var.k8s_ver}"
@@ -430,10 +418,10 @@ module "instances-k8sworker-ad3" {
   subnet_id                   = "${module.vcn.k8worker_subnet_ad3_id}"
   tenancy_ocid                = "${var.compartment_ocid}"
   flexvolume_driver_version   = "${var.flexvolume_driver_version}"
-  etcd_endpoints              = "${local.etcd_endpoints}"
   worker_iscsi_volume_create  = "${var.worker_iscsi_volume_create}"
   worker_iscsi_volume_size    = "${var.worker_iscsi_volume_size}"
   worker_iscsi_volume_mount   = "${var.worker_iscsi_volume_mount}"
+  flannel_network_cidr        = "${var.flannel_network_cidr}"
 }
 
 ### Load Balancers
