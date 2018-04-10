@@ -40,7 +40,7 @@ build:
           terraform validate
 
 deploy:
-  box: 
+  box:
     id: python:2.7
   steps:
     - install-packages:
