@@ -1,4 +1,4 @@
-# BMCS Service
+# OCI Service
 variable "tenancy_ocid" {}
 
 variable "compartment_ocid" {}
@@ -30,7 +30,7 @@ variable "network_cidrs" {
 }
 
 variable "domain_name" {
-  default = "k8sbmcs.oraclevcn.com"
+  default = "k8soci.oraclevcn.com"
 }
 
 variable "user_ocid" {}
@@ -42,7 +42,7 @@ variable "region" {
 }
 
 variable "vcn_dns_name" {
-  default = "k8sbmcs"
+  default = "k8soci"
 }
 
 variable "disable_auto_retries" {
@@ -418,7 +418,7 @@ variable "flannel_backend" {
   default     = "VXLAN"
 }
 
-# Cloud controller 
+# Cloud controller
 variable "cloud_controller_version" {
   default = "0.2.1"
 }
