@@ -438,9 +438,9 @@ variable "flannel_backend" {
   default     = "VXLAN"
 }
 
-# Cloud controller 
+# Cloud controller
 variable "cloud_controller_version" {
-  default = "0.2.1"
+  default = "0.4.0"
 }
 
 variable "cloud_controller_user_ocid" {
