@@ -79,7 +79,7 @@ resource "oci_core_subnet" "etcdSubnetAD1" {
   cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD1")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD1"
-  dns_label           = "etcdsubnet1"
+  dns_label           = "${lookup(var.network_subnet_dns, "etcdSubnetAD1")}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
 
   # Work around HIL issue #50 using join and use coalesce to pick the first route that is not empty (AD1 first pick)
@@ -98,7 +98,7 @@ resource "oci_core_subnet" "etcdSubnetAD2" {
   cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD2")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD2"
-  dns_label           = "etcdsubnet2"
+  dns_label           = "${lookup(var.network_subnet_dns, "etcdSubnetAD2")}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
 
   # Work around HIL issue #50 using join and use coalesce to pick the first route that is not empty (AD2 first pick)
@@ -117,7 +117,7 @@ resource "oci_core_subnet" "etcdSubnetAD3" {
   cidr_block          = "${lookup(var.network_cidrs, "etcdSubnetAD3")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.control_plane_subnet_access}ETCDSubnetAD3"
-  dns_label           = "etcdsubnet3"
+  dns_label           = "${lookup(var.network_subnet_dns, "etcdSubnetAD3")}"
   vcn_id              = "${oci_core_virtual_network.CompleteVCN.id}"
 
   # Work around HIL issue #50 using join and use coalesce to pick the first route that is not empty (AD3 first pick)
@@ -136,7 +136,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD1" {
   cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD1"
-  dns_label                  = "k8smasterad1"
+  dns_label                  = "${lookup(var.network_subnet_dns, "masterSubnetAD1")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -153,7 +153,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD2" {
   cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD2"
-  dns_label                  = "k8smasterad2"
+  dns_label                  = "${lookup(var.network_subnet_dns, "masterSubnetAD2")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -170,7 +170,7 @@ resource "oci_core_subnet" "k8sMasterSubnetAD3" {
   cidr_block                 = "${lookup(var.network_cidrs, "masterSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SMasterSubnetAD3"
-  dns_label                  = "k8smasterad3"
+  dns_label                  = "${lookup(var.network_subnet_dns, "masterSubnetAD3")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -187,7 +187,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD1" {
   cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD1"
-  dns_label                  = "k8sworkerad1"
+  dns_label                  = "${lookup(var.network_subnet_dns, "workerSubnetAD1")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -204,7 +204,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD2" {
   cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD2"
-  dns_label                  = "k8sworkerad2"
+  dns_label                  = "${lookup(var.network_subnet_dns, "workerSubnetAD2")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -221,7 +221,7 @@ resource "oci_core_subnet" "k8sWorkerSubnetAD3" {
   cidr_block                 = "${lookup(var.network_cidrs, "workerSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}${var.control_plane_subnet_access}K8SWorkerSubnetAD3"
-  dns_label                  = "k8sworkerad3"
+  dns_label                  = "${lookup(var.network_subnet_dns, "workerSubnetAD3")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${var.control_plane_subnet_access == "private" ? coalesce(join(" ", oci_core_route_table.NATInstanceAD3RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD1RouteTable.*.id), join(" ", oci_core_route_table.NATInstanceAD2RouteTable.*.id), oci_core_route_table.PublicRouteTable.id) : oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -241,7 +241,7 @@ resource "oci_core_subnet" "k8sCCMLBSubnetAD1" {
   cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD1")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD1"
-  dns_label                  = "k8sccmlbad1"
+  dns_label                  = "${lookup(var.network_subnet_dns, "k8sCCMLBSubnetAD1")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -258,7 +258,7 @@ resource "oci_core_subnet" "k8sCCMLBSubnetAD2" {
   cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD2")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD2"
-  dns_label                  = "k8sccmlbad2"
+  dns_label                  = "${lookup(var.network_subnet_dns, "k8sCCMLBSubnetAD2")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
@@ -275,11 +275,11 @@ resource "oci_core_subnet" "k8sCCMLBSubnetAD3" {
   cidr_block                 = "${lookup(var.network_cidrs, "k8sCCMLBSubnetAD3")}"
   compartment_id             = "${var.compartment_ocid}"
   display_name               = "${var.label_prefix}PublicK8SCCMLBSubnetAD3"
-  dns_label                  = "k8sccmlbad3"
+  dns_label                  = "${lookup(var.network_subnet_dns, "k8sCCMLBSubnetAD3")}"
   vcn_id                     = "${oci_core_virtual_network.CompleteVCN.id}"
   route_table_id             = "${oci_core_route_table.PublicRouteTable.id}"
   dhcp_options_id            = "${oci_core_virtual_network.CompleteVCN.default_dhcp_options_id}"
-  security_list_ids          = ["${oci_core_security_list.K8SCCMLBSubnet.id}"]  
+  security_list_ids          = ["${oci_core_security_list.K8SCCMLBSubnet.id}"]
   prohibit_public_ip_on_vnic = "false"
 
   provisioner "local-exec" {

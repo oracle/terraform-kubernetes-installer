@@ -112,6 +112,7 @@ The following input variables are used to configure the inbound security rules o
 name                                | default                 | description
 ------------------------------------|-------------------------|------------
 network_cidrs                       | See map in variables.tf | A CIDR notation IP range of the VCN and its subnets.
+network_subnet_dns                  | See map in variables.tf | A DNS label for each of the subnet in the VCN (Max 15 characters)
 etcd_cluster_ingress                | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the etcd cluster. Must be a subset of the VCN CIDR.
 etcd_ssh_ingress                    | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to SSH to etcd nodes. Must be a subset of the VCN CIDR.
 master_ssh_ingress                  | 10.0.0.0/16 (VCN only)  | A CIDR notation IP range that is allowed to access the master(s). Must be a subset of the VCN CIDR.
