@@ -36,6 +36,12 @@ write_files:
     content: |
       ${kubelet_service_content}
 
+  - path: "/root/services/ethtool-disable-offload@.service"
+    permissions: "0600"
+    encoding: "gzip+base64"
+    content: |
+      ${ethtool_service_content}
+
 # Kube certs
   - path: "/etc/kubernetes/ssl/ca.pem"
     permissions: "0600"

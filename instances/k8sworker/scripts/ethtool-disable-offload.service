@@ -1,0 +1,12 @@
+[Unit]
+Description=ethtool-disable-offload
+Requires=network.target
+After=network.target
+Before=kubelet.service
+
+[Service]
+ExecStart=/sbin/ethtool -K %i tx off
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target

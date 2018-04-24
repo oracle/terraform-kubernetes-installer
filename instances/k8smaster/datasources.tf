@@ -57,6 +57,10 @@ data "template_file" "kubelet-service" {
   }
 }
 
+data "template_file" "ethtool-offload-service" {
+  template = "${file("${path.module}/scripts/ethtool-disable-offload.service")}"
+}
+
 data "template_file" "kube-controller-manager" {
   template = "${file("${path.module}/manifests/kube-controller-manager.yaml")}"
 
@@ -132,6 +136,7 @@ data "template_file" "kube_master_cloud_init_file" {
     master_kubeconfig_template_content       = "${base64gzip(data.template_file.master-kubeconfig.rendered)}"
     kube_scheduler_template_content          = "${base64gzip(data.template_file.kube-scheduler.rendered)}"
     kubelet_service_content                  = "${base64gzip(data.template_file.kubelet-service.rendered)}"
+    ethtool_service_content                  = "${base64gzip(data.template_file.ethtool-offload-service.rendered)}"
     ca-pem-content                           = "${base64gzip(var.root_ca_pem)}"
     ca-key-content                           = "${base64gzip(var.root_ca_key)}"
     api-server-key-content                   = "${base64gzip(var.api_server_private_key_pem)}"
