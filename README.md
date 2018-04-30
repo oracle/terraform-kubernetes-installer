@@ -10,10 +10,11 @@
 
 ## About
 
-The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle 
-Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is 
+The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-based Kubernetes installation for Oracle
+Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is
 used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][oci] (OCI).
 
+**Warning: This installer is intended as a quickstart only and we do not offer any official support.**
 
 ## Cluster Overview
 
@@ -31,7 +32,7 @@ Terraform is used to _provision_ the cloud infrastructure and any required local
 
 #### Cluster Configuration
 
-Terraform uses cloud-init scripts to handle the instance-level _configuration_ for instances in the Control Plane to 
+Terraform uses cloud-init scripts to handle the instance-level _configuration_ for instances in the Control Plane to
 configure:
 
 - Highly Available (HA) Kubernetes master configuration
@@ -86,7 +87,7 @@ Initialize Terraform:
 
 ```
 $ terraform init
-``` 
+```
 
 View what Terraform plans do before actually doing it:
 
@@ -110,7 +111,7 @@ Your network access settings determine whether your cluster is accessible from t
 
 #### Verify the cluster:
 
-If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from 
+If you've chosen to configure a public cluster, you can do a quick and automated verification of your cluster from
 your local machine by running the `cluster-check.sh` located in the `scripts` directory.  Note that this script requires your KUBECONFIG environment variable to be set (above), and SSH and HTTPs access to be open to etcd and worker nodes.
 
 To temporarily open access SSH and HTTPs access for `cluster-check.sh`, add the following to your `terraform.tfvars` file:
