@@ -9,8 +9,8 @@ locals {
   etcd_endpoints = "${var.etcd_lb_enabled == "true" ?
     join(",",formatlist("http://%s:2379", module.etcd-lb.ip_addresses)) :
     join(",",formatlist("http://%s:2379", compact(concat(
-      module.instances-etcd-ad1.private_ips, 
-      module.instances-etcd-ad2.private_ips, 
+      module.instances-etcd-ad1.private_ips,
+      module.instances-etcd-ad2.private_ips,
       module.instances-etcd-ad3.private_ips)))) }"
 }
 
@@ -105,7 +105,7 @@ module "oci-volume-provisioner" {
   volume_provisioner_user_fingerprint      = "${var.volume_provisioner_user_fingerprint == "" ? var.fingerprint : var.volume_provisioner_user_fingerprint}"
   volume_provisioner_user_private_key_path = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_path : var.volume_provisioner_user_private_key_path}"
 
-  // See comment for oci-cloud-controller  
+  // See comment for oci-cloud-controller
   volume_provisioner_user_private_key_password = "${var.volume_provisioner_user_private_key_path == "" ? var.private_key_password : var.volume_provisioner_user_private_key_password}"
 }
 
@@ -231,6 +231,7 @@ module "instances-k8smaster-ad1" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  kubernetes_network_plugin   = "${var.kubernetes_network_plugin}"
 }
 
 module "instances-k8smaster-ad2" {
@@ -276,6 +277,7 @@ module "instances-k8smaster-ad2" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  kubernetes_network_plugin   = "${var.kubernetes_network_plugin}"
 }
 
 module "instances-k8smaster-ad3" {
@@ -321,6 +323,7 @@ module "instances-k8smaster-ad3" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  kubernetes_network_plugin   = "${var.kubernetes_network_plugin}"
 }
 
 module "instances-k8sworker-ad1" {

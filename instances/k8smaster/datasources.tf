@@ -27,6 +27,7 @@ data "template_file" "setup-template" {
     cloud_controller_version   = "${var.cloud_controller_version}"
     flexvolume_driver_version  = "${var.flexvolume_driver_version}"
     volume_provisioner_version = "${var.volume_provisioner_version}"
+    kubernetes_network_plugin  = "${var.kubernetes_network_plugin}"
   }
 }
 
