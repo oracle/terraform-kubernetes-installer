@@ -25,6 +25,7 @@ variable "subnet_name" {}
 variable "domain_name" {}
 variable "shape" {}
 variable "tenancy_ocid" {}
+variable "region" {}
 
 variable "label_prefix" {
   default = ""

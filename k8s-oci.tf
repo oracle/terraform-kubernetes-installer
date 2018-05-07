@@ -62,6 +62,7 @@ module "vcn" {
   external_icmp_ingress                   = "${var.external_icmp_ingress}"
   internal_icmp_ingress                   = "${var.internal_icmp_ingress}"
   network_subnet_dns                      = "${var.network_subnet_dns}"
+  cluster_cidr                            = "${var.flannel_network_cidr}"
 }
 
 module "oci-cloud-controller" {
@@ -231,6 +232,7 @@ module "instances-k8smaster-ad1" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  region                      = "${var.region}"
 }
 
 module "instances-k8smaster-ad2" {
@@ -276,6 +278,7 @@ module "instances-k8smaster-ad2" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  region                      = "${var.region}"
 }
 
 module "instances-k8smaster-ad3" {
@@ -321,6 +324,7 @@ module "instances-k8smaster-ad3" {
   etcd_endpoints              = "${local.etcd_endpoints}"
   flannel_backend             = "${var.flannel_backend}"
   flannel_network_cidr        = "${var.flannel_network_cidr}"
+  region                      = "${var.region}"
 }
 
 module "instances-k8sworker-ad1" {

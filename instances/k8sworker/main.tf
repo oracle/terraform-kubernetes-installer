@@ -10,7 +10,13 @@ resource "oci_core_instance" "TFInstanceK8sWorker" {
   hostname_label      = "${var.hostname_label_prefix}-${count.index}"
   image               = "${lookup(data.oci_core_images.ImageOCID.images[0], "id")}"
   shape               = "${var.shape}"
-  subnet_id           = "${var.subnet_id}"
+
+  create_vnic_details {
+    subnet_id        = "${var.subnet_id}"
+    display_name     = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
+    hostname_label   = "${var.hostname_label_prefix}-${count.index}"
+    skip_source_dest_check = "true"
+  }
 
   extended_metadata {
     roles               = "nodes"

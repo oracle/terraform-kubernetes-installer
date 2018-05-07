@@ -33,7 +33,7 @@ fi
 BROADCOM_DRIVER=$(lsmod | grep bnxt_en | awk '{print $1}')
 if [[ -n "$${BROADCOM_DRIVER}" ]]; then
    echo "Disabling hardware TX checksum offloading"
-   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx off
+   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx on
 fi
 
 ## Setup NVMe drives and mount at /var/lib/docker

@@ -12,7 +12,7 @@ ExecStart=/usr/bin/kubelet \
   --hostname-override=__FQDN_HOSTNAME__ \
   --kubeconfig=/etc/kubernetes/manifests/worker-kubeconfig.yaml \
   --require-kubeconfig=true \
-  --network-plugin=cni \
+  --network-plugin=kubenet \
   --node-labels node-role.kubernetes.io/node=,failure-domain.beta.kubernetes.io/region=${region},failure-domain.beta.kubernetes.io/zone=${zone},node.info/external.ipaddress=__EXT_IP__,node.info/availability.domain=__AVAILABILITY_DOMAIN__,node.info/compartment.id_prefix=__COMPARTMENT_ID_PREFIX__,node.info/compartment.id_suffix=__COMPARTMENT_ID_SUFFIX__,node.info/node.id_prefix=__NODE_ID_PREFIX__,node.info/node.id_suffix=__NODE_ID_SUFFIX__,node.info/node.shape=__NODE_SHAPE__ \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --register-node=true \

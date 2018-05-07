@@ -172,3 +172,5 @@ variable nat_instance_ad3_enabled {
 variable dedicated_nat_subnets {
   default = "false"
 }
+
+variable cluster_cidr {}

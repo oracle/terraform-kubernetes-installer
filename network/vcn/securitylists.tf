@@ -199,6 +199,10 @@ resource "oci_core_security_list" "K8SWorkerSubnet" {
       source   = "${lookup(var.bmc_ingress_cidrs, "VCN-CIDR")}"
     },
     {
+      protocol = "all"
+      source   = "${var.cluster_cidr}"
+    },
+    {
       # External traffic
       tcp_options {
         "max" = 22

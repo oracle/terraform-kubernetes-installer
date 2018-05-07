@@ -17,6 +17,7 @@ resource "oci_core_instance" "TFInstanceK8sMaster" {
     hostname_label   = "${var.hostname_label_prefix}-${count.index}"
     assign_public_ip = "${(var.control_plane_subnet_access == "private") ? "false" : "true"}"
     private_ip       = "${var.assign_private_ip == "true" ? cidrhost(lookup(var.network_cidrs,var.subnet_name), count.index+2) : ""}"
+    skip_source_dest_check = "true"
   }
 
   extended_metadata {

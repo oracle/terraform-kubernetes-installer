@@ -271,7 +271,7 @@ check_cloud_init_finished
 check_system_services
 check_get_nodes
 check_kube-dns
-check_kube-flannel
+#check_kube-flannel
 check_nginx_deployment
 print_success
 

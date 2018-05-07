@@ -32,7 +32,7 @@ fi
 BROADCOM_DRIVER=$(lsmod | grep bnxt_en | awk '{print $1}')
 if [[ -n "$${BROADCOM_DRIVER}" ]]; then
    echo "Disabling hardware TX checksum offloading"
-   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx off
+   ethtool --offload $(ip -o -4 route show to default | awk '{print $5}') tx on
 fi
 
 # Download etcdctl client
@@ -137,11 +137,19 @@ docker run -d \
 
 ## kubelet for the master
 systemctl daemon-reload
+
+AVAILABILITY_DOMAIN=$(jq -r '.availabilityDomain' /tmp/instance_meta.json | sed 's/:/-/g')
+read COMPARTMENT_ID_0 COMPARTMENT_ID_1 <<< $(jq -r '.compartmentId' /tmp/instance_meta.json | perl -pe 's/(.*?\.){4}\K/ /g' | perl -pe 's/\.+\s/ /g')
 read NODE_ID_0 NODE_ID_1 <<< $(jq -r '.id' /tmp/instance_meta.json | perl -pe 's/(.*?\.){4}\K/ /g' | perl -pe 's/\.+\s/ /g')
+
 sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" \
-    -e "s/__SWAP_OPTION__/$SWAP_OPTION/g" \
+    -e "s/__EXT_IP__/$EXTERNAL_IP/g" \
+    -e "s/__AVAILABILITY_DOMAIN__/$AVAILABILITY_DOMAIN/g" \
+    -e "s/__COMPARTMENT_ID_PREFIX__/$COMPARTMENT_ID_0/g" \
+    -e "s/__COMPARTMENT_ID_SUFFIX__/$COMPARTMENT_ID_1/g" \
     -e "s/__NODE_ID_PREFIX__/$NODE_ID_0/g" \
     -e "s/__NODE_ID_SUFFIX__/$NODE_ID_1/g" \
+    -e "s/__SWAP_OPTION__/$SWAP_OPTION/g" \
      /root/services/kubelet.service >/etc/systemd/system/kubelet.service
 systemctl daemon-reload
 systemctl enable kubelet
@@ -154,21 +162,7 @@ until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do
 	sleep 3
 done
 
-# Install flannel
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/k8s-manifests/kube-flannel-rbac.yml
-
-## This could be done better
-curl -sSL https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/kube-flannel.yml | \
-    sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" \
-        -e "s#vxlan#${flannel_backend}#g" | \
-    kubectl apply -f -
-
-# Install oci cloud controller manager
-kubectl apply -f /root/cloud-controller-secret.yaml
-kubectl apply -f https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager-rbac.yaml
-curl -sSL https://github.com/oracle/oci-cloud-controller-manager/releases/download/${cloud_controller_version}/oci-cloud-controller-manager.yaml | \
-    sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" | \
-    kubectl apply -f -
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-incubator/ip-masq-agent/master/ip-masq-agent.yaml
 
 ## install kube-dns
 kubectl create -f /root/services/kube-dns.yaml

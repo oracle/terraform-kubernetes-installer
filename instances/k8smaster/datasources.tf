@@ -54,6 +54,8 @@ data "template_file" "kubelet-service" {
 
   vars = {
     k8s_ver = "${var.k8s_ver}"
+    region      = "${var.region}"
+    zone        = "${element(split(":",var.availability_domain),1)}"
   }
 }
 
