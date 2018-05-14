@@ -8,6 +8,8 @@ variable "hostname_label_prefix" {}
 variable "flannel_network_cidr" {}
 variable "flannel_backend" {}
 
+variable "kubernetes_network_plugin" {}
+
 variable "count" {
   default = "1"
 }
