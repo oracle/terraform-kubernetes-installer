@@ -14,7 +14,7 @@ The Kubernetes Installer for Oracle Cloud Infrastructure provides a Terraform-ba
 Cloud Infrastructure. It consists of a set of [Terraform][terraform] modules and an example base configuration that is
 used to provision and configure the resources needed to run a highly available and configurable Kubernetes cluster on [Oracle Cloud Infrastructure][oci] (OCI).
 
-**Warning: This installer is intended as a quickstart only and we do not offer any official support.**
+**Warning: Not for production use. This installer is intended as a quickstart only and we do not offer any official support.**
 
 ## Cluster Overview
 
