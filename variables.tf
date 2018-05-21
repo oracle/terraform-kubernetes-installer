@@ -30,7 +30,7 @@ variable "network_cidrs" {
 }
 
 variable "domain_name" {
-  default = "k8soci.oraclevcn.com"
+  default = "kubernetes.oraclevcn.com"
 }
 
 variable "user_ocid" {}
@@ -42,7 +42,7 @@ variable "region" {
 }
 
 variable "vcn_dns_name" {
-  default = "k8soci"
+  default = "kubernetes"
 }
 
 variable "disable_auto_retries" {
