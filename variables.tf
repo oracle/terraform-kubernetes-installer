@@ -1,4 +1,4 @@
-# BMCS Service
+# OCI Service
 variable "tenancy_ocid" {}
 
 variable "compartment_ocid" {}
@@ -50,7 +50,7 @@ variable "network_subnet_dns" {
 
 
 variable "domain_name" {
-  default = "k8sbmcs.oraclevcn.com"
+  default = "kubernetes.oraclevcn.com"
 }
 
 variable "user_ocid" {}
@@ -62,7 +62,7 @@ variable "region" {
 }
 
 variable "vcn_dns_name" {
-  default = "k8sbmcs"
+  default = "kubernetes"
 }
 
 variable "disable_auto_retries" {
