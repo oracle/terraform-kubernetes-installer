@@ -180,7 +180,7 @@ def _kubectl(action, exit_on_error=True):
 
 def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
     success = True
-    masterPublicLBAddress = None
+    masterPublicAddress = None
     try:
         if not no_create:
             _log("Creating K8s cluster from " + str(os.path.basename(tfvars_file)), as_banner=True)
@@ -191,8 +191,19 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         # Verify expected Terraform outputs are present
         _log("Verifying select Terraform outputs", as_banner=True)
         #  stdout = _terraform("output", "-json")
-        outputJSON = json.loads(_terraform("output -json master_lb_ip"))
-        masterPublicLBAddress = "https://" + outputJSON["value"][0] + ":443"
+
+        # Figure out which IP to us (master LB or instance itself)
+        masterLBIPOutputJSON = json.loads(_terraform("output -json master_lb_ip"))
+
+        if masterLBIPOutputJSON["value"] == []:
+            # Use the first public IP from master_public_ips
+            masterPublicIPsOutputJSON = json.loads(_terraform("output -json master_public_ips"))
+            masterPublicAddress = masterPublicIPsOutputJSON["value"][0]
+        else:
+            # Use the master LB public IP
+            masterPublicAddress = masterLBIPOutputJSON["value"][0]
+
+        masterURL = "https://" + masterPublicAddress + ":443"
 
         outputJSON = json.loads(_terraform("output -json worker_public_ips"))
         numWorkers = len(outputJSON["value"])
@@ -201,15 +212,15 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         outputJSON = json.loads(_terraform("output -json control_plane_subnet_access"))
         controlPlaneSubnetAccess = outputJSON["value"]
 
-        _log("K8s Master Public LB Address: " + masterPublicLBAddress)
+        _log("K8s Master URL: " + masterURL)
         _log("K8s Worker Public Addresses: " + str(workerPublicAddressList))
 
         # Verify master becomes ready
         _log("Waiting for /healthz end-point to become available", as_banner=True)
-        healthzOK = lambda: requests.get(masterPublicLBAddress + "/healthz",
+        healthzOK = lambda: requests.get(masterURL + "/healthz",
                                          proxies={}, verify=False).text == "ok"
         _wait_until(healthzOK, 600)
-        _log(requests.get(masterPublicLBAddress + "/healthz", proxies={}, verify=False).text)
+        _log(requests.get(masterURL + "/healthz", proxies={}, verify=False).text)
 
         # Verify worker nodes become ready
         _log("Waiting for " + str(numWorkers) + " K8s worker nodes to become ready", as_banner=True)
@@ -253,7 +264,7 @@ def _verifyConfig(tfvars_file, no_create=None, no_destroy=None):
         traceback.print_exc()
         success = False
     finally:
-        if masterPublicLBAddress != None:
+        if masterPublicAddress != None:
             _log("Undeploying the hello service", as_banner=True)
             _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/hello-service.yml", exit_on_error=False)
             _kubectl("delete -f " + TEST_ROOT_DIR + "/resources/frontend-service.yml", exit_on_error=False)
