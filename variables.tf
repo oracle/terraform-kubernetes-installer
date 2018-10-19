@@ -349,19 +349,19 @@ variable "k8s_dns_ver" {
 }
 
 variable "master_ol_image_name" {
-  default = "Oracle-Linux-7.5-2018.07.20-0"
+  default = "Oracle-Linux-7.5-Gen2-GPU-2018.09.25-0"
 }
 
 variable "worker_ol_image_name" {
-  default = "Oracle-Linux-7.5-2018.07.20-0"
+  default = "Oracle-Linux-7.5-Gen2-GPU-2018.09.25-0"
 }
 
 variable "etcd_ol_image_name" {
-  default = "Oracle-Linux-7.5-2018.07.20-0"
+  default = "Oracle-Linux-7.5-Gen2-GPU-2018.09.25-0"
 }
 
 variable "nat_ol_image_name" {
-  default = "Oracle-Linux-7.5-2018.07.20-0"
+  default = "Oracle-Linux-7.5-Gen2-GPU-2018.09.25-0"
 }
 
 variable "control_plane_subnet_access" {
