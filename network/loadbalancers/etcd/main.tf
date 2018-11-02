@@ -39,7 +39,7 @@ resource "oci_load_balancer_listener" "port-2379" {
   count                    = "${var.etcd_lb_enabled == "true" ? 1 : 0 }"
   load_balancer_id         = "${oci_load_balancer.lb-etcd.id}"
   name                     = "port-2379"
-  default_backend_set_name = "${oci_load_balancer_backendset.lb-etcd-backendset-2379.id}"
+  default_backend_set_name = "${oci_load_balancer_backendset.lb-etcd-backendset-2379.name}"
   port                     = 2379
   protocol                 = "TCP"
 }
@@ -48,7 +48,7 @@ resource "oci_load_balancer_listener" "port-2380" {
   count                    = "${var.etcd_lb_enabled == "true" ? 1 : 0 }"
   load_balancer_id         = "${oci_load_balancer.lb-etcd.id}"
   name                     = "port-2380"
-  default_backend_set_name = "${oci_load_balancer_backendset.lb-etcd-backendset-2380.id}"
+  default_backend_set_name = "${oci_load_balancer_backendset.lb-etcd-backendset-2380.name}"
   port                     = 2380
   protocol                 = "TCP"
 }
