@@ -24,7 +24,7 @@ variable "docker_ver" {
 }
 
 variable "oracle_linux_image_name" {
-  default = "Oracle-Linux-7.4-2018.01.20-0"
+  default = "Oracle-Linux-7.5-2018.10.16-0"
 }
 
 variable "etcd_ver" {
