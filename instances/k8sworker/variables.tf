@@ -26,18 +26,18 @@ variable "ssh_public_key_openssh" {}
 variable "ssh_private_key" {}
 
 variable "docker_ver" {
-  default = "17.06.2.ol"
+  default = "18.03.1.ol"
 }
 
 variable "oracle_linux_image_name" {
-  default = "Oracle-Linux-7.4-2018.01.20-0"
+  default = "Oracle-Linux-7.5-2018.07.20-0"
 }
 
 # Kubernetes
 variable "master_lb" {}
 
 variable "k8s_ver" {
-  default = "1.8.5"
+  default = "1.11.1"
 }
 
 variable "root_ca_pem" {}

@@ -176,7 +176,7 @@ sed -e "s/__FQDN_HOSTNAME__/$FQDN_HOSTNAME/g" \
 
 ${reverse_proxy_setup}
 ## Wait for k8s master to be available. There is a possible race on pod networks otherwise.
-until [ "$(curl -k --cert /etc/kubernetes/ssl/apiserver.pem --key /etc/kubernetes/ssl/apiserver-key.pem $K8S_API_SERVER_LB/healthz 2>/dev/null)" == "ok" ]; do
+until [ "$(curl -k --cert /etc/kubernetes/ssl/apiserver.pem --key /etc/kubernetes/ssl/apiserver-key.pem $K8S_API_SERVER_LB/  2>/dev/null)" == "ok" ]; do
 	sleep 3
 done
 

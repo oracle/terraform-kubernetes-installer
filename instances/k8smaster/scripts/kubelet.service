@@ -10,16 +10,16 @@ ExecStart=/usr/bin/kubelet \
   --container-runtime=docker \
   --hostname-override=__FQDN_HOSTNAME__ \
   --kubeconfig=/etc/kubernetes/manifests/master-kubeconfig.yaml \
-  --require-kubeconfig=true \
   --network-plugin=cni \
   --node-labels node-role.kubernetes.io/master= \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --register-node=true \
   --cloud-provider=external \
-  --feature-gates=ExperimentalCriticalPodAnnotation=true,Accelerators=true \
+  --healthz-port=8080 \
+  --feature-gates=ExperimentalCriticalPodAnnotation=true\
   --provider-id=__NODE_ID_PREFIX__.__NODE_ID_SUFFIX__ \
   --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
-  __SWAP_OPTION__ --v=2
+  --fail-swap-on=false --v=2
 Restart=always
 RestartSec=10
 [Install]

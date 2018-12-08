@@ -147,7 +147,6 @@ systemctl daemon-reload
 systemctl enable kubelet
 systemctl start kubelet
 
-until kubectl get all; do sleep 1 && echo -n "."; done
 
 ## Wait for k8s master to be available. There is a possible race on pod networks otherwise.
 until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do

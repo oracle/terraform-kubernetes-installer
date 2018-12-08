@@ -36,11 +36,11 @@ variable "label_prefix" {
 variable "ssh_public_key_openssh" {}
 
 variable "docker_ver" {
-  default = "17.06.2.ol"
+  default = "18.03.1.ol"
 }
 
 variable "oracle_linux_image_name" {
-  default = "Oracle-Linux-7.4-2018.01.20-0"
+  default = "Oracle-Linux-7.5-2018.07.20-0"
 }
 
 variable "etcd_ver" {
@@ -48,14 +48,14 @@ variable "etcd_ver" {
 }
 
 variable "flannel_ver" {
-  default = "v0.9.1"
+  default = "v0.10.0"
 }
 
 variable "ssh_private_key" {}
 
 # Kubernetes
 variable "k8s_ver" {
-  default = "1.8.5"
+  default = "1.11.1"
 }
 
 variable "k8s_dashboard_ver" {
@@ -63,7 +63,7 @@ variable "k8s_dashboard_ver" {
 }
 
 variable "k8s_dns_ver" {
-  default = "1.14.2"
+  default = "1.14.5"
 }
 
 variable "api_server_count" {}

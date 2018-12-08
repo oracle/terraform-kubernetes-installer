@@ -325,7 +325,7 @@ variable "api_server_admin_token" {
 }
 
 variable "docker_ver" {
-  default = "17.06.2.ol"
+  default = "18.03.1.ol"
 }
 
 variable "etcd_ver" {
@@ -333,11 +333,11 @@ variable "etcd_ver" {
 }
 
 variable "flannel_ver" {
-  default = "v0.9.1"
+  default = "v0.10.0"
 }
 
 variable "k8s_ver" {
-  default = "1.9.6"
+  default = "1.11.1"
 }
 
 variable "k8s_dashboard_ver" {
@@ -345,7 +345,7 @@ variable "k8s_dashboard_ver" {
 }
 
 variable "k8s_dns_ver" {
-  default = "1.14.2"
+  default = "1.14.5"
 }
 
 variable "master_ol_image_name" {
@@ -505,4 +505,31 @@ variable "volume_provisioner_user_private_key_path" {
 
 variable "volume_provisioner_user_private_key_password" {
   default = ""
+}
+
+variable "ingress_cidrs" {
+  type = "map"
+
+  default = {
+    ADC-CIDR = "137.254.7.160/27"
+    WHQ-CIDR = "148.87.23.0/27"
+    RMDC-CIDR = "148.87.66.160/27"
+    Seattle-CIDR = "209.17.37.96/27"
+    ASH-CIDR = "209.17.40.32/27"
+    UK-CIDR = "141.143.217.128/27"
+    India-CIDR = "196.15.23.0/27"
+    Brazil-CIDR = "198.49.164.160/27"
+    Singapore-CIDR = "198.17.70.0/27"
+    NEW-Singapore-CIDR = "192.188.170.80/28"
+    Japan-CIDR = "202.45.129.176/28"
+    Sydney-CIDR = "202.92.67.176/29"
+    Utrecht-CIDR = "141.143.193.64/27"
+    WWW-PROXY-CIDR = "148.87.19.0/24"
+    LBAAS-PHOENIX-1-CIDR = "129.144.0.0/12"
+    LBAAS-ASHBURN-1-CIDR = "129.213.0.0/16"
+    BMC-CIDR = "129.144.0.0/12"
+    VCN-CIDR = "10.0.0.0/16"
+    VPN-CIDR = "156.151.0.0/16"
+    OCNA-CIDR = "160.34.0.0/16"
+  }
 }
