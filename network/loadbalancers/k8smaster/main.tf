@@ -26,7 +26,7 @@ resource "oci_load_balancer_listener" "port-https" {
   count                    = "${var.master_oci_lb_enabled == "true" ? 1 : 0 }"
   load_balancer_id         = "${oci_load_balancer.lb-k8smaster.id}"
   name                     = "port-https"
-  default_backend_set_name = "${oci_load_balancer_backendset.lb-k8smaster-https.id}"
+  default_backend_set_name = "${oci_load_balancer_backendset.lb-k8smaster-https.name}"
   port                     = 443
   protocol                 = "TCP"
 }
