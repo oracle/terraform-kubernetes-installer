@@ -7,14 +7,14 @@ resource "oci_core_instance" "TFInstanceEtcd" {
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
-  hostname_label      = "${var.hostname_label_prefix}-${count.index}"
+  hostname_label      = "${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
   image               = "${lookup(data.oci_core_images.ImageOCID.images[0], "id")}"
   shape               = "${var.shape}"
 
   create_vnic_details {
     subnet_id         = "${var.subnet_id}"
     display_name      = "${var.label_prefix}${var.display_name_prefix}-${count.index}"
-    hostname_label    = "${var.hostname_label_prefix}-${count.index}"
+    hostname_label    = "${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
     assign_public_ip  = "${(var.control_plane_subnet_access == "private") ? "false" : "true"}"
     private_ip        = "${var.assign_private_ip == "true" ? cidrhost(lookup(var.network_cidrs,var.subnet_name), count.index+2) : ""}"
   },
@@ -41,7 +41,7 @@ resource "oci_core_volume" "TFVolumeInstanceEtcd" {
   count               = "${var.etcd_iscsi_volume_create ? var.count : 0}"
   availability_domain = "${var.availability_domain}"
   compartment_id      = "${var.compartment_ocid}"
-  display_name        = "block-volume-${var.hostname_label_prefix}-${count.index}"
+  display_name        = "block-volume-${var.label_prefix}${var.hostname_label_prefix}-${count.index}"
   size_in_gbs         = "${var.etcd_iscsi_volume_size}"
 }
 
