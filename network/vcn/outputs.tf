@@ -100,6 +100,42 @@ output "nat_instance_ad3_public_ips" {
   value = ["${oci_core_instance.NATInstanceAD3.*.public_ip}"]
 }
 
+output "bastion_subnet_ad1_id" {
+  value = "${oci_core_subnet.BastionSubnetAD1.*.id}"
+}
+
+output "bastion_subnet_ad2_id" {
+  value = "${oci_core_subnet.BastionSubnetAD2.*.id}"
+}
+
+output "bastion_subnet_ad3_id" {
+  value = "${oci_core_subnet.BastionSubnetAD3.*.id}"
+}
+
+output "bastion_instance_ad1_private_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD1.*.private_ip}"]
+}
+
+output "bastion_instance_ad1_public_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD1.*.public_ip}"]
+}
+
+output "bastion_instance_ad2_private_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD2.*.private_ip}"]
+}
+
+output "bastion_instance_ad2_public_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD2.*.public_ip}"]
+}
+
+output "bastion_instance_ad3_private_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD3.*.private_ip}"]
+}
+
+output "bastion_instance_ad3_public_ips" {
+  value = ["${oci_core_instance.BastionInstanceAD3.*.public_ip}"]
+}
+
 output "control_plane_subnet_access" {
   value = "${var.control_plane_subnet_access}"
 }

@@ -58,6 +58,10 @@ output "nat_subnet_ids" {
   value = ["${module.vcn.nat_subnet_ad1_id}", "${module.vcn.nat_subnet_ad2_id}", "${module.vcn.nat_subnet_ad3_id}", ""]
 }
 
+output "bastion_subnet_ids" {
+  value = ["${module.vcn.bastion_subnet_ad1_id}", "${module.vcn.bastion_subnet_ad2_id}", "${module.vcn.bastion_subnet_ad3_id}", ""]
+}
+
 output "worker_ssh_ingress_cidr" {
   value = "${var.worker_ssh_ingress}"
 }
@@ -151,6 +155,14 @@ output "nat_instance_public_ips" {
 
 output "nat_instance_private_ips" {
   value = "${compact(concat(module.vcn.nat_instance_ad1_private_ips,module.vcn.nat_instance_ad2_private_ips,module.vcn.nat_instance_ad3_private_ips))}"
+}
+
+output "bastion_instance_public_ips" {
+  value = "${compact(concat(module.vcn.bastion_instance_ad1_public_ips,module.vcn.bastion_instance_ad2_public_ips,module.vcn.bastion_instance_ad3_public_ips))}"
+}
+
+output "bastion_instance_private_ips" {
+  value = "${compact(concat(module.vcn.bastion_instance_ad1_private_ips,module.vcn.bastion_instance_ad2_private_ips,module.vcn.bastion_instance_ad3_private_ips))}"
 }
 
 output "control_plane_subnet_access" {
